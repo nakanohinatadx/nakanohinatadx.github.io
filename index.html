@@ -1,175 +1,101 @@
 <!DOCTYPE html>
-<html lang="zh-TW" class="h-full">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taiwan Live Stream & Location</title>
+    <title>控制中心與子頁面導航 | Web Dashboard</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Leaflet CSS & JS for OpenStreetMap -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        /* Custom scrollbar & map container styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
-        }
-        /* Leaflet Map Custom dark theme tweaks */
-        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-            background-color: #1e293b !important;
-            color: #f8fafc !important;
-            border: 1px solid #334155;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-        }
-        .leaflet-container {
-            font-family: inherit !important;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-950 text-slate-100 h-full flex flex-col font-sans overflow-x-hidden antialiased">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
 
-    <!-- Header Navbar -->
-    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 py-3 shrink-0 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <!-- 頂部導航列 -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="p-2 bg-indigo-600/20 text-indigo-400 rounded-lg border border-indigo-500/30">
-                    <i data-lucide="map-pin" class="w-5 h-5"></i>
+                <div class="bg-indigo-600 p-2 rounded-lg">
+                    <i class="fa-solid fa-server text-white text-lg"></i>
                 </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight tracking-wide text-slate-100 flex items-center gap-2">
-                        Taiwan Live Stream & Location
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
-                            LIVE
-                        </span>
-                    </h1>
-                    <p class="text-xs text-slate-400">Lat: 25.076717, Long: 121.232405 (Taiwan)</p>
-                </div>
+                <h1 class="font-bold text-xl tracking-wide bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+                    系統服務控制中心
+                </h1>
             </div>
-            
-            <div class="hidden sm:flex items-center space-x-3 text-xs text-slate-400">
-                <span class="px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700/60 flex items-center gap-1.5">
-                    <i data-lucide="globe" class="w-3.5 h-3.5 text-indigo-400"></i> OpenStreetMap
-                </span>
-                <span class="px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700/60 flex items-center gap-1.5">
-                    <i data-lucide="youtube" class="w-3.5 h-3.5 text-red-400"></i> YouTube Stream
-                </span>
+            <!-- 未來連線到 Server API 的狀態提示 -->
+            <div id="server-status" class="flex items-center space-x-2 text-xs bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-slate-300 font-mono">Server API: Ready</span>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Split Screen Container -->
-    <main class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 max-w-[1920px] w-full mx-auto min-h-0">
-        
-        <!-- Left Column: OpenStreetMap Container -->
-        <section class="flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl relative min-h-[350px] lg:min-h-0">
-            <!-- Map Bar Header -->
-            <div class="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between z-10 shrink-0">
-                <div class="flex items-center space-x-2">
-                    <i data-lucide="compass" class="w-4 h-4 text-indigo-400"></i>
-                    <span class="text-xs font-semibold tracking-wider text-slate-300 uppercase">Interactive Map</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button id="recenterBtn" title="Recenter Map" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded transition flex items-center gap-1">
-                        <i data-lucide="locate-fixed" class="w-3 h-3"></i> Recenter
-                    </button>
-                </div>
-            </div>
-            <!-- Leaflet Map Canvas Container -->
-            <div id="map" class="w-full h-full flex-1 z-0"></div>
-        </section>
+    <!-- 主要內容區塊 -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-10">
+        <!-- 歡迎與說明 -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-2">子系統導覽頁面</h2>
+            <p class="text-slate-400 text-sm">點擊下方卡片即可前往對應的即時監控與地圖串流功能頁面。</p>
+        </div>
 
-        <!-- Right Column: Embedded YouTube Stream Container -->
-        <section class="flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl min-h-[350px] lg:min-h-0">
-            <!-- Stream Bar Header -->
-            <div class="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between shrink-0">
-                <div class="flex items-center space-x-2">
-                    <i data-lucide="video" class="w-4 h-4 text-red-500"></i>
-                    <span class="text-xs font-semibold tracking-wider text-slate-300 uppercase">Live Video Stream</span>
-                </div>
-                <a href="https://www.youtube.com/watch?v=91PfFoqvuUk" target="_blank" rel="noopener noreferrer" 
-                   class="text-xs text-slate-400 hover:text-white transition flex items-center gap-1 bg-slate-800 hover:bg-slate-700 px-2.5 py-1 border border-slate-700 rounded">
-                    Open in YouTube <i data-lucide="external-link" class="w-3 h-3"></i>
-                </a>
-            </div>
+        <!-- 模組功能卡片列表 (Grid) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            <!-- Video Wrapper with Aspect Ratio Preservation -->
-            <div class="relative flex-1 w-full h-full bg-black flex items-center justify-center overflow-hidden">
-                <iframe 
-                    class="absolute top-0 left-0 w-full h-full border-0"
-                    src="https://www.youtube.com/embed/91PfFoqvuUk?autoplay=1&mute=1&playsinline=1" 
-                    title="YouTube Video Stream" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowfullscreen>
-                </iframe>
+            <!-- 卡片 1：直播與 OSM 地圖定位頁面 -->
+            <a href="01_Live_Stream_Location.html" class="group relative bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 hover:border-indigo-500/50 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                            <i class="fa-solid fa-map-location-dot text-2xl"></i>
+                        </div>
+                        <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-slate-700 text-indigo-300 border border-slate-600">Module #01</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">
+                        台灣地區即時地圖與串流
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                        整合 OpenStreetMap 台灣座標（桃園）與 YouTube 即時影像，支援響應式雙欄佈局。
+                    </p>
+                </div>
+
+                <div class="pt-4 border-t border-slate-700/50 flex items-center justify-between text-xs text-slate-400">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Active
+                    </span>
+                    <span class="text-indigo-400 font-medium group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                        進入頁面 <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- 卡片 2：預留未來擴充頁面 (範例) -->
+            <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-6 opacity-60 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-slate-800 text-slate-500 rounded-xl">
+                            <i class="fa-solid fa-gears text-2xl"></i>
+                        </div>
+                        <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-slate-800 text-slate-500">Module #02</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-400 mb-2">
+                        伺服器 API 數據控制台
+                    </h3>
+                    <p class="text-slate-500 text-sm leading-relaxed mb-4">
+                        （預留位置）未來可整合 Backend Server 傳回的即時數據與裝置控制介面。
+                    </p>
+                </div>
+                <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-600">
+                    <span>Planned</span>
+                    <span>Coming Soon</span>
+                </div>
             </div>
-        </section>
-        
+
+        </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900/60 border-t border-slate-800/80 px-4 py-2 text-center text-xs text-slate-500 shrink-0">
-        Deployed on GitHub Pages • Map Data © <a href="https://www.openstreetmap.org/copyright" target="_blank" class="underline hover:text-slate-400">OpenStreetMap</a> contributors
+    <!-- 頁尾 -->
+    <footer class="border-t border-slate-800 text-center py-6 text-xs text-slate-500">
+        <p>&copy; 2026 Dashboard Hub. Hosted on GitHub Pages.</p>
     </footer>
 
-    <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
-
-        // Target coordinates in Taiwan (Dayuan / Taoyuan Airport area)
-        const targetLat = 25.076717;
-        const targetLng = 121.232405;
-        const initialZoom = 14;
-
-        // Initialize OpenStreetMap via Leaflet.js
-        const map = L.map('map', {
-            zoomControl: true,
-            attributionControl: true
-        }).setView([targetLat, targetLng], initialZoom);
-
-        // Add standard OpenStreetMap tiles
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-
-        // Custom Pin Icon Marker
-        const customMarker = L.marker([targetLat, targetLng]).addTo(map);
-        
-        // Add interactive popup
-        customMarker.bindPopup(`
-            <div class="p-1 text-center">
-                <h3 class="font-bold text-sm text-slate-100 mb-1">Taiwan Target Location</h3>
-                <p class="text-xs text-slate-300 font-mono mb-2">25.076717, 121.232405</p>
-                <a href="https://www.google.com/maps/search/?api=1&query=${targetLat},${targetLng}" target="_blank" class="inline-block text-[11px] text-indigo-400 hover:underline">View on Google Maps &rarr;</a>
-            </div>
-        `).openPopup();
-
-        // Recenter Button logic
-        document.getElementById('recenterBtn').addEventListener('click', () => {
-            map.flyTo([targetLat, targetLng], initialZoom, {
-                duration: 1.2
-            });
-            customMarker.openPopup();
-        });
-
-        // Ensure map renders properly on window resizing
-        window.addEventListener('resize', () => {
-            map.invalidateSize();
-        });
-    </script>
 </body>
 </html>
