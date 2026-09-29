@@ -13,8 +13,22 @@
         .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #0f172a; color: #f8fafc; border: 1px solid #334155; }
         .leaflet-container { font: inherit; background: #0b1220; }
         .camera-layout { grid-template-columns: minmax(0, 1fr); }
-        @media (min-width: 1280px) {
-            .camera-layout { grid-template-columns: minmax(0, 65fr) minmax(360px, 35fr); }
+        body { height: 100dvh; overflow: hidden; }
+        main { min-height: 0; }
+        .map-panel { height: 100%; min-height: 0; }
+        .floating-player { position: fixed; z-index: 1200; right: 1rem; bottom: 1rem; width: min(420px, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); box-shadow: 0 20px 60px rgb(0 0 0 / .6); }
+        .floating-player .player-video { flex: none; }
+        body.player-expanded > header, body.player-expanded > footer { display: none; }
+        body.player-expanded > main { display: block; padding: 0; }
+        body.player-expanded > main > section:not(.camera-layout) { display: none; }
+        body.player-expanded .camera-layout { display: block; }
+        body.player-expanded .map-panel { display: none; }
+        body.player-expanded #playerPanel { position: fixed; inset: 0; z-index: 2000; width: 100%; height: 100dvh; max-height: none; border: 0; border-radius: 0; }
+        body.player-expanded #playerPanel .player-video { flex: 1; min-height: 0; aspect-ratio: auto; }
+        body.player-expanded #playerPanel .player-details { overflow-y: auto; max-height: 36vh; }
+        @media (max-width: 640px) {
+            .floating-player { right: .5rem; bottom: .5rem; width: min(360px, calc(100vw - 1rem)); max-height: 60dvh; }
+            body.player-expanded #playerPanel .player-details { max-height: 42dvh; }
         }
         .leaflet-div-icon.camera-emoji-marker { background: transparent; border: 0; }
         .camera-emoji-marker { display: grid; place-items: center; font-size: 23px; line-height: 1; filter: drop-shadow(0 1px 2px #020617); }
@@ -47,7 +61,7 @@
         </section>
 
         <section class="camera-layout flex-1 grid grid-cols-1 gap-3 min-h-0">
-            <div class="relative h-[70vh] min-h-[560px] rounded-xl border border-slate-800 overflow-hidden bg-slate-900">
+            <div class="map-panel relative h-full min-h-0 rounded-xl border border-slate-800 overflow-hidden bg-slate-900">
                 <div id="map" class="absolute inset-0"></div>
                 <div id="categoryControl" class="absolute top-3 left-3 z-[1000] max-w-[calc(100%-5rem)]">
                     <button id="categoryMenuButton" type="button" aria-expanded="false" aria-controls="categoryMenuPanel" class="rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-slate-800 flex items-center gap-2">
@@ -69,18 +83,18 @@
                 </div>
                 <div id="mapError" class="hidden absolute inset-0 z-[500] bg-slate-950/95 p-6 flex items-center justify-center text-center text-sm text-rose-300"></div>
             </div>
-            <aside class="h-[70vh] min-h-[560px] rounded-xl border border-slate-800 bg-slate-900 overflow-hidden flex flex-col">
+            <aside id="playerPanel" class="floating-player hidden rounded-xl border border-slate-700 bg-slate-900 overflow-hidden flex flex-col">
                 <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                    <h2 class="text-sm font-semibold flex items-center gap-2"><i data-lucide="radio" class="w-4 h-4 text-rose-400"></i> YouTube ライブ映像</h2>
-                    <span id="selectedIndex" class="font-mono text-xs text-slate-500"></span>
+                    <div><h2 class="text-sm font-semibold flex items-center gap-2"><i data-lucide="radio" class="w-4 h-4 text-rose-400"></i> YouTube ライブ映像</h2><span id="selectedIndex" class="font-mono text-xs text-slate-500"></span></div>
+                    <div class="flex items-center gap-2"><button id="expandPlayer" type="button" class="rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-slate-800">拡大</button><button id="mapBackButton" type="button" class="hidden rounded-lg border border-emerald-600 bg-emerald-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-600">🗺 Map</button></div>
                 </div>
-                <div class="relative w-full aspect-video bg-black">
+                <div class="player-video relative w-full aspect-video bg-black">
                     <div id="playerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center text-slate-500 p-6">
                         <i data-lucide="video" class="w-8 h-8"></i><p class="text-sm">地図上のカメラを選択してください</p>
                     </div>
                     <iframe id="youtubePlayer" class="hidden absolute inset-0 w-full h-full border-0" title="YouTube ライブ映像" allow="autoplay; encrypted-media; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </div>
-                <div class="p-4 flex-1 flex flex-col gap-3">
+                <div class="player-details p-4 flex-1 flex flex-col gap-3">
                     <div>
                         <h3 id="cameraTitle" class="font-semibold leading-snug">カメラが選択されていません</h3>
                         <p id="cameraLocation" class="text-xs text-slate-400 mt-1"></p>
@@ -149,7 +163,10 @@
             message: document.getElementById('playerMessage'),
             index: document.getElementById('selectedIndex'),
             youtubeLink: document.getElementById('youtubeLink'),
-            sourceLink: document.getElementById('sourceLink')
+            sourceLink: document.getElementById('sourceLink'),
+            playerPanel: document.getElementById('playerPanel'),
+            expandPlayer: document.getElementById('expandPlayer'),
+            mapBackButton: document.getElementById('mapBackButton')
         };
 
         L.DomEvent.disableClickPropagation(document.getElementById('categoryControl'));
@@ -309,6 +326,7 @@
 
         function selectRecord(record, marker) {
             activeRecordIndex = record.mapIndex;
+            elements.playerPanel.classList.remove('hidden');
             if (activeMarker?._icon) activeMarker._icon.classList.remove('selected');
             activeMarker = marker;
             if (activeMarker?._icon) activeMarker._icon.classList.add('selected');
@@ -410,6 +428,18 @@
             }
         }
 
+        elements.expandPlayer.addEventListener('click', () => {
+            document.body.classList.add('player-expanded');
+            elements.expandPlayer.classList.add('hidden');
+            elements.mapBackButton.classList.remove('hidden');
+            setTimeout(() => map.invalidateSize(), 50);
+        });
+        elements.mapBackButton.addEventListener('click', () => {
+            document.body.classList.remove('player-expanded');
+            elements.mapBackButton.classList.add('hidden');
+            elements.expandPlayer.classList.remove('hidden');
+            setTimeout(() => map.invalidateSize(), 50);
+        });
         elements.search.addEventListener('input', applyFilters);
         elements.categoryMenuButton.addEventListener('click', () => {
             const isOpen = elements.categoryMenuButton.getAttribute('aria-expanded') === 'true';
