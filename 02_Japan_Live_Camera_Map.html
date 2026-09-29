@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日本即時攝影機地圖 | Japan Live Camera Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        html, body { min-height: 100%; }
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #0f172a; color: #f8fafc; border: 1px solid #334155; }
+        .leaflet-container { font: inherit; background: #0b1220; }
+        .camera-marker { background: #34d399; border: 2px solid #052e2b; border-radius: 9999px; box-shadow: 0 0 0 2px rgb(52 211 153 / 35%); }
+        .camera-marker.selected { background: #fb7185; box-shadow: 0 0 0 4px rgb(251 113 133 / 35%); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-full flex flex-col font-sans antialiased">
+    <header class="bg-slate-900/90 border-b border-slate-800 px-4 py-3 shrink-0">
+        <div class="max-w-[1920px] mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <a href="index.html" title="返回控制中心" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"><i data-lucide="arrow-left" class="w-4 h-4"></i></a>
+                <div>
+                    <h1 class="font-bold text-lg">日本即時攝影機地圖</h1>
+                    <p class="text-xs text-slate-400">點選地圖標記載入 YouTube 直播或影片</p>
+                </div>
+            </div>
+            <div class="text-xs text-slate-400 flex items-center gap-2"><i data-lucide="map" class="w-4 h-4 text-emerald-400"></i> OpenStreetMap <span class="text-slate-600">•</span> <span id="loadStatus">載入攝影機資料中…</span></div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-[1920px] w-full mx-auto p-3 sm:p-4 flex flex-col gap-3 min-h-0">
+        <section class="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 p-3">
+            <label class="relative flex-1 min-w-[190px]">
+                <span class="sr-only">搜尋攝影機</span>
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                <input id="searchInput" type="search" placeholder="搜尋地點、名稱或地區" class="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-3 text-sm outline-none focus:border-indigo-500">
+            </label>
+            <label>
+                <span class="sr-only">依分類篩選</span>
+                <select id="categoryFilter" class="max-w-[250px] rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-200 outline-none focus:border-indigo-500">
+                    <option value="">所有分類</option>
+                </select>
+            </label>
+            <button id="recenterBtn" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm hover:bg-slate-700 flex items-center gap-2"><i data-lucide="locate-fixed" class="w-4 h-4"></i>顯示全部</button>
+            <span id="resultCount" class="text-xs text-slate-400 px-1">—</span>
+        </section>
+
+        <section class="flex-1 grid grid-cols-1 xl:grid-cols-[minmax(0,1.4fr)_minmax(360px,0.8fr)] gap-3 min-h-[70vh] xl:min-h-0">
+            <div class="relative min-h-[55vh] xl:min-h-[620px] rounded-xl border border-slate-800 overflow-hidden bg-slate-900">
+                <div id="map" class="absolute inset-0"></div>
+                <div id="mapError" class="hidden absolute inset-0 z-[500] bg-slate-950/95 p-6 flex items-center justify-center text-center text-sm text-rose-300"></div>
+            </div>
+            <aside class="min-h-[420px] rounded-xl border border-slate-800 bg-slate-900 overflow-hidden flex flex-col">
+                <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                    <h2 class="text-sm font-semibold flex items-center gap-2"><i data-lucide="radio" class="w-4 h-4 text-rose-400"></i> YouTube 即時影像</h2>
+                    <span id="selectedIndex" class="font-mono text-xs text-slate-500"></span>
+                </div>
+                <div class="relative w-full aspect-video bg-black">
+                    <div id="playerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center text-slate-500 p-6">
+                        <i data-lucide="video" class="w-8 h-8"></i><p class="text-sm">請點選地圖上的攝影機</p>
+                    </div>
+                    <iframe id="youtubePlayer" class="hidden absolute inset-0 w-full h-full border-0" title="YouTube 即時影像" allow="autoplay; encrypted-media; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+                <div class="p-4 flex-1 flex flex-col gap-3">
+                    <div>
+                        <h3 id="cameraTitle" class="font-semibold leading-snug">尚未選取攝影機</h3>
+                        <p id="cameraLocation" class="text-xs text-slate-400 mt-1"></p>
+                    </div>
+                    <div id="cameraCategories" class="flex flex-wrap gap-1.5"></div>
+                    <p id="playerMessage" class="text-xs text-slate-500 leading-relaxed">選取標記後，若資料有直播影片或頻道 ID，播放器會嘗試載入。部分頻道不允許嵌入播放。</p>
+                    <div class="mt-auto flex flex-wrap gap-2 text-xs">
+                        <a id="youtubeLink" class="hidden rounded-lg bg-rose-600 hover:bg-rose-500 px-3 py-2 font-medium text-white" target="_blank" rel="noopener noreferrer">在 YouTube 開啟</a>
+                        <a id="sourceLink" class="hidden rounded-lg border border-slate-700 hover:bg-slate-800 px-3 py-2 text-slate-300" target="_blank" rel="noopener noreferrer">Cametan 原始頁</a>
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <footer class="border-t border-slate-800 bg-slate-900/70 px-4 py-2 text-center text-xs text-slate-500">
+        地圖資料 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" class="underline hover:text-slate-300">OpenStreetMap</a> 貢獻者 • 攝影機來源 Cametan • 影片來源 YouTube
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        const DATA_URL = './dB/map_embeded_db.json';
+        const map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([36.2, 138.2], 5);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        const markerLayer = L.layerGroup().addTo(map);
+        const markerByIndex = new Map();
+        let records = [];
+        let taxonomyNames = {};
+        let allBounds = null;
+
+        const elements = {
+            status: document.getElementById('loadStatus'),
+            count: document.getElementById('resultCount'),
+            search: document.getElementById('searchInput'),
+            category: document.getElementById('categoryFilter'),
+            error: document.getElementById('mapError'),
+            player: document.getElementById('youtubePlayer'),
+            placeholder: document.getElementById('playerPlaceholder'),
+            title: document.getElementById('cameraTitle'),
+            location: document.getElementById('cameraLocation'),
+            categories: document.getElementById('cameraCategories'),
+            message: document.getElementById('playerMessage'),
+            index: document.getElementById('selectedIndex'),
+            youtubeLink: document.getElementById('youtubeLink'),
+            sourceLink: document.getElementById('sourceLink')
+        };
+
+        function categoryLabel(id) {
+            return taxonomyNames[id] || id;
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[char]);
+        }
+
+        function popupContent(record) {
+            const wrap = document.createElement('div');
+            wrap.className = 'min-w-44';
+            const title = document.createElement('strong');
+            title.className = 'block text-sm mb-1';
+            title.textContent = record.name || record.location?.name || `Camera ${record.mapIndex}`;
+            const location = document.createElement('span');
+            location.className = 'block text-xs text-slate-300';
+            location.textContent = [record.location?.locality, record.location?.region].filter(Boolean).join('、');
+            const action = document.createElement('span');
+            action.className = 'block text-xs text-emerald-300 mt-2';
+            action.textContent = '已在右側載入影像';
+            wrap.append(title, location, action);
+            return wrap;
+        }
+
+        function getPlayerSource(record) {
+            const video = (record.youtube?.videos || []).find(item => /^[\w-]{11}$/.test(item.videoId || ''));
+            if (video) {
+                return {
+                    embed: `https://www.youtube.com/embed/${encodeURIComponent(video.videoId)}?autoplay=1&mute=1&playsinline=1`,
+                    link: video.url || `https://www.youtube.com/watch?v=${encodeURIComponent(video.videoId)}`,
+                    message: '已載入資料庫中的 YouTube 影片。播放器以靜音自動播放；可在播放器中取消靜音。'
+                };
+            }
+            const channel = (record.youtube?.channels || []).find(item => item.id && /^[\w-]{20,30}$/.test(item.id));
+            if (channel) {
+                return {
+                    embed: `https://www.youtube.com/embed/live_stream?channel=${encodeURIComponent(channel.id)}&autoplay=1&mute=1&playsinline=1`,
+                    link: channel.url || `https://www.youtube.com/channel/${encodeURIComponent(channel.id)}/live`,
+                    message: '此攝影機沒有固定影片 ID，播放器會嘗試播放該頻道目前的直播。若目前沒有直播或頻道限制嵌入，請使用 YouTube 連結。'
+                };
+            }
+            const channelUrl = record.youtube?.channels?.find(item => item.url)?.url;
+            return {
+                embed: '',
+                link: channelUrl || record.youtube?.videos?.[0]?.url || '',
+                message: channelUrl ? '資料只有頻道連結，沒有可直接嵌入的影片 ID；請在 YouTube 開啟頻道直播。' : '此攝影機資料沒有可用的 YouTube 播放或頻道連結。'
+            };
+        }
+
+        function selectRecord(record, marker) {
+            elements.player.src = '';
+            const source = getPlayerSource(record);
+            elements.title.textContent = record.name || record.location?.name || `Camera ${record.mapIndex}`;
+            elements.location.textContent = [record.location?.name, record.location?.locality, record.location?.region].filter(Boolean).join(' · ');
+            elements.index.textContent = `#${record.mapIndex}`;
+            elements.message.textContent = source.message;
+            elements.categories.replaceChildren();
+            for (const id of record.categoryIds || []) {
+                const badge = document.createElement('span');
+                badge.className = 'rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2 py-1 text-[11px] text-indigo-200';
+                badge.textContent = categoryLabel(id);
+                elements.categories.append(badge);
+            }
+            if (source.embed) {
+                elements.player.src = source.embed;
+                elements.player.classList.remove('hidden');
+                elements.placeholder.classList.add('hidden');
+            } else {
+                elements.player.classList.add('hidden');
+                elements.placeholder.classList.remove('hidden');
+                elements.placeholder.querySelector('p').textContent = '此記錄沒有可嵌入的影片 ID';
+            }
+            elements.youtubeLink.href = source.link || '#';
+            elements.youtubeLink.classList.toggle('hidden', !source.link);
+            elements.sourceLink.href = record.source?.url || '#';
+            elements.sourceLink.classList.toggle('hidden', !record.source?.url);
+            if (marker) marker.openPopup();
+        }
+
+        function matches(record, query, categoryId) {
+            if (categoryId && !(record.categoryIds || []).includes(categoryId)) return false;
+            if (!query) return true;
+            const searchText = [record.name, record.location?.name, record.location?.locality, record.location?.region,
+                ...(record.tags || []).flatMap(tag => [tag.value, tag.normalized]),
+                ...(record.categoryIds || []).map(categoryLabel)].filter(Boolean).join(' ').toLocaleLowerCase();
+            return searchText.includes(query);
+        }
+
+        function applyFilters() {
+            const query = elements.search.value.trim().toLocaleLowerCase();
+            const categoryId = elements.category.value;
+            markerLayer.clearLayers();
+            let visible = 0;
+            for (const record of records) {
+                if (!matches(record, query, categoryId)) continue;
+                const lat = Number(record.location?.latitude);
+                const lng = Number(record.location?.longitude);
+                if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+                const marker = L.marker([lat, lng], {
+                    icon: L.divIcon({ className: `camera-marker${record.mapIndex === elements.index.textContent.slice(1) ? ' selected' : ''}`, iconSize: [12, 12], iconAnchor: [6, 6] }),
+                    title: record.name || record.location?.name || record.mapIndex
+                });
+                marker.bindPopup(popupContent(record));
+                marker.on('click', () => selectRecord(record, marker));
+                marker.addTo(markerLayer);
+                markerByIndex.set(record.mapIndex, marker);
+                visible++;
+            }
+            elements.count.textContent = `顯示 ${visible} / ${records.length} 個地點`;
+        }
+
+        function showError(message) {
+            elements.error.textContent = message;
+            elements.error.classList.remove('hidden');
+            elements.status.textContent = '資料載入失敗';
+            elements.count.textContent = '—';
+        }
+
+        async function loadData() {
+            try {
+                const response = await fetch(DATA_URL, { cache: 'no-cache' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                if (!data.entries || !data.taxonomy) throw new Error('JSON 格式不符合預期');
+                records = Object.values(data.entries);
+                for (const [groupId, group] of Object.entries(data.taxonomy)) {
+                    for (const [id, label] of Object.entries(group.subcategories || {})) {
+                        taxonomyNames[id] = `${groupId} ${label.name || label}`;
+                        const option = document.createElement('option');
+                        option.value = id;
+                        option.textContent = taxonomyNames[id];
+                        elements.category.append(option);
+                    }
+                }
+                const points = records.filter(record => Number.isFinite(Number(record.location?.latitude)) && Number.isFinite(Number(record.location?.longitude)));
+                if (!points.length) throw new Error('資料中沒有有效座標');
+                allBounds = L.latLngBounds(points.map(record => [Number(record.location.latitude), Number(record.location.longitude)]));
+                applyFilters();
+                map.fitBounds(allBounds.pad(0.06), { maxZoom: 7 });
+                elements.status.textContent = `已載入 ${records.length} 個地點`;
+            } catch (error) {
+                console.error('Could not load camera map database:', error);
+                showError(`無法載入 ${DATA_URL}。請確認 dB/map_embeded_db.json 已一起部署，並透過 GitHub Pages 或本機網站伺服器開啟此頁。(${error.message})`);
+            }
+        }
+
+        elements.search.addEventListener('input', applyFilters);
+        elements.category.addEventListener('change', applyFilters);
+        document.getElementById('recenterBtn').addEventListener('click', () => {
+            if (allBounds) map.fitBounds(allBounds.pad(0.06), { maxZoom: 7 });
+        });
+        window.addEventListener('resize', () => map.invalidateSize());
+        loadData();
+    </script>
+</body>
+</html>
