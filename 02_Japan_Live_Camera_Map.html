@@ -37,22 +37,28 @@
                 <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
                 <input id="searchInput" type="search" placeholder="搜尋地點、名稱或地區" class="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-3 text-sm outline-none focus:border-indigo-500">
             </label>
-            <label>
-                <span class="sr-only">依分類篩選</span>
-                <select id="categoryFilter" class="max-w-[250px] rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-200 outline-none focus:border-indigo-500">
-                    <option value="">所有分類</option>
-                </select>
-            </label>
             <button id="recenterBtn" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm hover:bg-slate-700 flex items-center gap-2"><i data-lucide="locate-fixed" class="w-4 h-4"></i>顯示全部</button>
             <span id="resultCount" class="text-xs text-slate-400 px-1">—</span>
         </section>
 
-        <section class="flex-1 grid grid-cols-1 xl:grid-cols-[minmax(0,1.4fr)_minmax(360px,0.8fr)] gap-3 min-h-[70vh] xl:min-h-0">
-            <div class="relative min-h-[55vh] xl:min-h-[620px] rounded-xl border border-slate-800 overflow-hidden bg-slate-900">
+        <section class="flex-1 grid grid-cols-1 xl:grid-cols-[minmax(0,1.4fr)_minmax(360px,0.8fr)] gap-3 min-h-0">
+            <div class="relative h-[70vh] min-h-[560px] rounded-xl border border-slate-800 overflow-hidden bg-slate-900">
                 <div id="map" class="absolute inset-0"></div>
+                <div id="categoryControl" class="absolute top-3 left-3 z-[1000] max-w-[calc(100%-5rem)]">
+                    <button id="categoryMenuButton" type="button" aria-expanded="false" aria-controls="categoryMenuPanel" class="rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-slate-800 flex items-center gap-2">
+                        <i data-lucide="list-filter" class="w-4 h-4 text-emerald-300"></i>分類篩選 <span id="categorySelectionCount" class="text-xs text-slate-400"></span>
+                    </button>
+                    <div id="categoryMenuPanel" class="hidden mt-2 w-72 max-w-[calc(100vw-3rem)] max-h-[60vh] overflow-y-auto rounded-xl border border-slate-700 bg-slate-900/95 p-3 shadow-2xl" role="group" aria-label="地圖分類篩選">
+                        <div class="sticky top-0 z-10 -mx-1 -mt-1 mb-2 flex gap-2 bg-slate-900 p-1">
+                            <button type="button" data-category-action="select-all" class="flex-1 rounded-md bg-emerald-700/80 px-2 py-1.5 text-xs font-medium text-white hover:bg-emerald-600">全選</button>
+                            <button type="button" data-category-action="deselect-all" class="flex-1 rounded-md bg-slate-800 px-2 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700">全不選</button>
+                        </div>
+                        <div id="categoryTree" class="space-y-2"></div>
+                    </div>
+                </div>
                 <div id="mapError" class="hidden absolute inset-0 z-[500] bg-slate-950/95 p-6 flex items-center justify-center text-center text-sm text-rose-300"></div>
             </div>
-            <aside class="min-h-[420px] rounded-xl border border-slate-800 bg-slate-900 overflow-hidden flex flex-col">
+            <aside class="h-[70vh] min-h-[560px] rounded-xl border border-slate-800 bg-slate-900 overflow-hidden flex flex-col">
                 <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
                     <h2 class="text-sm font-semibold flex items-center gap-2"><i data-lucide="radio" class="w-4 h-4 text-rose-400"></i> YouTube 即時影像</h2>
                     <span id="selectedIndex" class="font-mono text-xs text-slate-500"></span>
@@ -87,23 +93,38 @@
         lucide.createIcons();
 
         const DATA_URL = './dB/map_embeded_db.json';
-        const map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([36.2, 138.2], 5);
+        const map = L.map('map', { zoomControl: false, preferCanvas: true }).setView([36.2, 138.2], 5);
+        L.control.zoom({ position: 'bottomleft' }).addTo(map);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
         const markerLayer = L.layerGroup().addTo(map);
-        const markerByIndex = new Map();
         let records = [];
         let taxonomyNames = {};
         let allBounds = null;
+        let categoryGroups = {};
+        let allCategoryIds = [];
+        let selectedCategoryIds = new Set();
+        let activeRecordIndex = '';
+
+        const UNCATEGORIZED_ID = '__uncategorized__';
+        const groupEmoji = { A: '🌿', B: '🏙️', C: '🚦' };
+        const categoryEmoji = {
+            'A.1': '🏖️', 'A.2': '🌊', 'A.3': '⛰️', 'A.4': '🎿', 'A.5': '🐾', 'A.6': '🌸', 'A.7': '🍁',
+            'B.1': '🏙️', 'B.2': '🌃', 'B.3': '⛩️',
+            'C.1': '🛣️', 'C.2': '🚆', 'C.3': '✈️'
+        };
 
         const elements = {
             status: document.getElementById('loadStatus'),
             count: document.getElementById('resultCount'),
             search: document.getElementById('searchInput'),
-            category: document.getElementById('categoryFilter'),
+            categoryTree: document.getElementById('categoryTree'),
+            categoryMenu: document.getElementById('categoryMenuPanel'),
+            categoryMenuButton: document.getElementById('categoryMenuButton'),
+            categorySelectionCount: document.getElementById('categorySelectionCount'),
             error: document.getElementById('mapError'),
             player: document.getElementById('youtubePlayer'),
             placeholder: document.getElementById('playerPlaceholder'),
@@ -116,8 +137,111 @@
             sourceLink: document.getElementById('sourceLink')
         };
 
+        L.DomEvent.disableClickPropagation(document.getElementById('categoryControl'));
+        L.DomEvent.disableScrollPropagation(document.getElementById('categoryControl'));
+
         function categoryLabel(id) {
             return taxonomyNames[id] || id;
+        }
+
+        function updateCategoryControls() {
+            for (const [groupId, ids] of Object.entries(categoryGroups)) {
+                const checkbox = elements.categoryTree.querySelector(`[data-group-id="${groupId}"]`);
+                const selectedCount = ids.filter(id => selectedCategoryIds.has(id)).length;
+                checkbox.checked = selectedCount === ids.length;
+                checkbox.indeterminate = selectedCount > 0 && selectedCount < ids.length;
+            }
+            const allIds = [...allCategoryIds, UNCATEGORIZED_ID];
+            const selectedCount = allIds.filter(id => selectedCategoryIds.has(id)).length;
+            elements.categorySelectionCount.textContent = `${selectedCount}/${allIds.length}`;
+        }
+
+        function setCategories(ids, selected) {
+            for (const id of ids) {
+                if (selected) selectedCategoryIds.add(id);
+                else selectedCategoryIds.delete(id);
+            }
+            updateCategoryControls();
+            applyFilters();
+        }
+
+        function buildCategoryMenu(taxonomy) {
+            elements.categoryTree.replaceChildren();
+            categoryGroups = {};
+            taxonomyNames = {};
+
+            for (const [groupId, group] of Object.entries(taxonomy)) {
+                const ids = Object.keys(group.subcategories || {});
+                categoryGroups[groupId] = ids;
+                allCategoryIds.push(...ids);
+
+                const section = document.createElement('section');
+                section.className = 'rounded-lg border border-slate-800 bg-slate-950/60 p-2';
+                const heading = document.createElement('label');
+                heading.className = 'flex cursor-pointer items-center gap-2 rounded-md px-1 py-1.5 text-sm font-semibold text-slate-100 hover:bg-slate-800';
+                const groupCheckbox = document.createElement('input');
+                groupCheckbox.type = 'checkbox';
+                groupCheckbox.dataset.groupId = groupId;
+                groupCheckbox.className = 'h-4 w-4 accent-emerald-500';
+                const groupTitle = document.createElement('span');
+                groupTitle.className = 'flex-1';
+                groupTitle.textContent = `${groupEmoji[groupId] || '📂'} ${group.name || groupId}`;
+                const levelOne = document.createElement('span');
+                levelOne.className = 'text-[10px] font-normal text-slate-500';
+                levelOne.textContent = `Lv1 · ${ids.length}`;
+                heading.append(groupCheckbox, groupTitle, levelOne);
+                section.append(heading);
+
+                const children = document.createElement('div');
+                children.className = 'ml-6 mt-1 space-y-0.5 border-l border-slate-700 pl-2';
+                for (const [id, value] of Object.entries(group.subcategories || {})) {
+                    const name = typeof value === 'string' ? value : (value.name || id);
+                    taxonomyNames[id] = `${categoryEmoji[id] || '📍'} ${name}`;
+                    const label = document.createElement('label');
+                    label.className = 'flex cursor-pointer items-center gap-2 rounded-md px-1 py-1 text-xs text-slate-300 hover:bg-slate-800';
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.dataset.categoryId = id;
+                    checkbox.className = 'h-3.5 w-3.5 accent-indigo-400';
+                    const text = document.createElement('span');
+                    text.className = 'flex-1';
+                    text.textContent = taxonomyNames[id];
+                    const levelTwo = document.createElement('span');
+                    levelTwo.className = 'text-[9px] text-slate-600';
+                    levelTwo.textContent = id;
+                    label.append(checkbox, text, levelTwo);
+                    children.append(label);
+                }
+                section.append(children);
+                elements.categoryTree.append(section);
+            }
+
+            const unknownLabel = document.createElement('label');
+            unknownLabel.className = 'flex cursor-pointer items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2 text-xs text-slate-300 hover:bg-slate-800';
+            const unknownCheckbox = document.createElement('input');
+            unknownCheckbox.type = 'checkbox';
+            unknownCheckbox.dataset.categoryId = UNCATEGORIZED_ID;
+            unknownCheckbox.className = 'h-3.5 w-3.5 accent-indigo-400';
+            const unknownText = document.createElement('span');
+            unknownText.textContent = '❔ 未分類';
+            unknownLabel.append(unknownCheckbox, unknownText);
+            elements.categoryTree.append(unknownLabel);
+
+            selectedCategoryIds = new Set([...allCategoryIds, UNCATEGORIZED_ID]);
+            elements.categoryTree.addEventListener('change', event => {
+                const target = event.target;
+                if (target.dataset.groupId) {
+                    setCategories(categoryGroups[target.dataset.groupId], target.checked);
+                } else if (target.dataset.categoryId) {
+                    setCategories([target.dataset.categoryId], target.checked);
+                }
+            });
+            elements.categoryTree.parentElement.querySelectorAll('[data-category-action]').forEach(button => {
+                button.addEventListener('click', () => setCategories(
+                    [...allCategoryIds, UNCATEGORIZED_ID], button.dataset.categoryAction === 'select-all'
+                ));
+            });
+            updateCategoryControls();
         }
 
         function escapeHtml(value) {
@@ -168,6 +292,7 @@
         }
 
         function selectRecord(record, marker) {
+            activeRecordIndex = record.mapIndex;
             elements.player.src = '';
             const source = getPlayerSource(record);
             elements.title.textContent = record.name || record.location?.name || `Camera ${record.mapIndex}`;
@@ -197,8 +322,7 @@
             if (marker) marker.openPopup();
         }
 
-        function matches(record, query, categoryId) {
-            if (categoryId && !(record.categoryIds || []).includes(categoryId)) return false;
+        function matches(record, query) {
             if (!query) return true;
             const searchText = [record.name, record.location?.name, record.location?.locality, record.location?.region,
                 ...(record.tags || []).flatMap(tag => [tag.value, tag.normalized]),
@@ -208,22 +332,25 @@
 
         function applyFilters() {
             const query = elements.search.value.trim().toLocaleLowerCase();
-            const categoryId = elements.category.value;
             markerLayer.clearLayers();
             let visible = 0;
             for (const record of records) {
-                if (!matches(record, query, categoryId)) continue;
+                if (!matches(record, query)) continue;
+                const categories = record.categoryIds || [];
+                const categoryIsSelected = categories.length
+                    ? categories.some(id => selectedCategoryIds.has(id))
+                    : selectedCategoryIds.has(UNCATEGORIZED_ID);
+                if (!categoryIsSelected) continue;
                 const lat = Number(record.location?.latitude);
                 const lng = Number(record.location?.longitude);
                 if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
                 const marker = L.marker([lat, lng], {
-                    icon: L.divIcon({ className: `camera-marker${record.mapIndex === elements.index.textContent.slice(1) ? ' selected' : ''}`, iconSize: [12, 12], iconAnchor: [6, 6] }),
+                    icon: L.divIcon({ className: `camera-marker${record.mapIndex === activeRecordIndex ? ' selected' : ''}`, iconSize: [12, 12], iconAnchor: [6, 6] }),
                     title: record.name || record.location?.name || record.mapIndex
                 });
                 marker.bindPopup(popupContent(record));
                 marker.on('click', () => selectRecord(record, marker));
                 marker.addTo(markerLayer);
-                markerByIndex.set(record.mapIndex, marker);
                 visible++;
             }
             elements.count.textContent = `顯示 ${visible} / ${records.length} 個地點`;
@@ -243,15 +370,8 @@
                 const data = await response.json();
                 if (!data.entries || !data.taxonomy) throw new Error('JSON 格式不符合預期');
                 records = Object.values(data.entries);
-                for (const [groupId, group] of Object.entries(data.taxonomy)) {
-                    for (const [id, label] of Object.entries(group.subcategories || {})) {
-                        taxonomyNames[id] = `${groupId} ${label.name || label}`;
-                        const option = document.createElement('option');
-                        option.value = id;
-                        option.textContent = taxonomyNames[id];
-                        elements.category.append(option);
-                    }
-                }
+                allCategoryIds = [];
+                buildCategoryMenu(data.taxonomy);
                 const points = records.filter(record => Number.isFinite(Number(record.location?.latitude)) && Number.isFinite(Number(record.location?.longitude)));
                 if (!points.length) throw new Error('資料中沒有有效座標');
                 allBounds = L.latLngBounds(points.map(record => [Number(record.location.latitude), Number(record.location.longitude)]));
@@ -265,7 +385,11 @@
         }
 
         elements.search.addEventListener('input', applyFilters);
-        elements.category.addEventListener('change', applyFilters);
+        elements.categoryMenuButton.addEventListener('click', () => {
+            const isOpen = elements.categoryMenuButton.getAttribute('aria-expanded') === 'true';
+            elements.categoryMenuButton.setAttribute('aria-expanded', String(!isOpen));
+            elements.categoryMenu.classList.toggle('hidden', isOpen);
+        });
         document.getElementById('recenterBtn').addEventListener('click', () => {
             if (allBounds) map.fitBounds(allBounds.pad(0.06), { maxZoom: 7 });
         });
