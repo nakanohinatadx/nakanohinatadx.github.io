@@ -61,6 +61,12 @@
                         <div id="categoryTree" class="space-y-2"></div>
                     </div>
                 </div>
+                <div id="gpsControl" class="absolute top-3 right-3 z-[1000] flex flex-col items-end gap-2">
+                    <button id="gpsButton" type="button" class="rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-slate-800 disabled:cursor-wait disabled:opacity-70 flex items-center gap-2" aria-label="使用裝置定位並移至目前位置" title="使用裝置定位並移至目前位置">
+                        <i data-lucide="locate-fixed" class="w-4 h-4 text-sky-300"></i><span>我的位置</span>
+                    </button>
+                    <p id="gpsStatus" class="hidden max-w-56 rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 text-xs text-slate-200 shadow-lg" role="status" aria-live="polite"></p>
+                </div>
                 <div id="mapError" class="hidden absolute inset-0 z-[500] bg-slate-950/95 p-6 flex items-center justify-center text-center text-sm text-rose-300"></div>
             </div>
             <aside class="h-[70vh] min-h-[560px] rounded-xl border border-slate-800 bg-slate-900 overflow-hidden flex flex-col">
@@ -106,6 +112,7 @@
         }).addTo(map);
 
         const markerLayer = L.layerGroup().addTo(map);
+        const userLocationLayer = L.layerGroup().addTo(map);
         let records = [];
         let taxonomyNames = {};
         let allBounds = null;
@@ -131,6 +138,8 @@
             categoryMenu: document.getElementById('categoryMenuPanel'),
             categoryMenuButton: document.getElementById('categoryMenuButton'),
             categorySelectionCount: document.getElementById('categorySelectionCount'),
+            gpsButton: document.getElementById('gpsButton'),
+            gpsStatus: document.getElementById('gpsStatus'),
             error: document.getElementById('mapError'),
             player: document.getElementById('youtubePlayer'),
             placeholder: document.getElementById('playerPlaceholder'),
@@ -145,6 +154,7 @@
 
         L.DomEvent.disableClickPropagation(document.getElementById('categoryControl'));
         L.DomEvent.disableScrollPropagation(document.getElementById('categoryControl'));
+        L.DomEvent.disableClickPropagation(document.getElementById('gpsControl'));
 
         function categoryLabel(id) {
             return taxonomyNames[id] || id;
@@ -406,11 +416,63 @@
             elements.categoryMenuButton.setAttribute('aria-expanded', String(!isOpen));
             elements.categoryMenu.classList.toggle('hidden', isOpen);
         });
+        elements.gpsButton.addEventListener('click', () => {
+            if (!('geolocation' in navigator)) {
+                showGpsStatus('此瀏覽器不支援裝置定位。', true);
+                return;
+            }
+            elements.gpsButton.disabled = true;
+            elements.gpsButton.querySelector('span').textContent = '定位中…';
+            showGpsStatus('正在取得裝置位置…');
+            map.locate({
+                setView: false,
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 10000
+            });
+        });
+        map.on('locationfound', event => {
+            userLocationLayer.clearLayers();
+            L.circle(event.latlng, {
+                radius: event.accuracy,
+                color: '#38bdf8',
+                weight: 1,
+                fillColor: '#38bdf8',
+                fillOpacity: 0.12
+            }).addTo(userLocationLayer);
+            L.circleMarker(event.latlng, {
+                radius: 8,
+                color: '#ffffff',
+                weight: 3,
+                fillColor: '#0284c7',
+                fillOpacity: 1
+            }).bindPopup(`目前位置<br><span class="text-xs">定位精度約 ±${Math.round(event.accuracy)} 公尺</span>`).addTo(userLocationLayer).openPopup();
+            map.flyTo(event.latlng, Math.max(map.getZoom(), 16), { duration: 0.9 });
+            elements.gpsButton.disabled = false;
+            elements.gpsButton.querySelector('span').textContent = '我的位置';
+            showGpsStatus(`已定位，精度約 ±${Math.round(event.accuracy)} 公尺`);
+        });
+        map.on('locationerror', event => {
+            elements.gpsButton.disabled = false;
+            elements.gpsButton.querySelector('span').textContent = '我的位置';
+            const messages = {
+                1: '定位權限未開啟，請允許此網站存取位置。',
+                2: '目前無法取得裝置位置，請確認 GPS 或定位服務已開啟。',
+                3: '定位逾時，請稍後再試。'
+            };
+            showGpsStatus(messages[event.code] || '無法取得裝置位置，請稍後再試。', true);
+        });
         document.getElementById('recenterBtn').addEventListener('click', () => {
             if (allBounds) map.fitBounds(allBounds.pad(0.06), { maxZoom: 7 });
         });
         window.addEventListener('resize', () => map.invalidateSize());
         loadData();
+
+        function showGpsStatus(message, isError = false) {
+            elements.gpsStatus.textContent = message;
+            elements.gpsStatus.classList.remove('hidden', 'text-slate-200', 'text-rose-300');
+            elements.gpsStatus.classList.add(isError ? 'text-rose-300' : 'text-slate-200');
+        }
     </script>
 </body>
 </html>
