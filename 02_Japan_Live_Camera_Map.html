@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-TW" class="h-full">
+<html lang="ja" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日本即時攝影機地圖 | Japan Live Camera Map</title>
+    <title>日本ライブカメラマップ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -25,24 +25,24 @@
     <header class="bg-slate-900/90 border-b border-slate-800 px-4 py-3 shrink-0">
         <div class="max-w-[1920px] mx-auto flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-                <a href="index.html" title="返回控制中心" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"><i data-lucide="arrow-left" class="w-4 h-4"></i></a>
+                <a href="index.html" title="コントロールセンターに戻る" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"><i data-lucide="arrow-left" class="w-4 h-4"></i></a>
                 <div>
-                    <h1 class="font-bold text-lg">日本即時攝影機地圖</h1>
-                    <p class="text-xs text-slate-400">點選地圖標記載入 YouTube 直播或影片</p>
+                    <h1 class="font-bold text-lg">日本ライブカメラマップ</h1>
+                    <p class="text-xs text-slate-400">地図上のマーカーを選択すると、YouTube のライブ映像を読み込みます</p>
                 </div>
             </div>
-            <div class="text-xs text-slate-400 flex items-center gap-2"><i data-lucide="map" class="w-4 h-4 text-emerald-400"></i> OpenStreetMap <span class="text-slate-600">•</span> <span id="loadStatus">載入攝影機資料中…</span></div>
+            <div class="text-xs text-slate-400 flex items-center gap-2"><i data-lucide="map" class="w-4 h-4 text-emerald-400"></i> OpenStreetMap <span class="text-slate-600">•</span> <span id="loadStatus">カメラデータを読み込み中…</span></div>
         </div>
     </header>
 
     <main class="flex-1 max-w-[1920px] w-full mx-auto p-3 sm:p-4 flex flex-col gap-3 min-h-0">
         <section class="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 p-3">
             <label class="relative flex-1 min-w-[190px]">
-                <span class="sr-only">搜尋攝影機</span>
+                <span class="sr-only">カメラを検索</span>
                 <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                <input id="searchInput" type="search" placeholder="搜尋地點、名稱或地區" class="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-3 text-sm outline-none focus:border-indigo-500">
+                <input id="searchInput" type="search" placeholder="場所、名称、地域を検索" class="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-3 text-sm outline-none focus:border-indigo-500">
             </label>
-            <button id="recenterBtn" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm hover:bg-slate-700 flex items-center gap-2"><i data-lucide="locate-fixed" class="w-4 h-4"></i>顯示全部</button>
+            <button id="recenterBtn" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm hover:bg-slate-700 flex items-center gap-2"><i data-lucide="locate-fixed" class="w-4 h-4"></i>全地点を表示</button>
             <span id="resultCount" class="text-xs text-slate-400 px-1">—</span>
         </section>
 
@@ -51,19 +51,19 @@
                 <div id="map" class="absolute inset-0"></div>
                 <div id="categoryControl" class="absolute top-3 left-3 z-[1000] max-w-[calc(100%-5rem)]">
                     <button id="categoryMenuButton" type="button" aria-expanded="false" aria-controls="categoryMenuPanel" class="rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-slate-800 flex items-center gap-2">
-                        <i data-lucide="list-filter" class="w-4 h-4 text-emerald-300"></i>分類篩選 <span id="categorySelectionCount" class="text-xs text-slate-400"></span>
+                        <i data-lucide="list-filter" class="w-4 h-4 text-emerald-300"></i>分類を選択 <span id="categorySelectionCount" class="text-xs text-slate-400"></span>
                     </button>
-                    <div id="categoryMenuPanel" class="hidden mt-2 w-72 max-w-[calc(100vw-3rem)] max-h-[60vh] overflow-y-auto rounded-xl border border-slate-700 bg-slate-900/95 p-3 shadow-2xl" role="group" aria-label="地圖分類篩選">
+                    <div id="categoryMenuPanel" class="hidden mt-2 w-72 max-w-[calc(100vw-3rem)] max-h-[60vh] overflow-y-auto rounded-xl border border-slate-700 bg-slate-900/95 p-3 shadow-2xl" role="group" aria-label="地図のカテゴリー選択">
                         <div class="sticky top-0 z-10 -mx-1 -mt-1 mb-2 flex gap-2 bg-slate-900 p-1">
-                            <button type="button" data-category-action="select-all" class="flex-1 rounded-md bg-emerald-700/80 px-2 py-1.5 text-xs font-medium text-white hover:bg-emerald-600">全選</button>
-                            <button type="button" data-category-action="deselect-all" class="flex-1 rounded-md bg-slate-800 px-2 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700">全不選</button>
+                            <button type="button" data-category-action="select-all" class="flex-1 rounded-md bg-emerald-700/80 px-2 py-1.5 text-xs font-medium text-white hover:bg-emerald-600">すべて選択</button>
+                            <button type="button" data-category-action="deselect-all" class="flex-1 rounded-md bg-slate-800 px-2 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700">すべて解除</button>
                         </div>
                         <div id="categoryTree" class="space-y-2"></div>
                     </div>
                 </div>
                 <div id="gpsControl" class="absolute top-3 right-3 z-[1000] flex flex-col items-end gap-2">
-                    <button id="gpsButton" type="button" class="rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-slate-800 disabled:cursor-wait disabled:opacity-70 flex items-center gap-2" aria-label="使用裝置定位並移至目前位置" title="使用裝置定位並移至目前位置">
-                        <i data-lucide="locate-fixed" class="w-4 h-4 text-sky-300"></i><span>我的位置</span>
+                    <button id="gpsButton" type="button" class="rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-slate-800 disabled:cursor-wait disabled:opacity-70 flex items-center gap-2" aria-label="端末の位置を取得して地図を移動" title="端末の位置を取得して地図を移動">
+                        <i data-lucide="locate-fixed" class="w-4 h-4 text-sky-300"></i><span>現在地</span>
                     </button>
                     <p id="gpsStatus" class="hidden max-w-56 rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 text-xs text-slate-200 shadow-lg" role="status" aria-live="polite"></p>
                 </div>
@@ -71,25 +71,25 @@
             </div>
             <aside class="h-[70vh] min-h-[560px] rounded-xl border border-slate-800 bg-slate-900 overflow-hidden flex flex-col">
                 <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                    <h2 class="text-sm font-semibold flex items-center gap-2"><i data-lucide="radio" class="w-4 h-4 text-rose-400"></i> YouTube 即時影像</h2>
+                    <h2 class="text-sm font-semibold flex items-center gap-2"><i data-lucide="radio" class="w-4 h-4 text-rose-400"></i> YouTube ライブ映像</h2>
                     <span id="selectedIndex" class="font-mono text-xs text-slate-500"></span>
                 </div>
                 <div class="relative w-full aspect-video bg-black">
                     <div id="playerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center text-slate-500 p-6">
-                        <i data-lucide="video" class="w-8 h-8"></i><p class="text-sm">請點選地圖上的攝影機</p>
+                        <i data-lucide="video" class="w-8 h-8"></i><p class="text-sm">地図上のカメラを選択してください</p>
                     </div>
-                    <iframe id="youtubePlayer" class="hidden absolute inset-0 w-full h-full border-0" title="YouTube 即時影像" allow="autoplay; encrypted-media; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    <iframe id="youtubePlayer" class="hidden absolute inset-0 w-full h-full border-0" title="YouTube ライブ映像" allow="autoplay; encrypted-media; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </div>
                 <div class="p-4 flex-1 flex flex-col gap-3">
                     <div>
-                        <h3 id="cameraTitle" class="font-semibold leading-snug">尚未選取攝影機</h3>
+                        <h3 id="cameraTitle" class="font-semibold leading-snug">カメラが選択されていません</h3>
                         <p id="cameraLocation" class="text-xs text-slate-400 mt-1"></p>
                     </div>
                     <div id="cameraCategories" class="flex flex-wrap gap-1.5"></div>
-                    <p id="playerMessage" class="text-xs text-slate-500 leading-relaxed">選取標記後，若資料有直播影片或頻道 ID，播放器會嘗試載入。部分頻道不允許嵌入播放。</p>
+                    <p id="playerMessage" class="text-xs text-slate-500 leading-relaxed">マーカーを選択すると、登録されたライブ映像またはチャンネルを読み込みます。チャンネルの設定により、埋め込み再生できない場合があります。</p>
                     <div class="mt-auto flex flex-wrap gap-2 text-xs">
-                        <a id="youtubeLink" class="hidden rounded-lg bg-rose-600 hover:bg-rose-500 px-3 py-2 font-medium text-white" target="_blank" rel="noopener noreferrer">在 YouTube 開啟</a>
-                        <a id="sourceLink" class="hidden rounded-lg border border-slate-700 hover:bg-slate-800 px-3 py-2 text-slate-300" target="_blank" rel="noopener noreferrer">Cametan 原始頁</a>
+                        <a id="youtubeLink" class="hidden rounded-lg bg-rose-600 hover:bg-rose-500 px-3 py-2 font-medium text-white" target="_blank" rel="noopener noreferrer">YouTube で開く</a>
+                        <a id="sourceLink" class="hidden rounded-lg border border-slate-700 hover:bg-slate-800 px-3 py-2 text-slate-300" target="_blank" rel="noopener noreferrer">Cametan の元ページ</a>
                     </div>
                 </div>
             </aside>
@@ -97,7 +97,7 @@
     </main>
 
     <footer class="border-t border-slate-800 bg-slate-900/70 px-4 py-2 text-center text-xs text-slate-500">
-        地圖資料 © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" class="underline hover:text-slate-300">OpenStreetMap</a> 貢獻者 • 攝影機來源 Cametan • 影片來源 YouTube
+        地図データ © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" class="underline hover:text-slate-300">OpenStreetMap</a> 貢献者 • カメラ情報：Cametan • 映像：YouTube
     </footer>
 
     <script>
@@ -108,7 +108,7 @@
         L.control.zoom({ position: 'bottomleft' }).addTo(map);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> 貢献者'
         }).addTo(map);
 
         const markerLayer = L.layerGroup().addTo(map);
@@ -204,7 +204,7 @@
                 groupTitle.textContent = `${groupEmoji[groupId] || '📂'} ${group.name || groupId}`;
                 const levelOne = document.createElement('span');
                 levelOne.className = 'text-[10px] font-normal text-slate-500';
-                levelOne.textContent = `Lv1 · ${ids.length}`;
+            levelOne.textContent = `レベル1・${ids.length}件`;
                 heading.append(groupCheckbox, groupTitle, levelOne);
                 section.append(heading);
 
@@ -224,7 +224,7 @@
                     text.textContent = taxonomyNames[id];
                     const levelTwo = document.createElement('span');
                     levelTwo.className = 'text-[9px] text-slate-600';
-                    levelTwo.textContent = id;
+                    levelTwo.textContent = `レベル2・${id}`;
                     label.append(checkbox, text, levelTwo);
                     children.append(label);
                 }
@@ -271,13 +271,13 @@
             wrap.className = 'min-w-44';
             const title = document.createElement('strong');
             title.className = 'block text-sm mb-1';
-            title.textContent = record.name || record.location?.name || `Camera ${record.mapIndex}`;
+            title.textContent = record.name || record.location?.name || `カメラ ${record.mapIndex}`;
             const location = document.createElement('span');
             location.className = 'block text-xs text-slate-300';
             location.textContent = [record.location?.locality, record.location?.region].filter(Boolean).join('、');
             const action = document.createElement('span');
             action.className = 'block text-xs text-emerald-300 mt-2';
-            action.textContent = '已在右側載入影像';
+            action.textContent = '右側に映像を読み込みました';
             wrap.append(title, location, action);
             return wrap;
         }
@@ -288,7 +288,7 @@
                 return {
                     embed: `https://www.youtube.com/embed/${encodeURIComponent(video.videoId)}?autoplay=1&mute=1&playsinline=1`,
                     link: video.url || `https://www.youtube.com/watch?v=${encodeURIComponent(video.videoId)}`,
-                    message: '已載入資料庫中的 YouTube 影片。播放器以靜音自動播放；可在播放器中取消靜音。'
+                    message: 'データベースの YouTube 動画を読み込みました。ミュート状態で自動再生します。音声はプレーヤーでオンにできます。'
                 };
             }
             const channel = (record.youtube?.channels || []).find(item => item.id && /^[\w-]{20,30}$/.test(item.id));
@@ -296,14 +296,14 @@
                 return {
                     embed: `https://www.youtube.com/embed/live_stream?channel=${encodeURIComponent(channel.id)}&autoplay=1&mute=1&playsinline=1`,
                     link: channel.url || `https://www.youtube.com/channel/${encodeURIComponent(channel.id)}/live`,
-                    message: '此攝影機沒有固定影片 ID，播放器會嘗試播放該頻道目前的直播。若目前沒有直播或頻道限制嵌入，請使用 YouTube 連結。'
+                    message: '固定の動画 ID がないため、このチャンネルの現在のライブ配信を読み込みます。配信中でない場合や埋め込みが制限されている場合は、YouTube のリンクをお使いください。'
                 };
             }
             const channelUrl = record.youtube?.channels?.find(item => item.url)?.url;
             return {
                 embed: '',
                 link: channelUrl || record.youtube?.videos?.[0]?.url || '',
-                message: channelUrl ? '資料只有頻道連結，沒有可直接嵌入的影片 ID；請在 YouTube 開啟頻道直播。' : '此攝影機資料沒有可用的 YouTube 播放或頻道連結。'
+                message: channelUrl ? '動画 ID がないため、チャンネルのライブ配信を埋め込み再生できません。YouTube でチャンネルを開いてください。' : 'このカメラには YouTube の動画やチャンネルのリンクがありません。'
             };
         }
 
@@ -314,7 +314,7 @@
             if (activeMarker?._icon) activeMarker._icon.classList.add('selected');
             elements.player.src = '';
             const source = getPlayerSource(record);
-            elements.title.textContent = record.name || record.location?.name || `Camera ${record.mapIndex}`;
+            elements.title.textContent = record.name || record.location?.name || `カメラ ${record.mapIndex}`;
             elements.location.textContent = [record.location?.name, record.location?.locality, record.location?.region].filter(Boolean).join(' · ');
             elements.index.textContent = `#${record.mapIndex}`;
             elements.message.textContent = source.message;
@@ -332,7 +332,7 @@
             } else {
                 elements.player.classList.add('hidden');
                 elements.placeholder.classList.remove('hidden');
-                elements.placeholder.querySelector('p').textContent = '此記錄沒有可嵌入的影片 ID';
+                elements.placeholder.querySelector('p').textContent = '埋め込み可能な動画 ID がありません';
             }
             elements.youtubeLink.href = source.link || '#';
             elements.youtubeLink.classList.toggle('hidden', !source.link);
@@ -379,13 +379,13 @@
                 marker.addTo(markerLayer);
                 visible++;
             }
-            elements.count.textContent = `顯示 ${visible} / ${records.length} 個地點`;
+            elements.count.textContent = `表示中：${visible} / ${records.length} 地点`;
         }
 
         function showError(message) {
             elements.error.textContent = message;
             elements.error.classList.remove('hidden');
-            elements.status.textContent = '資料載入失敗';
+            elements.status.textContent = 'データを読み込めませんでした';
             elements.count.textContent = '—';
         }
 
@@ -399,14 +399,14 @@
                 allCategoryIds = [];
                 buildCategoryMenu(data.taxonomy);
                 const points = records.filter(record => Number.isFinite(Number(record.location?.latitude)) && Number.isFinite(Number(record.location?.longitude)));
-                if (!points.length) throw new Error('資料中沒有有效座標');
+                if (!points.length) throw new Error('有効な座標データがありません');
                 allBounds = L.latLngBounds(points.map(record => [Number(record.location.latitude), Number(record.location.longitude)]));
                 applyFilters();
                 map.fitBounds(allBounds.pad(0.06), { maxZoom: 7 });
-                elements.status.textContent = `已載入 ${records.length} 個地點`;
+                elements.status.textContent = `${records.length} 件の地点を読み込みました`;
             } catch (error) {
-                console.error('Could not load camera map database:', error);
-                showError(`無法載入 ${DATA_URL}。請確認 dB/map_embeded_db.json 已一起部署，並透過 GitHub Pages 或本機網站伺服器開啟此頁。(${error.message})`);
+                console.error('カメラ地図データベースを読み込めませんでした:', error);
+                showError(`${DATA_URL} を読み込めません。dB/map_embeded_db.json を一緒に配置し、GitHub Pages またはローカルのウェブサーバーからこのページを開いてください。詳しくはブラウザーのコンソールを確認してください。`);
             }
         }
 
@@ -418,12 +418,12 @@
         });
         elements.gpsButton.addEventListener('click', () => {
             if (!('geolocation' in navigator)) {
-                showGpsStatus('此瀏覽器不支援裝置定位。', true);
+                showGpsStatus('このブラウザーは位置情報に対応していません。', true);
                 return;
             }
             elements.gpsButton.disabled = true;
-            elements.gpsButton.querySelector('span').textContent = '定位中…';
-            showGpsStatus('正在取得裝置位置…');
+            elements.gpsButton.querySelector('span').textContent = '測位中…';
+            showGpsStatus('端末の位置を取得しています…');
             map.locate({
                 setView: false,
                 enableHighAccuracy: true,
@@ -446,21 +446,21 @@
                 weight: 3,
                 fillColor: '#0284c7',
                 fillOpacity: 1
-            }).bindPopup(`目前位置<br><span class="text-xs">定位精度約 ±${Math.round(event.accuracy)} 公尺</span>`).addTo(userLocationLayer).openPopup();
+            }).bindPopup(`現在地<br><span class="text-xs">測位精度：約 ±${Math.round(event.accuracy)} m</span>`).addTo(userLocationLayer).openPopup();
             map.flyTo(event.latlng, Math.max(map.getZoom(), 16), { duration: 0.9 });
             elements.gpsButton.disabled = false;
-            elements.gpsButton.querySelector('span').textContent = '我的位置';
-            showGpsStatus(`已定位，精度約 ±${Math.round(event.accuracy)} 公尺`);
+            elements.gpsButton.querySelector('span').textContent = '現在地';
+            showGpsStatus(`現在地を取得しました（精度：約 ±${Math.round(event.accuracy)} m）`);
         });
         map.on('locationerror', event => {
             elements.gpsButton.disabled = false;
-            elements.gpsButton.querySelector('span').textContent = '我的位置';
+            elements.gpsButton.querySelector('span').textContent = '現在地';
             const messages = {
-                1: '定位權限未開啟，請允許此網站存取位置。',
-                2: '目前無法取得裝置位置，請確認 GPS 或定位服務已開啟。',
-                3: '定位逾時，請稍後再試。'
+                1: '位置情報へのアクセスが許可されていません。このサイトに位置情報の使用を許可してください。',
+                2: '端末の位置を取得できません。GPS または位置情報サービスを確認してください。',
+                3: '測位がタイムアウトしました。もう一度お試しください。'
             };
-            showGpsStatus(messages[event.code] || '無法取得裝置位置，請稍後再試。', true);
+            showGpsStatus(messages[event.code] || '端末の位置を取得できませんでした。もう一度お試しください。', true);
         });
         document.getElementById('recenterBtn').addEventListener('click', () => {
             if (allBounds) map.fitBounds(allBounds.pad(0.06), { maxZoom: 7 });
