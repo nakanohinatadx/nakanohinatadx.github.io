@@ -86,7 +86,7 @@
             <aside id="playerPanel" class="floating-player hidden rounded-xl border border-slate-700 bg-slate-900 overflow-hidden flex flex-col">
                 <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
                     <div><h2 class="text-sm font-semibold flex items-center gap-2"><i data-lucide="radio" class="w-4 h-4 text-rose-400"></i> YouTube ライブ映像</h2><span id="selectedIndex" class="font-mono text-xs text-slate-500"></span></div>
-                    <div class="flex items-center gap-2"><button id="expandPlayer" type="button" class="rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-slate-800">拡大</button><button id="mapBackButton" type="button" class="hidden rounded-lg border border-emerald-600 bg-emerald-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-600">🗺 Map</button></div>
+                    <div class="flex items-center gap-2"><button id="expandPlayer" type="button" class="rounded-lg border border-slate-700 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-slate-800">拡大</button><button id="mapBackButton" type="button" class="hidden rounded-lg border border-emerald-600 bg-emerald-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-600">🗺 Map</button><button id="closePlayer" type="button" aria-label="映像を閉じて地図に戻る" title="映像を閉じて地図に戻る" class="rounded-lg border border-slate-700 px-2.5 py-1.5 text-sm text-slate-200 hover:bg-slate-800">閉じる</button></div>
                 </div>
                 <div class="player-video relative w-full aspect-video bg-black">
                     <div id="playerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center text-slate-500 p-6">
@@ -166,7 +166,8 @@
             sourceLink: document.getElementById('sourceLink'),
             playerPanel: document.getElementById('playerPanel'),
             expandPlayer: document.getElementById('expandPlayer'),
-            mapBackButton: document.getElementById('mapBackButton')
+            mapBackButton: document.getElementById('mapBackButton'),
+            closePlayer: document.getElementById('closePlayer')
         };
 
         L.DomEvent.disableClickPropagation(document.getElementById('categoryControl'));
@@ -438,6 +439,14 @@
             document.body.classList.remove('player-expanded');
             elements.mapBackButton.classList.add('hidden');
             elements.expandPlayer.classList.remove('hidden');
+            setTimeout(() => map.invalidateSize(), 50);
+        });
+        elements.closePlayer.addEventListener('click', () => {
+            document.body.classList.remove('player-expanded');
+            elements.playerPanel.classList.add('hidden');
+            elements.mapBackButton.classList.add('hidden');
+            elements.expandPlayer.classList.remove('hidden');
+            elements.player.src = '';
             setTimeout(() => map.invalidateSize(), 50);
         });
         elements.search.addEventListener('input', applyFilters);
