@@ -12,8 +12,13 @@
         html, body { min-height: 100%; }
         .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #0f172a; color: #f8fafc; border: 1px solid #334155; }
         .leaflet-container { font: inherit; background: #0b1220; }
-        .camera-marker { background: #34d399; border: 2px solid #052e2b; border-radius: 9999px; box-shadow: 0 0 0 2px rgb(52 211 153 / 35%); }
-        .camera-marker.selected { background: #fb7185; box-shadow: 0 0 0 4px rgb(251 113 133 / 35%); }
+        .camera-layout { grid-template-columns: minmax(0, 1fr); }
+        @media (min-width: 1280px) {
+            .camera-layout { grid-template-columns: minmax(0, 65fr) minmax(360px, 35fr); }
+        }
+        .leaflet-div-icon.camera-emoji-marker { background: transparent; border: 0; }
+        .camera-emoji-marker { display: grid; place-items: center; font-size: 23px; line-height: 1; filter: drop-shadow(0 1px 2px #020617); }
+        .camera-emoji-marker.selected { transform: scale(1.25); filter: drop-shadow(0 0 5px #fb7185); z-index: 1000 !important; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-full flex flex-col font-sans antialiased">
@@ -41,7 +46,7 @@
             <span id="resultCount" class="text-xs text-slate-400 px-1">—</span>
         </section>
 
-        <section class="flex-1 grid grid-cols-1 xl:grid-cols-[minmax(0,1.4fr)_minmax(360px,0.8fr)] gap-3 min-h-0">
+        <section class="camera-layout flex-1 grid grid-cols-1 gap-3 min-h-0">
             <div class="relative h-[70vh] min-h-[560px] rounded-xl border border-slate-800 overflow-hidden bg-slate-900">
                 <div id="map" class="absolute inset-0"></div>
                 <div id="categoryControl" class="absolute top-3 left-3 z-[1000] max-w-[calc(100%-5rem)]">
@@ -108,6 +113,7 @@
         let allCategoryIds = [];
         let selectedCategoryIds = new Set();
         let activeRecordIndex = '';
+        let activeMarker = null;
 
         const UNCATEGORIZED_ID = '__uncategorized__';
         const groupEmoji = { A: '🌿', B: '🏙️', C: '🚦' };
@@ -293,6 +299,9 @@
 
         function selectRecord(record, marker) {
             activeRecordIndex = record.mapIndex;
+            if (activeMarker?._icon) activeMarker._icon.classList.remove('selected');
+            activeMarker = marker;
+            if (activeMarker?._icon) activeMarker._icon.classList.add('selected');
             elements.player.src = '';
             const source = getPlayerSource(record);
             elements.title.textContent = record.name || record.location?.name || `Camera ${record.mapIndex}`;
@@ -344,8 +353,15 @@
                 const lat = Number(record.location?.latitude);
                 const lng = Number(record.location?.longitude);
                 if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+                const primaryCategoryId = (record.categoryIds || [])[0];
+                const markerEmoji = categoryEmoji[primaryCategoryId] || '📍';
                 const marker = L.marker([lat, lng], {
-                    icon: L.divIcon({ className: `camera-marker${record.mapIndex === activeRecordIndex ? ' selected' : ''}`, iconSize: [12, 12], iconAnchor: [6, 6] }),
+                    icon: L.divIcon({
+                        className: `camera-emoji-marker${record.mapIndex === activeRecordIndex ? ' selected' : ''}`,
+                        html: `<span aria-hidden="true">${markerEmoji}</span>`,
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    }),
                     title: record.name || record.location?.name || record.mapIndex
                 });
                 marker.bindPopup(popupContent(record));
