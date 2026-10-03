@@ -41,21 +41,26 @@
                     <svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 text-sky-300" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/><circle cx="12" cy="12" r="8"/></svg>
                     <span id="locateLabel">現在地</span>
                 </button>
-                <button id="infoButton" type="button" class="rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50" aria-controls="gpsPanel" aria-expanded="false" disabled>GPS情報</button>
-                <button id="emailButton" type="button" class="rounded-lg border border-sky-500/50 bg-sky-700 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50" disabled>メールで送信</button>
+                <button id="infoButton" type="button" class="rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50" aria-controls="gpsPanel" aria-expanded="false" disabled>GPS情報を記録</button>
+                <button id="emailButton" type="button" class="rounded-lg border border-sky-500/50 bg-sky-700 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50" disabled>未送信 0件をメール送信</button>
             </div>
 
             <p id="gpsStatus" class="hidden rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-sm text-slate-200 shadow-lg" role="status" aria-live="polite"></p>
 
             <section id="gpsPanel" class="hidden rounded-xl border border-slate-700 bg-slate-950/95 p-4 shadow-xl" aria-labelledby="gpsPanelTitle">
-                <h2 id="gpsPanelTitle" class="mb-3 text-sm font-semibold text-white">取得したGPS情報</h2>
+                <h2 id="gpsPanelTitle" class="mb-3 text-sm font-semibold text-white">現在のGPS情報</h2>
                 <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-xs">
                     <dt class="text-slate-400">緯度</dt><dd id="latitudeValue" class="break-all font-mono text-slate-100"></dd>
                     <dt class="text-slate-400">経度</dt><dd id="longitudeValue" class="break-all font-mono text-slate-100"></dd>
                     <dt class="text-slate-400">測位精度</dt><dd id="accuracyValue" class="font-mono text-slate-100"></dd>
                     <dt class="text-slate-400">取得日時</dt><dd id="timestampValue" class="break-all font-mono text-slate-100"></dd>
                 </dl>
-                <p class="mt-3 text-[11px] leading-relaxed text-slate-400">位置情報はこのページを開いている間だけ保持します。メールアプリを開いた後、内容を確認して送信してください。</p>
+                <p id="historySummary" class="mt-3 text-xs font-medium text-sky-200" aria-live="polite"></p>
+                <ol id="historyList" class="mt-2 max-h-40 space-y-2 overflow-y-auto text-[11px] text-slate-300"></ol>
+                <div class="mt-3 flex items-center justify-between gap-3">
+                    <p class="text-[11px] leading-relaxed text-slate-400">記録はこのブラウザーに保存されます。GPS情報を押すたびに地図へ記録マーカーを追加します。</p>
+                    <button id="clearHistoryButton" type="button" class="shrink-0 rounded-md border border-slate-700 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-800 disabled:opacity-50" disabled>履歴を消去</button>
+                </div>
             </section>
         </section>
 
@@ -67,9 +72,10 @@
     <dialog id="emailDialog" class="m-auto w-[min(38rem,calc(100vw-2rem))] rounded-2xl border border-slate-700 bg-slate-900 p-0 text-slate-100 shadow-2xl">
         <form method="dialog" class="p-5 sm:p-6">
             <h2 class="text-lg font-bold">メール内容を確認</h2>
-            <p class="mt-1 text-sm text-slate-400">以下の現在地情報を EmailJS 経由で送信します。送信前に内容を確認してください。</p>
+            <p class="mt-1 text-sm text-slate-400">未送信の位置履歴を EmailJS 経由で送信します（1回につき最大10件）。送信前に内容を確認してください。</p>
             <div class="mt-4 space-y-2 rounded-xl border border-slate-800 bg-slate-950 p-3 text-xs">
                 <p><span class="text-slate-400">宛先：</span><span class="select-all font-mono">nakanohinatadx@gmail.com</span></p>
+                <p><span class="text-slate-400">今回の記録数：</span><span id="emailBatchCountPreview"></span></p>
                 <p><span class="text-slate-400">件名：</span><span id="emailSubjectPreview" class="break-all"></span></p>
                 <pre id="emailBodyPreview" class="mt-3 max-h-52 overflow-auto whitespace-pre-wrap break-words border-t border-slate-800 pt-3 font-sans leading-relaxed"></pre>
             </div>
@@ -98,6 +104,9 @@
                 limitRate: { id: 'gps-location-email', throttle: 10000 }
             });
         }
+        const HISTORY_STORAGE_KEY = 'gps-location-history-v1';
+        const MAX_EMAIL_BATCH_SIZE = 10;
+        const MAX_HISTORY_RECORDS = 500;
         const map = L.map('map', { zoomControl: false }).setView([36.2, 138.2], 5);
         L.control.zoom({ position: 'bottomleft' }).addTo(map);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -113,9 +122,18 @@
         const gpsStatus = document.getElementById('gpsStatus');
         const emailDialog = document.getElementById('emailDialog');
         const sendEmailButton = document.getElementById('sendEmailButton');
+        const historySummary = document.getElementById('historySummary');
+        const historyList = document.getElementById('historyList');
+        const clearHistoryButton = document.getElementById('clearHistoryButton');
         let latestFix = null;
         let emailTemplateParams = null;
+        let emailBatchIds = [];
+        let emailSending = false;
+        let emailCooldownUntil = 0;
+        let emailCooldownTimer = null;
+        let locationHistory = loadLocationHistory();
         let locationLayer = L.layerGroup().addTo(map);
+        let historyLayer = L.layerGroup().addTo(map);
 
         locateButton.addEventListener('click', () => {
             if (!('geolocation' in navigator)) {
@@ -163,9 +181,9 @@
             document.getElementById('accuracyValue').textContent = `約 ±${Math.round(accuracy)} m`;
             document.getElementById('timestampValue').textContent = latestFix.timestamp;
             infoButton.disabled = false;
-            emailButton.disabled = !emailjsConfigured;
             locateButton.disabled = false;
             locateLabel.textContent = '現在地';
+            renderHistory();
             showStatus(emailjsConfigured
                 ? `現在地を取得しました（測位精度：約 ±${Math.round(accuracy)} m）`
                 : '現在地を取得しました。メール送信を有効にするには EmailJS の設定が必要です。');
@@ -183,56 +201,197 @@
         }
 
         infoButton.addEventListener('click', () => {
-            const willOpen = gpsPanel.classList.contains('hidden');
-            gpsPanel.classList.toggle('hidden', !willOpen);
-            infoButton.setAttribute('aria-expanded', String(willOpen));
+            if (!latestFix) return;
+            if (locationHistory.length >= MAX_HISTORY_RECORDS) {
+                const oldestSentIndex = locationHistory.findIndex(record => record.sent);
+                if (oldestSentIndex < 0) {
+                    showStatus('保存履歴が上限の500件です。未送信の記録をメール送信するか、履歴を消去してください。', true);
+                    return;
+                }
+                locationHistory.splice(oldestSentIndex, 1);
+            }
+
+            locationHistory.push({
+                id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                latitude: latestFix.latitude,
+                longitude: latestFix.longitude,
+                accuracy: latestFix.accuracy,
+                timestamp: latestFix.timestamp,
+                recordedAt: formatLocalTimestamp(new Date()),
+                sent: false
+            });
+            const saved = persistLocationHistory();
+            gpsPanel.classList.remove('hidden');
+            infoButton.setAttribute('aria-expanded', 'true');
+            renderHistory();
+            showStatus(saved
+                ? 'GPS情報をこのブラウザーに保存し、地図にマーカーを追加しました。'
+                : 'GPS情報を地図に追加しましたが、ブラウザー保存が使えないため、このページを閉じると履歴は消えます。', !saved);
         });
 
         emailButton.addEventListener('click', () => {
-            if (!latestFix) return;
-            const subject = `現在地の共有 - ${latestFix.timestamp}`;
-            const body = [
-                '現在地を共有します。',
-                '',
-                `緯度: ${latestFix.latitude}`,
-                `経度: ${latestFix.longitude}`,
-                `測位精度: 約 ±${Math.round(latestFix.accuracy)} m`,
-                `取得日時 (ISO 8601): ${latestFix.timestamp}`,
-                '',
-                `地図: https://www.openstreetmap.org/?mlat=${latestFix.latitude}&mlon=${latestFix.longitude}#map=16/${latestFix.latitude}/${latestFix.longitude}`
-            ].join('\n');
-
+            const batch = getPendingLocations().slice(0, MAX_EMAIL_BATCH_SIZE);
+            if (!batch.length || !emailjsConfigured) return;
+            const sentAt = formatLocalTimestamp(new Date());
+            const body = batch.map((record, index) => [
+                `記録 ${index + 1}`,
+                `記録日時: ${record.recordedAt}`,
+                `測位日時: ${record.timestamp}`,
+                `緯度: ${record.latitude}`,
+                `経度: ${record.longitude}`,
+                `測位精度: 約 ±${Math.round(record.accuracy)} m`,
+                `地図: https://www.openstreetmap.org/?mlat=${record.latitude}&mlon=${record.longitude}#map=16/${record.latitude}/${record.longitude}`
+            ].join('\n')).join('\n\n');
+            const subject = `現在地の共有 - ${batch.length}件 - ${sentAt}`;
             document.getElementById('emailSubjectPreview').textContent = subject;
             document.getElementById('emailBodyPreview').textContent = body;
+            document.getElementById('emailBatchCountPreview').textContent = `${batch.length}件`;
             emailTemplateParams = {
-                timestamp: latestFix.timestamp,
-                latitude: String(latestFix.latitude),
-                longitude: String(latestFix.longitude),
-                accuracy: `約 ±${Math.round(latestFix.accuracy)} m`,
-                map_url: `https://www.openstreetmap.org/?mlat=${latestFix.latitude}&mlon=${latestFix.longitude}#map=16/${latestFix.latitude}/${latestFix.longitude}`
+                batch_count: String(batch.length),
+                sent_at: sentAt,
+                timestamp: sentAt,
+                location_batch: body
             };
+            emailBatchIds = batch.map(record => record.id);
             emailDialog.showModal();
         });
 
         document.getElementById('cancelEmailButton').addEventListener('click', () => emailDialog.close());
         sendEmailButton.addEventListener('click', async () => {
-            if (!emailjsConfigured || !emailTemplateParams || sendEmailButton.disabled) return;
+            if (!emailjsConfigured || !emailTemplateParams || sendEmailButton.disabled || emailSending) return;
+            emailSending = true;
+            startEmailCooldown();
             sendEmailButton.disabled = true;
             sendEmailButton.textContent = '送信中…';
             try {
                 await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, emailTemplateParams);
+                const sentIds = new Set(emailBatchIds);
+                for (const record of locationHistory) {
+                    if (sentIds.has(record.id)) {
+                        record.sent = true;
+                        record.sentAt = emailTemplateParams.sent_at;
+                    }
+                }
+                const saved = persistLocationHistory();
+                const sentCount = sentIds.size;
                 emailDialog.close();
-                showStatus('メール送信を受け付けました。');
+                emailBatchIds = [];
+                emailTemplateParams = null;
+                renderHistory();
+                showStatus(saved
+                    ? `EmailJS が ${sentCount}件の送信を受け付けました。`
+                    : `EmailJS は ${sentCount}件を受け付けましたが、送信済み状態を保存できませんでした。重複送信にご注意ください。`, !saved);
             } catch {
                 showStatus('メールを送信できませんでした。通信状態と EmailJS の設定を確認して、もう一度お試しください。', true);
             } finally {
+                emailSending = false;
                 sendEmailButton.disabled = false;
                 sendEmailButton.textContent = '送信する';
+                renderHistory();
             }
         });
         emailDialog.addEventListener('click', event => {
             if (event.target === emailDialog) emailDialog.close();
         });
+
+        clearHistoryButton.addEventListener('click', () => {
+            if (!locationHistory.length || !window.confirm('保存したGPS履歴をすべて削除しますか？')) return;
+            locationHistory = [];
+            const saved = persistLocationHistory();
+            renderHistory();
+            showStatus(saved ? 'GPS履歴を削除しました。' : 'このページのGPS履歴を削除しました。');
+        });
+
+        renderHistory();
+        if (locationHistory.length) {
+            const savedBounds = L.latLngBounds(locationHistory.map(record => [record.latitude, record.longitude]));
+            if (savedBounds.isValid()) map.fitBounds(savedBounds.pad(0.08), { maxZoom: 16 });
+        }
+
+        function loadLocationHistory() {
+            try {
+                const stored = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]');
+                if (!Array.isArray(stored)) return [];
+                return stored.filter(record => Number.isFinite(record.latitude) && record.latitude >= -90 && record.latitude <= 90 &&
+                    Number.isFinite(record.longitude) && record.longitude >= -180 && record.longitude <= 180 &&
+                    Number.isFinite(record.accuracy) && typeof record.id === 'string' &&
+                    typeof record.timestamp === 'string' && typeof record.recordedAt === 'string')
+                    .slice(-MAX_HISTORY_RECORDS);
+            } catch {
+                return [];
+            }
+        }
+
+        function persistLocationHistory() {
+            try {
+                localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(locationHistory));
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        function getPendingLocations() {
+            return locationHistory.filter(record => !record.sent);
+        }
+
+        function startEmailCooldown() {
+            emailCooldownUntil = Date.now() + 10000;
+            if (emailCooldownTimer) clearTimeout(emailCooldownTimer);
+            const updateCooldown = () => {
+                if (Date.now() >= emailCooldownUntil) {
+                    emailCooldownTimer = null;
+                    renderHistory();
+                    return;
+                }
+                renderHistory();
+                emailCooldownTimer = setTimeout(updateCooldown, 1000);
+            };
+            updateCooldown();
+        }
+
+        function renderHistory() {
+            historyLayer.clearLayers();
+            historyList.replaceChildren();
+            locationHistory.forEach((record, index) => {
+                const isSent = record.sent === true;
+                const marker = L.circleMarker([record.latitude, record.longitude], {
+                    radius: 7,
+                    color: isSent ? '#34d399' : '#fbbf24',
+                    weight: 2,
+                    fillColor: isSent ? '#059669' : '#d97706',
+                    fillOpacity: 0.9
+                });
+                const popup = document.createElement('div');
+                const title = document.createElement('strong');
+                title.textContent = `GPS記録 #${index + 1}`;
+                const detail = document.createElement('p');
+                detail.textContent = `${record.recordedAt} ・ ${isSent ? '送信済み' : '送信待ち'}`;
+                const coordinates = document.createElement('p');
+                coordinates.textContent = `${record.latitude}, ${record.longitude}`;
+                popup.append(title, detail, coordinates);
+                marker.bindPopup(popup).addTo(historyLayer);
+
+                const item = document.createElement('li');
+                item.className = 'rounded-lg border border-slate-800 px-2 py-1.5';
+                item.textContent = `#${index + 1} ・ ${record.recordedAt} ・ ${isSent ? '送信済み' : '送信待ち'}`;
+                historyList.append(item);
+            });
+
+            const pendingCount = getPendingLocations().length;
+            const currentCount = locationHistory.length;
+            const cooldownSeconds = Math.max(0, Math.ceil((emailCooldownUntil - Date.now()) / 1000));
+            historySummary.textContent = `保存 ${currentCount}件 / 未送信 ${pendingCount}件 （1回の送信は最大${MAX_EMAIL_BATCH_SIZE}件）`;
+            clearHistoryButton.disabled = currentCount === 0;
+            emailButton.disabled = !emailjsConfigured || pendingCount === 0 || emailSending || cooldownSeconds > 0;
+            emailButton.textContent = !emailjsConfigured
+                ? 'EmailJS未設定'
+                : emailSending
+                    ? '送信中…'
+                    : cooldownSeconds > 0
+                        ? `次の送信まで ${cooldownSeconds}秒`
+                        : `未送信 ${pendingCount}件をメール送信`;
+        }
 
         function showStatus(message, isError = false) {
             gpsStatus.textContent = message;
