@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         html, body { min-height: 100%; }
         body { height: 100dvh; overflow: hidden; }
@@ -66,7 +67,7 @@
     <dialog id="emailDialog" class="m-auto w-[min(38rem,calc(100vw-2rem))] rounded-2xl border border-slate-700 bg-slate-900 p-0 text-slate-100 shadow-2xl">
         <form method="dialog" class="p-5 sm:p-6">
             <h2 class="text-lg font-bold">メール内容を確認</h2>
-            <p class="mt-1 text-sm text-slate-400">次の内容をメールアプリで開きます。送信前に内容を確認してください。</p>
+            <p class="mt-1 text-sm text-slate-400">以下の現在地情報を EmailJS 経由で送信します。送信前に内容を確認してください。</p>
             <div class="mt-4 space-y-2 rounded-xl border border-slate-800 bg-slate-950 p-3 text-xs">
                 <p><span class="text-slate-400">宛先：</span><span class="select-all font-mono">nakanohinatadx@gmail.com</span></p>
                 <p><span class="text-slate-400">件名：</span><span id="emailSubjectPreview" class="break-all"></span></p>
@@ -74,13 +75,29 @@
             </div>
             <div class="mt-5 flex flex-wrap justify-end gap-2">
                 <button id="cancelEmailButton" type="button" class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800">キャンセル</button>
-                <a id="openEmailLink" class="rounded-lg bg-sky-700 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600">メールアプリを開く</a>
+                <button id="sendEmailButton" type="button" class="rounded-lg bg-sky-700 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600 disabled:cursor-wait disabled:opacity-60">送信する</button>
             </div>
         </form>
     </dialog>
 
     <script>
-        const recipient = 'nakanohinatadx@gmail.com';
+        const EMAILJS_CONFIG = {
+            publicKey: '_P7fcXF5Eek9cCvlp',
+            serviceId: 'service_n61w7gp',
+            templateId: 'template_gwvvl9w'
+        };
+        const emailjsConfigured = Boolean(
+            window.emailjs &&
+            EMAILJS_CONFIG.publicKey && !EMAILJS_CONFIG.publicKey.startsWith('YOUR_') &&
+            EMAILJS_CONFIG.serviceId && !EMAILJS_CONFIG.serviceId.startsWith('YOUR_') &&
+            EMAILJS_CONFIG.templateId && !EMAILJS_CONFIG.templateId.startsWith('YOUR_')
+        );
+        if (emailjsConfigured) {
+            emailjs.init({
+                publicKey: EMAILJS_CONFIG.publicKey,
+                limitRate: { id: 'gps-location-email', throttle: 10000 }
+            });
+        }
         const map = L.map('map', { zoomControl: false }).setView([36.2, 138.2], 5);
         L.control.zoom({ position: 'bottomleft' }).addTo(map);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -95,7 +112,9 @@
         const gpsPanel = document.getElementById('gpsPanel');
         const gpsStatus = document.getElementById('gpsStatus');
         const emailDialog = document.getElementById('emailDialog');
+        const sendEmailButton = document.getElementById('sendEmailButton');
         let latestFix = null;
+        let emailTemplateParams = null;
         let locationLayer = L.layerGroup().addTo(map);
 
         locateButton.addEventListener('click', () => {
@@ -144,10 +163,12 @@
             document.getElementById('accuracyValue').textContent = `約 ±${Math.round(accuracy)} m`;
             document.getElementById('timestampValue').textContent = latestFix.timestamp;
             infoButton.disabled = false;
-            emailButton.disabled = false;
+            emailButton.disabled = !emailjsConfigured;
             locateButton.disabled = false;
             locateLabel.textContent = '現在地';
-            showStatus(`現在地を取得しました（測位精度：約 ±${Math.round(accuracy)} m）`);
+            showStatus(emailjsConfigured
+                ? `現在地を取得しました（測位精度：約 ±${Math.round(accuracy)} m）`
+                : '現在地を取得しました。メール送信を有効にするには EmailJS の設定が必要です。');
         }
 
         function onLocationError(error) {
@@ -183,12 +204,32 @@
 
             document.getElementById('emailSubjectPreview').textContent = subject;
             document.getElementById('emailBodyPreview').textContent = body;
-            document.getElementById('openEmailLink').href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            emailTemplateParams = {
+                timestamp: latestFix.timestamp,
+                latitude: String(latestFix.latitude),
+                longitude: String(latestFix.longitude),
+                accuracy: `約 ±${Math.round(latestFix.accuracy)} m`,
+                map_url: `https://www.openstreetmap.org/?mlat=${latestFix.latitude}&mlon=${latestFix.longitude}#map=16/${latestFix.latitude}/${latestFix.longitude}`
+            };
             emailDialog.showModal();
         });
 
         document.getElementById('cancelEmailButton').addEventListener('click', () => emailDialog.close());
-        document.getElementById('openEmailLink').addEventListener('click', () => emailDialog.close());
+        sendEmailButton.addEventListener('click', async () => {
+            if (!emailjsConfigured || !emailTemplateParams || sendEmailButton.disabled) return;
+            sendEmailButton.disabled = true;
+            sendEmailButton.textContent = '送信中…';
+            try {
+                await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, emailTemplateParams);
+                emailDialog.close();
+                showStatus('メール送信を受け付けました。');
+            } catch {
+                showStatus('メールを送信できませんでした。通信状態と EmailJS の設定を確認して、もう一度お試しください。', true);
+            } finally {
+                sendEmailButton.disabled = false;
+                sendEmailButton.textContent = '送信する';
+            }
+        });
         emailDialog.addEventListener('click', event => {
             if (event.target === emailDialog) emailDialog.close();
         });
