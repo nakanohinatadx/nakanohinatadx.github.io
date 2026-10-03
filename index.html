@@ -94,27 +94,29 @@
                 </div>
             </a>
 
-            <!-- 卡片 3：預留未來擴充頁面 (範例) -->
-            <div class="bg-slate-800/20 border border-slate-800 rounded-2xl p-6 opacity-60 flex flex-col justify-between">
+            <!-- 卡片 3：GPS位置情報ページ -->
+            <a href="03_GPS_Location.html" class="group relative bg-slate-800/50 hover:bg-slate-800 border border-slate-700/60 hover:border-sky-500/50 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-sky-500/10 flex flex-col justify-between">
                 <div>
                     <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-slate-800 text-slate-500 rounded-xl">
-                            <i class="fa-solid fa-gears text-2xl"></i>
+                        <div class="p-3 bg-sky-500/10 text-sky-400 rounded-xl group-hover:bg-sky-600 group-hover:text-white transition-colors">
+                            <i class="fa-solid fa-location-crosshairs text-2xl"></i>
                         </div>
-                        <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-slate-800 text-slate-500">Module #03</span>
+                        <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-slate-700 text-sky-300 border border-slate-600">Module #03</span>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-400 mb-2">
-                        伺服器 API 數據控制台
+                    <h3 class="text-lg font-bold text-white mb-2 group-hover:text-sky-400 transition-colors">
+                        GPS位置情報
                     </h3>
-                    <p class="text-slate-500 text-sm leading-relaxed mb-4">
-                        （預留位置）未來可整合 Backend Server 傳回的即時數據與裝置控制介面。
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4">
+                        現在地を確認してメールで共有
                     </p>
                 </div>
-                <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-600">
-                    <span>Planned</span>
-                    <span>Coming Soon</span>
+                <div class="pt-4 border-t border-slate-700/50 flex items-center justify-between text-xs text-slate-400">
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Active</span>
+                    <span class="text-sky-400 font-medium group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                        開く <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </span>
                 </div>
-            </div>
+            </a>
 
         </div>
     </main>

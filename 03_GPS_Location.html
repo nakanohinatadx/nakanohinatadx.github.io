@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#020617">
+    <title>GPS位置情報</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        html, body { min-height: 100%; }
+        body { height: 100dvh; overflow: hidden; }
+        .leaflet-container { font: inherit; background: #0b1220; }
+        dialog::backdrop { background: rgb(2 6 23 / .78); backdrop-filter: blur(3px); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased">
+    <header class="absolute inset-x-0 top-0 z-[1000] border-b border-slate-800 bg-slate-950/90 px-4 py-3 backdrop-blur">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="rounded-lg bg-slate-800 p-2 text-slate-300 hover:bg-slate-700" aria-label="ナビゲーションページに戻る" title="ナビゲーションページに戻る">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6M9 12h12"/><path d="M3 5v14"/></svg>
+                </a>
+                <div>
+                    <h1 class="font-bold">GPS位置情報</h1>
+                    <p class="text-xs text-slate-400">現在地を確認してメールで共有</p>
+                </div>
+            </div>
+            <span class="hidden items-center gap-2 text-xs text-slate-400 sm:flex"><span class="h-2 w-2 rounded-full bg-sky-400"></span> OpenStreetMap</span>
+        </div>
+    </header>
+
+    <main class="relative h-full w-full pt-[68px]">
+        <div id="map" class="absolute inset-x-0 bottom-0 top-[68px]" role="application" aria-label="OpenStreetMap 地図"></div>
+
+        <section id="gpsControls" class="absolute right-3 top-[82px] z-[1000] flex w-[min(22rem,calc(100vw-1.5rem))] flex-col gap-2 sm:right-5 sm:top-24" aria-label="GPS操作">
+            <div class="flex flex-wrap justify-end gap-2">
+                <button id="locateButton" type="button" class="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-slate-800 disabled:cursor-wait disabled:opacity-60" aria-label="端末の現在地を取得">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 text-sky-300" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/><circle cx="12" cy="12" r="8"/></svg>
+                    <span id="locateLabel">現在地</span>
+                </button>
+                <button id="infoButton" type="button" class="rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50" aria-controls="gpsPanel" aria-expanded="false" disabled>GPS情報</button>
+                <button id="emailButton" type="button" class="rounded-lg border border-sky-500/50 bg-sky-700 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50" disabled>メールで送信</button>
+            </div>
+
+            <p id="gpsStatus" class="hidden rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-sm text-slate-200 shadow-lg" role="status" aria-live="polite"></p>
+
+            <section id="gpsPanel" class="hidden rounded-xl border border-slate-700 bg-slate-950/95 p-4 shadow-xl" aria-labelledby="gpsPanelTitle">
+                <h2 id="gpsPanelTitle" class="mb-3 text-sm font-semibold text-white">取得したGPS情報</h2>
+                <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-xs">
+                    <dt class="text-slate-400">緯度</dt><dd id="latitudeValue" class="break-all font-mono text-slate-100"></dd>
+                    <dt class="text-slate-400">経度</dt><dd id="longitudeValue" class="break-all font-mono text-slate-100"></dd>
+                    <dt class="text-slate-400">測位精度</dt><dd id="accuracyValue" class="font-mono text-slate-100"></dd>
+                    <dt class="text-slate-400">取得日時</dt><dd id="timestampValue" class="break-all font-mono text-slate-100"></dd>
+                </dl>
+                <p class="mt-3 text-[11px] leading-relaxed text-slate-400">位置情報はこのページを開いている間だけ保持します。メールアプリを開いた後、内容を確認して送信してください。</p>
+            </section>
+        </section>
+
+        <p class="absolute bottom-8 left-3 z-[500] max-w-[min(30rem,calc(100vw-1.5rem))] rounded-lg border border-slate-800 bg-slate-950/90 px-3 py-2 text-xs leading-relaxed text-slate-300 sm:bottom-10 sm:left-5">
+            位置情報の取得にはブラウザーの許可と HTTPS 接続が必要です。現在地ボタンを押したときだけ測位します。
+        </p>
+    </main>
+
+    <dialog id="emailDialog" class="m-auto w-[min(38rem,calc(100vw-2rem))] rounded-2xl border border-slate-700 bg-slate-900 p-0 text-slate-100 shadow-2xl">
+        <form method="dialog" class="p-5 sm:p-6">
+            <h2 class="text-lg font-bold">メール内容を確認</h2>
+            <p class="mt-1 text-sm text-slate-400">次の内容をメールアプリで開きます。送信前に内容を確認してください。</p>
+            <div class="mt-4 space-y-2 rounded-xl border border-slate-800 bg-slate-950 p-3 text-xs">
+                <p><span class="text-slate-400">宛先：</span><span class="select-all font-mono">nakanohinatadx@gmail.com</span></p>
+                <p><span class="text-slate-400">件名：</span><span id="emailSubjectPreview" class="break-all"></span></p>
+                <pre id="emailBodyPreview" class="mt-3 max-h-52 overflow-auto whitespace-pre-wrap break-words border-t border-slate-800 pt-3 font-sans leading-relaxed"></pre>
+            </div>
+            <div class="mt-5 flex flex-wrap justify-end gap-2">
+                <button id="cancelEmailButton" type="button" class="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800">キャンセル</button>
+                <a id="openEmailLink" class="rounded-lg bg-sky-700 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600">メールアプリを開く</a>
+            </div>
+        </form>
+    </dialog>
+
+    <script>
+        const recipient = 'nakanohinatadx@gmail.com';
+        const map = L.map('map', { zoomControl: false }).setView([36.2, 138.2], 5);
+        L.control.zoom({ position: 'bottomleft' }).addTo(map);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> 貢献者'
+        }).addTo(map);
+
+        const locateButton = document.getElementById('locateButton');
+        const locateLabel = document.getElementById('locateLabel');
+        const infoButton = document.getElementById('infoButton');
+        const emailButton = document.getElementById('emailButton');
+        const gpsPanel = document.getElementById('gpsPanel');
+        const gpsStatus = document.getElementById('gpsStatus');
+        const emailDialog = document.getElementById('emailDialog');
+        let latestFix = null;
+        let locationLayer = L.layerGroup().addTo(map);
+
+        locateButton.addEventListener('click', () => {
+            if (!('geolocation' in navigator)) {
+                showStatus('このブラウザーは位置情報に対応していません。', true);
+                return;
+            }
+            locateButton.disabled = true;
+            locateLabel.textContent = '測位中…';
+            showStatus('端末の位置を取得しています…');
+            navigator.geolocation.getCurrentPosition(onLocationSuccess, onLocationError, {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 10000
+            });
+        });
+
+        function onLocationSuccess(position) {
+            const { latitude, longitude, accuracy } = position.coords;
+            latestFix = {
+                latitude,
+                longitude,
+                accuracy,
+                timestamp: new Date(position.timestamp).toISOString()
+            };
+
+            locationLayer.clearLayers();
+            L.circle([latitude, longitude], {
+                radius: accuracy,
+                color: '#38bdf8',
+                weight: 2,
+                fillColor: '#38bdf8',
+                fillOpacity: 0.14
+            }).addTo(locationLayer);
+            L.circleMarker([latitude, longitude], {
+                radius: 8,
+                color: '#ffffff',
+                weight: 3,
+                fillColor: '#0284c7',
+                fillOpacity: 1
+            }).bindPopup(`現在地<br>測位精度：約 ±${Math.round(accuracy)} m`).addTo(locationLayer).openPopup();
+            map.flyTo([latitude, longitude], Math.max(map.getZoom(), 16), { duration: 0.8 });
+
+            document.getElementById('latitudeValue').textContent = String(latitude);
+            document.getElementById('longitudeValue').textContent = String(longitude);
+            document.getElementById('accuracyValue').textContent = `約 ±${Math.round(accuracy)} m`;
+            document.getElementById('timestampValue').textContent = latestFix.timestamp;
+            infoButton.disabled = false;
+            emailButton.disabled = false;
+            locateButton.disabled = false;
+            locateLabel.textContent = '現在地';
+            showStatus(`現在地を取得しました（測位精度：約 ±${Math.round(accuracy)} m）`);
+        }
+
+        function onLocationError(error) {
+            const messages = {
+                1: '位置情報へのアクセスが許可されていません。このサイトに位置情報の使用を許可してください。',
+                2: '端末の位置を取得できません。GPS または位置情報サービスを確認してください。',
+                3: '測位がタイムアウトしました。もう一度お試しください。'
+            };
+            locateButton.disabled = false;
+            locateLabel.textContent = '現在地';
+            showStatus(messages[error.code] || '端末の位置を取得できませんでした。もう一度お試しください。', true);
+        }
+
+        infoButton.addEventListener('click', () => {
+            const willOpen = gpsPanel.classList.contains('hidden');
+            gpsPanel.classList.toggle('hidden', !willOpen);
+            infoButton.setAttribute('aria-expanded', String(willOpen));
+        });
+
+        emailButton.addEventListener('click', () => {
+            if (!latestFix) return;
+            const subject = `現在地の共有 - ${latestFix.timestamp}`;
+            const body = [
+                '現在地を共有します。',
+                '',
+                `緯度: ${latestFix.latitude}`,
+                `経度: ${latestFix.longitude}`,
+                `測位精度: 約 ±${Math.round(latestFix.accuracy)} m`,
+                `取得日時 (ISO 8601): ${latestFix.timestamp}`,
+                '',
+                `地図: https://www.openstreetmap.org/?mlat=${latestFix.latitude}&mlon=${latestFix.longitude}#map=16/${latestFix.latitude}/${latestFix.longitude}`
+            ].join('\n');
+
+            document.getElementById('emailSubjectPreview').textContent = subject;
+            document.getElementById('emailBodyPreview').textContent = body;
+            document.getElementById('openEmailLink').href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            emailDialog.showModal();
+        });
+
+        document.getElementById('cancelEmailButton').addEventListener('click', () => emailDialog.close());
+        document.getElementById('openEmailLink').addEventListener('click', () => emailDialog.close());
+        emailDialog.addEventListener('click', event => {
+            if (event.target === emailDialog) emailDialog.close();
+        });
+
+        function showStatus(message, isError = false) {
+            gpsStatus.textContent = message;
+            gpsStatus.classList.remove('hidden', 'text-slate-200', 'text-rose-300');
+            gpsStatus.classList.add(isError ? 'text-rose-300' : 'text-slate-200');
+        }
+    </script>
+</body>
+</html>
