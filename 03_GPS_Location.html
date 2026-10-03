@@ -17,35 +17,68 @@
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased">
-    <header class="absolute inset-x-0 top-0 z-[1000] border-b border-slate-800 bg-slate-950/90 px-4 py-3 backdrop-blur">
-        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <a href="index.html" class="rounded-lg bg-slate-800 p-2 text-slate-300 hover:bg-slate-700" aria-label="ナビゲーションページに戻る" title="ナビゲーションページに戻る">
-                    <svg aria-hidden="true" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6M9 12h12"/><path d="M3 5v14"/></svg>
-                </a>
-                <div>
-                    <h1 class="font-bold">GPS位置情報</h1>
-                    <p class="text-xs text-slate-400">現在地を確認してメールで共有</p>
-                </div>
-            </div>
-            <span class="hidden items-center gap-2 text-xs text-slate-400 sm:flex"><span class="h-2 w-2 rounded-full bg-sky-400"></span> OpenStreetMap</span>
+    <header class="absolute inset-x-0 top-0 z-[1000] border-b border-slate-800 bg-slate-950/90 px-3 py-2 backdrop-blur">
+        <div class="mx-auto flex max-w-7xl items-center gap-2">
+            <a href="index.html" class="rounded-md bg-slate-800 p-1.5 text-slate-300 hover:bg-slate-700" aria-label="ナビゲーションページに戻る" title="ナビゲーションページに戻る">
+                <svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6M9 12h12"/><path d="M3 5v14"/></svg>
+            </a>
+            <h1 class="text-sm font-bold">GPS位置情報</h1>
         </div>
     </header>
 
-    <main class="relative h-full w-full pt-[68px]">
-        <div id="map" class="absolute inset-x-0 bottom-0 top-[68px]" role="application" aria-label="OpenStreetMap 地図"></div>
+    <main class="relative h-full w-full pt-[48px]">
+        <div id="map" class="absolute inset-x-0 bottom-0 top-[48px]" role="application" aria-label="OpenStreetMap 地図"></div>
 
-        <section id="gpsControls" class="absolute right-3 top-[82px] z-[1000] flex w-[min(22rem,calc(100vw-1.5rem))] flex-col gap-2 sm:right-5 sm:top-24" aria-label="GPS操作">
-            <div class="flex flex-wrap justify-end gap-2">
+        <section id="gpsControls" class="absolute right-3 top-[60px] z-[1000] flex w-[min(22rem,calc(100vw-1.5rem))] flex-col items-end gap-2 sm:right-5 sm:top-[60px]" aria-label="GPS操作">
+            <div class="flex gap-2">
+                <button id="settingsButton" type="button" class="rounded-lg border border-slate-700 bg-slate-950/95 p-2 text-white shadow-lg hover:bg-slate-800" aria-label="記録設定を開く" aria-haspopup="dialog" title="記録設定">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <span id="recordingIndicator" class="hidden self-center rounded-full border border-emerald-700 bg-emerald-950/95 px-2 py-1 text-[11px] font-medium text-emerald-200">記録中</span>
+                <button id="viewModeButton" type="button" class="rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-xs font-medium text-white shadow-lg hover:bg-slate-800" aria-label="コンパクトな位置情報表示に切り替える">位置情報のみ</button>
+            </div>
+
+            <section id="fullMenu" class="flex w-full flex-col gap-2">
+                <div class="flex flex-wrap justify-end gap-2">
                 <button id="locateButton" type="button" class="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-slate-800 disabled:cursor-wait disabled:opacity-60" aria-label="端末の現在地を取得">
                     <svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 text-sky-300" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/><circle cx="12" cy="12" r="8"/></svg>
                     <span id="locateLabel">現在地</span>
                 </button>
                 <button id="infoButton" type="button" class="rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50" aria-controls="gpsPanel" aria-expanded="false" disabled>GPS情報を記録</button>
                 <button id="emailButton" type="button" class="rounded-lg border border-sky-500/50 bg-sky-700 px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50" disabled>未送信 0件をメール送信</button>
-            </div>
+                </div>
+                <p id="gpsStatus" class="hidden rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-sm text-slate-200 shadow-lg" role="status" aria-live="polite"></p>
 
-            <section class="rounded-xl border border-slate-700 bg-slate-950/95 p-3 shadow-xl" aria-label="自動記録とメール送信の設定">
+                <section id="gpsPanel" class="hidden rounded-xl border border-slate-700 bg-slate-950/95 p-4 shadow-xl" aria-labelledby="gpsPanelTitle">
+                    <div class="mb-3 flex items-center justify-between gap-2">
+                        <h2 id="gpsPanelTitle" class="shrink-0 text-sm font-semibold text-white">GPS情報</h2>
+                        <div class="flex items-center gap-2">
+                            <button id="chooseHistoryButton" type="button" class="rounded-md border border-slate-700 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-800 disabled:opacity-50" disabled>別の記録を表示</button>
+                            <button id="clearHistoryButton" type="button" class="shrink-0 rounded-md border border-slate-700 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-800 disabled:opacity-50" disabled>履歴を消去</button>
+                        </div>
+                    </div>
+                    <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-xs">
+                        <dt class="text-slate-400">位置</dt><dd id="locationValue" class="break-all font-mono text-slate-100"></dd>
+                        <dt class="text-slate-400">日時</dt><dd id="timestampValue" class="break-all font-mono text-slate-100"></dd>
+                    </dl>
+                    <p id="historySummary" class="mt-3 text-xs font-medium text-sky-200" aria-live="polite"></p>
+                </section>
+            </section>
+
+            <section id="compactLocationCard" class="hidden w-full rounded-xl border border-slate-700 bg-slate-950/95 p-3 shadow-xl" aria-label="現在のGPS位置情報">
+                <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-xs">
+                    <dt class="text-slate-400">位置</dt><dd id="compactLocationValue" class="break-all font-mono text-slate-100">未測位</dd>
+                    <dt class="text-slate-400">日時</dt><dd id="compactTimestampValue" class="break-all font-mono text-slate-100">—</dd>
+                </dl>
+            </section>
+        </section>
+
+        <dialog id="settingsDialog" class="m-auto w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-slate-700 bg-slate-900 p-0 text-slate-100 shadow-2xl">
+            <div class="p-4">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                    <h2 class="text-base font-bold">記録設定</h2>
+                    <button id="closeSettingsButton" type="button" class="rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-200 hover:bg-slate-800">閉じる</button>
+                </div>
                 <div class="grid grid-cols-2 gap-3">
                     <label class="text-xs text-slate-300">記録間隔
                         <select id="recordInterval" class="mt-1 w-full rounded-md border border-slate-700 bg-slate-900 px-2 py-2 text-sm text-white">
@@ -58,35 +91,12 @@
                         </select>
                     </label>
                 </div>
-                <div class="mt-3 flex gap-2">
-                    <button id="startRecordingButton" type="button" class="flex-1 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-600">記録・自動送信を開始</button>
-                    <button id="stopRecordingButton" type="button" class="flex-1 rounded-lg border border-slate-700 px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800 disabled:opacity-50" disabled>停止</button>
-                </div>
+                <button id="recordingToggleButton" type="button" class="mt-3 w-full rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-600" aria-pressed="false">記録・自動送信を開始</button>
                 <p class="mt-2 text-[11px] leading-relaxed text-slate-400">未送信が選択件数に達すると、EmailJS から nakanohinatadx@gmail.com へ自動送信します。</p>
+                <p class="mt-2 text-[11px] leading-relaxed text-slate-500">位置情報の利用にはブラウザーの許可と HTTPS 接続が必要です。連続記録中は画面を開いたままにしてください。電池を消費します。</p>
                 <p id="recordingStatus" class="mt-2 text-xs text-slate-300" role="status" aria-live="polite">停止中</p>
-            </section>
-
-            <p id="gpsStatus" class="hidden rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-sm text-slate-200 shadow-lg" role="status" aria-live="polite"></p>
-
-            <section id="gpsPanel" class="hidden rounded-xl border border-slate-700 bg-slate-950/95 p-4 shadow-xl" aria-labelledby="gpsPanelTitle">
-                <div class="mb-3 flex items-center justify-between gap-2">
-                    <h2 id="gpsPanelTitle" class="shrink-0 text-sm font-semibold text-white">GPS情報</h2>
-                    <div class="flex items-center gap-2">
-                        <button id="chooseHistoryButton" type="button" class="rounded-md border border-slate-700 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-800 disabled:opacity-50" disabled>別の記録を表示</button>
-                        <button id="clearHistoryButton" type="button" class="shrink-0 rounded-md border border-slate-700 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-800 disabled:opacity-50" disabled>履歴を消去</button>
-                    </div>
-                </div>
-                <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-xs">
-                    <dt class="text-slate-400">位置</dt><dd id="locationValue" class="break-all font-mono text-slate-100"></dd>
-                    <dt class="text-slate-400">日時</dt><dd id="timestampValue" class="break-all font-mono text-slate-100"></dd>
-                </dl>
-                <p id="historySummary" class="mt-3 text-xs font-medium text-sky-200" aria-live="polite"></p>
-            </section>
-        </section>
-
-        <p class="absolute bottom-8 left-3 z-[500] max-w-[min(30rem,calc(100vw-1.5rem))] rounded-lg border border-slate-800 bg-slate-950/90 px-3 py-2 text-xs leading-relaxed text-slate-300 sm:bottom-10 sm:left-5">
-            位置情報の利用にはブラウザーの許可と HTTPS 接続が必要です。「現在地」または「記録・自動送信を開始」を押したときだけ測位します。連続記録中は画面を開いたままにしてください。電池を消費します。
-        </p>
+            </div>
+        </dialog>
     </main>
 
     <dialog id="emailDialog" class="m-auto w-[min(38rem,calc(100vw-2rem))] rounded-2xl border border-slate-700 bg-slate-900 p-0 text-slate-100 shadow-2xl">
@@ -161,9 +171,15 @@
         const clearHistoryButton = document.getElementById('clearHistoryButton');
         const recordIntervalSelect = document.getElementById('recordInterval');
         const emailBatchSizeSelect = document.getElementById('emailBatchSize');
-        const startRecordingButton = document.getElementById('startRecordingButton');
-        const stopRecordingButton = document.getElementById('stopRecordingButton');
+        const settingsButton = document.getElementById('settingsButton');
+        const settingsDialog = document.getElementById('settingsDialog');
+        const recordingToggleButton = document.getElementById('recordingToggleButton');
+        const viewModeButton = document.getElementById('viewModeButton');
+        const fullMenu = document.getElementById('fullMenu');
+        const compactLocationCard = document.getElementById('compactLocationCard');
+        const recordingIndicator = document.getElementById('recordingIndicator');
         const recordingStatus = document.getElementById('recordingStatus');
+        let compactView = false;
         let latestFix = null;
         let emailTemplateParams = null;
         let emailBatchIds = [];
@@ -197,8 +213,24 @@
             });
         });
 
-        startRecordingButton.addEventListener('click', startRecording);
-        stopRecordingButton.addEventListener('click', stopRecording);
+        settingsButton.addEventListener('click', () => settingsDialog.showModal());
+        document.getElementById('closeSettingsButton').addEventListener('click', () => settingsDialog.close());
+        settingsDialog.addEventListener('click', event => {
+            if (event.target === settingsDialog) settingsDialog.close();
+        });
+        viewModeButton.addEventListener('click', () => {
+            compactView = !compactView;
+            fullMenu.classList.toggle('hidden', compactView);
+            compactLocationCard.classList.toggle('hidden', !compactView);
+            viewModeButton.textContent = compactView ? '全メニュー' : '位置情報のみ';
+            viewModeButton.setAttribute('aria-label', compactView ? '全メニュー表示に切り替える' : 'コンパクトな位置情報表示に切り替える');
+        });
+        recordingToggleButton.addEventListener('click', () => {
+            const wasRecording = recordingActive;
+            if (recordingActive) stopRecording();
+            else startRecording();
+            if (recordingActive !== wasRecording) settingsDialog.close();
+        });
 
         function startRecording() {
             if (!('geolocation' in navigator)) {
@@ -216,8 +248,11 @@
             nextSampleAt = 0;
             recordIntervalSelect.disabled = true;
             emailBatchSizeSelect.disabled = true;
-            startRecordingButton.disabled = true;
-            stopRecordingButton.disabled = false;
+            recordingToggleButton.textContent = '記録・自動送信を停止';
+            recordingToggleButton.setAttribute('aria-pressed', 'true');
+            recordingToggleButton.classList.remove('bg-emerald-700', 'hover:bg-emerald-600');
+            recordingToggleButton.classList.add('bg-rose-700', 'hover:bg-rose-600');
+            recordingIndicator.classList.remove('hidden');
             recordingStatus.textContent = `記録中：${recordIntervalSelect.value}秒間隔を目標に測位し、未送信 ${emailBatchSizeSelect.value}件ごとに自動送信します。`;
             showStatus('位置情報の連続測位を開始しました。画面を開いたままご利用ください。');
             geolocationWatchId = navigator.geolocation.watchPosition(onTrackingLocation, onTrackingError, {
@@ -241,8 +276,11 @@
             recordingActive = false;
             recordIntervalSelect.disabled = false;
             emailBatchSizeSelect.disabled = false;
-            startRecordingButton.disabled = false;
-            stopRecordingButton.disabled = true;
+            recordingToggleButton.textContent = '記録・自動送信を開始';
+            recordingToggleButton.setAttribute('aria-pressed', 'false');
+            recordingToggleButton.classList.remove('bg-rose-700', 'hover:bg-rose-600');
+            recordingToggleButton.classList.add('bg-emerald-700', 'hover:bg-emerald-600');
+            recordingIndicator.classList.add('hidden');
             if (wasActive) {
                 recordingStatus.textContent = message;
                 showStatus(message);
@@ -716,8 +754,12 @@
         }
 
         function showFixDetails(fix) {
-            document.getElementById('locationValue').textContent = `${fix.latitude}, ${fix.longitude} (±${Math.round(fix.accuracy)} m)`;
-            document.getElementById('timestampValue').textContent = formatStoredTimestamp(fix.timestamp || fix.recordedAt);
+            const locationText = `${fix.latitude}, ${fix.longitude} (±${Math.round(fix.accuracy)} m)`;
+            const timestampText = formatStoredTimestamp(fix.timestamp || fix.recordedAt);
+            document.getElementById('locationValue').textContent = locationText;
+            document.getElementById('timestampValue').textContent = timestampText;
+            document.getElementById('compactLocationValue').textContent = locationText;
+            document.getElementById('compactTimestampValue').textContent = timestampText;
         }
 
         window.addEventListener('beforeunload', () => {
