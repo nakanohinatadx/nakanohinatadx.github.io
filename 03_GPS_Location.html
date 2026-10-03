@@ -34,6 +34,7 @@
                 <button id="settingsButton" type="button" class="rounded-lg border border-slate-700 bg-slate-950/95 p-2 text-white shadow-lg hover:bg-slate-800" aria-label="記録設定を開く" aria-haspopup="dialog" title="記録設定">
                     <svg aria-hidden="true" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
+                <button id="recordingToggleButton" type="button" class="rounded-lg border border-emerald-700 bg-emerald-800 px-3 py-2 text-xs font-semibold text-white shadow-lg hover:bg-emerald-700" aria-label="記録・自動送信を開始" aria-pressed="false" title="記録を開始">開始</button>
                 <span id="recordingIndicator" class="hidden self-center rounded-full border border-emerald-700 bg-emerald-950/95 px-2 py-1 text-[11px] font-medium text-emerald-200">記録中</span>
                 <button id="viewModeButton" type="button" class="rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-xs font-medium text-white shadow-lg hover:bg-slate-800" aria-label="コンパクトな位置情報表示に切り替える">位置情報のみ</button>
             </div>
@@ -91,7 +92,6 @@
                         </select>
                     </label>
                 </div>
-                <button id="recordingToggleButton" type="button" class="mt-3 w-full rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-600" aria-pressed="false">記録・自動送信を開始</button>
                 <p class="mt-2 text-[11px] leading-relaxed text-slate-400">未送信が選択件数に達すると、EmailJS から nakanohinatadx@gmail.com へ自動送信します。</p>
                 <p class="mt-2 text-[11px] leading-relaxed text-slate-500">位置情報の利用にはブラウザーの許可と HTTPS 接続が必要です。連続記録中は画面を開いたままにしてください。電池を消費します。</p>
                 <p id="recordingStatus" class="mt-2 text-xs text-slate-300" role="status" aria-live="polite">停止中</p>
@@ -226,10 +226,8 @@
             viewModeButton.setAttribute('aria-label', compactView ? '全メニュー表示に切り替える' : 'コンパクトな位置情報表示に切り替える');
         });
         recordingToggleButton.addEventListener('click', () => {
-            const wasRecording = recordingActive;
             if (recordingActive) stopRecording();
             else startRecording();
-            if (recordingActive !== wasRecording) settingsDialog.close();
         });
 
         function startRecording() {
@@ -248,10 +246,12 @@
             nextSampleAt = 0;
             recordIntervalSelect.disabled = true;
             emailBatchSizeSelect.disabled = true;
-            recordingToggleButton.textContent = '記録・自動送信を停止';
+            recordingToggleButton.textContent = '停止';
+            recordingToggleButton.setAttribute('aria-label', '記録・自動送信を停止');
+            recordingToggleButton.title = '記録を停止';
             recordingToggleButton.setAttribute('aria-pressed', 'true');
-            recordingToggleButton.classList.remove('bg-emerald-700', 'hover:bg-emerald-600');
-            recordingToggleButton.classList.add('bg-rose-700', 'hover:bg-rose-600');
+            recordingToggleButton.classList.remove('border-emerald-700', 'bg-emerald-800', 'hover:bg-emerald-700');
+            recordingToggleButton.classList.add('border-rose-700', 'bg-rose-800', 'hover:bg-rose-700');
             recordingIndicator.classList.remove('hidden');
             recordingStatus.textContent = `記録中：${recordIntervalSelect.value}秒間隔を目標に測位し、未送信 ${emailBatchSizeSelect.value}件ごとに自動送信します。`;
             showStatus('位置情報の連続測位を開始しました。画面を開いたままご利用ください。');
@@ -276,10 +276,12 @@
             recordingActive = false;
             recordIntervalSelect.disabled = false;
             emailBatchSizeSelect.disabled = false;
-            recordingToggleButton.textContent = '記録・自動送信を開始';
+            recordingToggleButton.textContent = '開始';
+            recordingToggleButton.setAttribute('aria-label', '記録・自動送信を開始');
+            recordingToggleButton.title = '記録を開始';
             recordingToggleButton.setAttribute('aria-pressed', 'false');
-            recordingToggleButton.classList.remove('bg-rose-700', 'hover:bg-rose-600');
-            recordingToggleButton.classList.add('bg-emerald-700', 'hover:bg-emerald-600');
+            recordingToggleButton.classList.remove('border-rose-700', 'bg-rose-800', 'hover:bg-rose-700');
+            recordingToggleButton.classList.add('border-emerald-700', 'bg-emerald-800', 'hover:bg-emerald-700');
             recordingIndicator.classList.add('hidden');
             if (wasActive) {
                 recordingStatus.textContent = message;
