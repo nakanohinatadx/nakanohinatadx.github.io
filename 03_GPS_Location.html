@@ -48,15 +48,15 @@
             <p id="gpsStatus" class="hidden rounded-lg border border-slate-700 bg-slate-950/95 px-3 py-2 text-sm text-slate-200 shadow-lg" role="status" aria-live="polite"></p>
 
             <section id="gpsPanel" class="hidden rounded-xl border border-slate-700 bg-slate-950/95 p-4 shadow-xl" aria-labelledby="gpsPanelTitle">
-                <h2 id="gpsPanelTitle" class="mb-3 text-sm font-semibold text-white">現在のGPS情報</h2>
+                <h2 id="gpsPanelTitle" class="mb-3 text-sm font-semibold text-white">GPS情報</h2>
                 <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-xs">
-                    <dt class="text-slate-400">緯度</dt><dd id="latitudeValue" class="break-all font-mono text-slate-100"></dd>
-                    <dt class="text-slate-400">経度</dt><dd id="longitudeValue" class="break-all font-mono text-slate-100"></dd>
-                    <dt class="text-slate-400">測位精度</dt><dd id="accuracyValue" class="font-mono text-slate-100"></dd>
-                    <dt class="text-slate-400">取得日時</dt><dd id="timestampValue" class="break-all font-mono text-slate-100"></dd>
+                    <dt class="text-slate-400">位置・精度</dt><dd id="locationValue" class="break-all font-mono text-slate-100"></dd>
+                    <dt class="text-slate-400">日時</dt><dd id="timestampValue" class="break-all font-mono text-slate-100"></dd>
                 </dl>
-                <p id="historySummary" class="mt-3 text-xs font-medium text-sky-200" aria-live="polite"></p>
-                <ol id="historyList" class="mt-2 max-h-40 space-y-2 overflow-y-auto text-[11px] text-slate-300"></ol>
+                <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+                    <p id="historySummary" class="text-xs font-medium text-sky-200" aria-live="polite"></p>
+                    <button id="chooseHistoryButton" type="button" class="rounded-md border border-slate-700 px-2 py-1 text-[11px] text-slate-200 hover:bg-slate-800 disabled:opacity-50" disabled>別の記録を表示</button>
+                </div>
                 <div class="mt-3 flex items-center justify-between gap-3">
                     <p class="text-[11px] leading-relaxed text-slate-400">記録はこのブラウザーに保存されます。GPS情報を押すたびに地図へ記録マーカーを追加します。</p>
                     <button id="clearHistoryButton" type="button" class="shrink-0 rounded-md border border-slate-700 px-2 py-1 text-[11px] text-slate-300 hover:bg-slate-800 disabled:opacity-50" disabled>履歴を消去</button>
@@ -84,6 +84,17 @@
                 <button id="sendEmailButton" type="button" class="rounded-lg bg-sky-700 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600 disabled:cursor-wait disabled:opacity-60">送信する</button>
             </div>
         </form>
+    </dialog>
+
+    <dialog id="historyDialog" class="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-2xl border border-slate-700 bg-slate-900 p-0 text-slate-100 shadow-2xl">
+        <div class="p-5 sm:p-6">
+            <div class="flex items-center justify-between gap-3">
+                <h2 class="text-lg font-bold">表示するGPS記録を選択</h2>
+                <button id="closeHistoryButton" type="button" class="rounded-lg border border-slate-700 px-3 py-1.5 text-sm text-slate-200 hover:bg-slate-800">閉じる</button>
+            </div>
+            <p class="mt-1 text-sm text-slate-400">選んだ記録だけをGPS情報欄に表示し、地図上で開きます。</p>
+            <ol id="historyList" class="mt-4 max-h-[60vh] space-y-2 overflow-y-auto text-xs"></ol>
+        </div>
     </dialog>
 
     <script>
@@ -124,6 +135,8 @@
         const sendEmailButton = document.getElementById('sendEmailButton');
         const historySummary = document.getElementById('historySummary');
         const historyList = document.getElementById('historyList');
+        const historyDialog = document.getElementById('historyDialog');
+        const chooseHistoryButton = document.getElementById('chooseHistoryButton');
         const clearHistoryButton = document.getElementById('clearHistoryButton');
         let latestFix = null;
         let emailTemplateParams = null;
@@ -176,10 +189,7 @@
             }).bindPopup(`現在地<br>測位精度：約 ±${Math.round(accuracy)} m`).addTo(locationLayer).openPopup();
             map.flyTo([latitude, longitude], Math.max(map.getZoom(), 16), { duration: 0.8 });
 
-            document.getElementById('latitudeValue').textContent = String(latitude);
-            document.getElementById('longitudeValue').textContent = String(longitude);
-            document.getElementById('accuracyValue').textContent = `約 ±${Math.round(accuracy)} m`;
-            document.getElementById('timestampValue').textContent = latestFix.timestamp;
+            showFixDetails(latestFix);
             infoButton.disabled = false;
             locateButton.disabled = false;
             locateLabel.textContent = '現在地';
@@ -257,6 +267,13 @@
         });
 
         document.getElementById('cancelEmailButton').addEventListener('click', () => emailDialog.close());
+        chooseHistoryButton.addEventListener('click', () => {
+            if (locationHistory.length) historyDialog.showModal();
+        });
+        document.getElementById('closeHistoryButton').addEventListener('click', () => historyDialog.close());
+        historyDialog.addEventListener('click', event => {
+            if (event.target === historyDialog) historyDialog.close();
+        });
         sendEmailButton.addEventListener('click', async () => {
             if (!emailjsConfigured || !emailTemplateParams || sendEmailButton.disabled || emailSending) return;
             emailSending = true;
@@ -366,15 +383,27 @@
                 const title = document.createElement('strong');
                 title.textContent = `GPS記録 #${index + 1}`;
                 const detail = document.createElement('p');
-                detail.textContent = `${record.recordedAt} ・ ${isSent ? '送信済み' : '送信待ち'}`;
+                detail.textContent = `${formatStoredTimestamp(record.recordedAt)} ・ ${isSent ? '送信済み' : '送信待ち'}`;
                 const coordinates = document.createElement('p');
-                coordinates.textContent = `${record.latitude}, ${record.longitude}`;
+                coordinates.textContent = `${record.latitude}, ${record.longitude} ・ 精度 ±${Math.round(record.accuracy)} m`;
                 popup.append(title, detail, coordinates);
                 marker.bindPopup(popup).addTo(historyLayer);
 
                 const item = document.createElement('li');
-                item.className = 'rounded-lg border border-slate-800 px-2 py-1.5';
-                item.textContent = `#${index + 1} ・ ${record.recordedAt} ・ ${isSent ? '送信済み' : '送信待ち'}`;
+                const selectButton = document.createElement('button');
+                selectButton.type = 'button';
+                selectButton.className = 'w-full rounded-lg border border-slate-700 px-3 py-2 text-left hover:border-sky-500 hover:bg-slate-800';
+                selectButton.textContent = `#${index + 1} ・ ${formatStoredTimestamp(record.recordedAt)} ・ ${record.latitude}, ${record.longitude} ・ 精度 ±${Math.round(record.accuracy)} m ・ ${isSent ? '送信済み' : '送信待ち'}`;
+                selectButton.addEventListener('click', () => {
+                    showFixDetails(record);
+                    map.flyTo([record.latitude, record.longitude], Math.max(map.getZoom(), 16), { duration: 0.6 });
+                    const markerToOpen = historyLayer.getLayers()[index];
+                    if (markerToOpen) markerToOpen.openPopup();
+                    gpsPanel.classList.remove('hidden');
+                    infoButton.setAttribute('aria-expanded', 'true');
+                    historyDialog.close();
+                });
+                item.append(selectButton);
                 historyList.append(item);
             });
 
@@ -383,6 +412,7 @@
             const cooldownSeconds = Math.max(0, Math.ceil((emailCooldownUntil - Date.now()) / 1000));
             historySummary.textContent = `保存 ${currentCount}件 / 未送信 ${pendingCount}件 （1回の送信は最大${MAX_EMAIL_BATCH_SIZE}件）`;
             clearHistoryButton.disabled = currentCount === 0;
+            chooseHistoryButton.disabled = currentCount === 0;
             emailButton.disabled = !emailjsConfigured || pendingCount === 0 || emailSending || cooldownSeconds > 0;
             emailButton.textContent = !emailjsConfigured
                 ? 'EmailJS未設定'
@@ -406,11 +436,17 @@
             const offsetHours = Math.floor(absoluteOffset / 60);
             const offsetRemainder = absoluteOffset % 60;
             const isoOffset = `${sign}${String(offsetHours).padStart(2, '0')}:${String(offsetRemainder).padStart(2, '0')}`;
-            const gmtLabel = offsetRemainder === 0
-                ? `GMT${sign}${offsetHours}hr`
-                : `GMT${sign}${offsetHours}hr ${offsetRemainder}min`;
-            const localIso = `${String(date.getFullYear()).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}.${String(date.getMilliseconds()).padStart(3, '0')}${isoOffset}`;
-            return `${localIso} (${gmtLabel})`;
+            return `${String(date.getFullYear()).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')} ${isoOffset}`;
+        }
+
+        function formatStoredTimestamp(value) {
+            const match = value.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(?:\.\d+)?([+-]\d{2}:\d{2})/);
+            return match ? `${match[1]} ${match[2]} ${match[3]}` : value;
+        }
+
+        function showFixDetails(fix) {
+            document.getElementById('locationValue').textContent = `${fix.latitude}, ${fix.longitude} ・ 精度 ±${Math.round(fix.accuracy)} m`;
+            document.getElementById('timestampValue').textContent = formatStoredTimestamp(fix.timestamp || fix.recordedAt);
         }
     </script>
 </body>
