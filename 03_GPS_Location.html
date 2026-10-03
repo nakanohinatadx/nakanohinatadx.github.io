@@ -119,7 +119,7 @@
                 latitude,
                 longitude,
                 accuracy,
-                timestamp: new Date(position.timestamp).toISOString()
+                timestamp: formatLocalTimestamp(new Date(position.timestamp))
             };
 
             locationLayer.clearLayers();
@@ -197,6 +197,20 @@
             gpsStatus.textContent = message;
             gpsStatus.classList.remove('hidden', 'text-slate-200', 'text-rose-300');
             gpsStatus.classList.add(isError ? 'text-rose-300' : 'text-slate-200');
+        }
+
+        function formatLocalTimestamp(date) {
+            const offsetMinutes = -date.getTimezoneOffset();
+            const sign = offsetMinutes >= 0 ? '+' : '-';
+            const absoluteOffset = Math.abs(offsetMinutes);
+            const offsetHours = Math.floor(absoluteOffset / 60);
+            const offsetRemainder = absoluteOffset % 60;
+            const isoOffset = `${sign}${String(offsetHours).padStart(2, '0')}:${String(offsetRemainder).padStart(2, '0')}`;
+            const gmtLabel = offsetRemainder === 0
+                ? `GMT${sign}${offsetHours}hr`
+                : `GMT${sign}${offsetHours}hr ${offsetRemainder}min`;
+            const localIso = `${String(date.getFullYear()).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}.${String(date.getMilliseconds()).padStart(3, '0')}${isoOffset}`;
+            return `${localIso} (${gmtLabel})`;
         }
     </script>
 </body>
