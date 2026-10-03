@@ -2,15 +2,19 @@
 
 ## Purpose
 
-This repository is a static GitHub Pages site with a small dashboard and two map pages. It has no server-side runtime or build step.
+This repository is a static GitHub Pages site with a small dashboard and three map pages. It has no server-side runtime or build step.
 
 ## Pages and supported features
 
-- `index.html` is the dashboard. It links to both map pages.
+- `index.html` is the dashboard. It links to all three map pages.
 - `01_Live_Stream_Location.html` is the original Taiwan example. It shows a fixed Taiwan location on Leaflet/OpenStreetMap alongside a fixed YouTube video.
 - `02_Japan_Live_Camera_Map.html` is the Japanese-language camera map. It fetches `dB/map_embeded_db.json`, displays camera markers, supports text search and hierarchical category filters, and uses category emoji as marker icons. Selecting a marker loads its YouTube video or attempts the channel's current live stream; a YouTube link is available when embedding is unavailable.
 - The Japan map includes a device-location button. It requests a one-time browser location, focuses the map, and displays the reported accuracy radius. Browser permission and a secure context such as HTTPS are required.
 - The Japan map uses a roughly 65/35 map/video split on wide screens and stacks the panels on narrower screens.
+- `03_GPS_Location.html` is the GPS location page. It uses Leaflet with OpenStreetMap tiles and requests a one-time device location only after the user selects the current-location button. Browser permission and a secure context such as HTTPS are required.
+- The GPS page can save each captured fix in browser `localStorage` and display it as a page marker. These markers are overlays and do not create or edit OpenStreetMap data. Saved fixes remain in that browser unless its site storage is cleared.
+- The GPS page shows one selected fix in its information panel. The record picker opens a dialog where the user can select another saved fix; selecting one focuses the map on its marker. Displayed location includes coordinates and accuracy, and timestamps use the device's local time with a numeric UTC offset (`YYYY-MM-DD HH:MM:SS +HH:MM`).
+- The GPS page can send up to 10 unsent saved fixes per email through EmailJS. The user reviews the message before sending. EmailJS is a client-side external service; do not add private credentials or server-side dependencies to this static site.
 
 ## Data and dependencies
 
@@ -22,8 +26,9 @@ This repository is a static GitHub Pages site with a small dashboard and two map
 ## Editing guidance
 
 - Keep the site compatible with static hosting. Load local data with relative paths; do not add a server-side dependency or build requirement without an explicit request.
-- Keep the dashboard links in `index.html` pointed at the matching page filenames.
+- Keep the dashboard links in `index.html` pointed at the matching page filenames, including `03_GPS_Location.html`.
 - Keep the Taiwan page's existing English/Traditional Chinese content and the Japan page's Japanese interface unless a requested change calls for translation.
+- Keep the GPS page's Japanese interface unless a requested change calls for translation. Keep browser storage, map markers, displayed records, and batch-email state consistent when changing its history behavior.
 - When changing the Japan map data shape, update both the page logic and `dB/map_embeded_db.json` together. Keep marker coordinates sourced from each record's location.
 - Preserve YouTube video/channel links and the fallback behavior for records that cannot be embedded.
 - Avoid committing temporary files, editor backups, credentials, or generated artifacts unrelated to the site.
