@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#a5412b">
+    <title>台湾まちかど店舗マップ</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        :root {
+            color-scheme: light;
+            --page: #f6eddd;
+            --surface: #fffaf0;
+            --surface-raised: #fffdf8;
+            --surface-soft: #f0dfc5;
+            --ink: #38241c;
+            --muted: #806551;
+            --line: #e2c9a8;
+            --maple: #a5412b;
+            --maple-dark: #87351f;
+            --chestnut: #75462f;
+            --ochre: #c68835;
+            --leaf: #75804b;
+            --danger: #a7382c;
+            --shadow: 0 14px 38px rgb(64 34 20 / .2);
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; }
+        body { background: var(--page); color: var(--ink); font-family: "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif; overflow: hidden; }
+        button, input, select { color: inherit; font: inherit; }
+        button { cursor: pointer; }
+        .topbar { align-items: center; background: var(--surface); border-bottom: 1px solid var(--line); display: flex; gap: 12px; height: 62px; padding: 8px 16px; position: absolute; inset: 0 0 auto; z-index: 1000; }
+        .back-link { align-items: center; border: 1px solid var(--line); border-radius: 9px; color: var(--chestnut); display: inline-flex; height: 38px; justify-content: center; text-decoration: none; width: 40px; }
+        .back-link:hover, .button:hover { background: var(--surface-soft); }
+        .brand { min-width: 0; }
+        .brand h1 { font-size: 16px; line-height: 1.25; margin: 0; }
+        .brand p { color: var(--muted); font-size: 11px; margin: 2px 0 0; }
+        .toolbar { display: flex; gap: 7px; margin-left: auto; }
+        .button { align-items: center; background: var(--surface-raised); border: 1px solid var(--line); border-radius: 9px; display: inline-flex; gap: 7px; justify-content: center; min-height: 39px; padding: 8px 11px; }
+        .button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgb(198 136 53 / .45); outline-offset: 2px; }
+        .button-primary { background: var(--maple); border-color: var(--maple); color: #fffaf0; font-weight: 700; }
+        .button-primary:hover { background: var(--maple-dark); }
+        .button-icon { font-size: 18px; line-height: 1; }
+        #map { background: #e9e3d4; bottom: 0; left: 0; position: absolute; right: 0; top: 62px; }
+        .filter-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 13px; box-shadow: var(--shadow); display: grid; gap: 9px; left: 14px; padding: 12px; position: absolute; top: 76px; width: min(290px, calc(100vw - 28px)); z-index: 500; }
+        .panel-title { align-items: center; display: flex; font-size: 13px; font-weight: 700; justify-content: space-between; }
+        .count-pill { background: var(--surface-soft); border-radius: 999px; color: var(--chestnut); font-size: 11px; font-weight: 600; padding: 3px 8px; }
+        .text-input, .select-input { background: var(--surface-raised); border: 1px solid var(--line); border-radius: 8px; min-height: 39px; padding: 8px 10px; width: 100%; }
+        .filter-row { display: grid; gap: 7px; grid-template-columns: 1fr 1fr; }
+        .filter-row label, .field-label { color: var(--muted); display: grid; font-size: 11px; gap: 5px; }
+        .map-status { background: var(--surface); border: 1px solid var(--line); border-radius: 9px; bottom: 18px; box-shadow: 0 5px 20px rgb(64 34 20 / .14); color: var(--muted); font-size: 12px; left: 14px; max-width: min(460px, calc(100vw - 28px)); padding: 9px 12px; position: absolute; z-index: 500; }
+        .map-status[data-kind="error"] { border-color: #d6a59b; color: var(--danger); }
+        .leaflet-container { background: #e9e3d4; font: inherit; }
+        .leaflet-control-attribution { background: rgb(255 250 240 / .9) !important; color: #49362d !important; font-size: 10px !important; }
+        .store-marker-wrap { background: transparent; border: 0; }
+        .store-marker { align-items: center; background: var(--marker-color, #a5412b); border: 2px solid #fff3df; border-radius: 50% 50% 50% 8px; box-shadow: 0 3px 9px rgb(56 36 28 / .34); color: #fffaf0; display: flex; font-size: 16px; height: 36px; justify-content: center; transform: rotate(-45deg); width: 36px; }
+        .store-marker span { transform: rotate(45deg); }
+        .pending-marker { background: var(--ochre); font-size: 18px; }
+        dialog { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); color: var(--ink); max-height: min(88dvh, 780px); max-width: min(560px, calc(100vw - 24px)); padding: 0; width: 100%; }
+        dialog::backdrop { backdrop-filter: blur(3px); background: rgb(40 24 18 / .58); }
+        .dialog-body { padding: 20px; }
+        .dialog-heading { align-items: flex-start; display: flex; gap: 12px; justify-content: space-between; margin-bottom: 16px; }
+        .dialog-heading h2 { font-size: 19px; margin: 0; }
+        .dialog-heading p { color: var(--muted); font-size: 12px; margin: 5px 0 0; }
+        .close-button { background: transparent; border: 1px solid var(--line); border-radius: 8px; font-size: 18px; height: 34px; width: 36px; }
+        .category-grid { display: grid; gap: 7px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 8px 0 14px; }
+        .category-option { align-items: center; background: var(--surface-raised); border: 1px solid var(--line); border-radius: 9px; display: flex; gap: 8px; min-height: 45px; padding: 7px 9px; text-align: left; }
+        .category-option[aria-pressed="true"] { background: #f3e0c6; border-color: var(--maple); box-shadow: 0 0 0 1px var(--maple); }
+        .category-icon { align-items: center; background: #ead7b9; border-radius: 8px; display: inline-flex; flex: 0 0 28px; height: 28px; justify-content: center; }
+        .category-code { color: var(--chestnut); font-size: 12px; font-weight: 700; }
+        .field-grid { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+        .fix-summary { background: #f4e7d3; border-radius: 9px; color: var(--chestnut); font-size: 12px; line-height: 1.6; margin: 13px 0 15px; padding: 10px 12px; }
+        .dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+        .button-danger { border-color: #d6a59b; color: var(--danger); }
+        .button-danger:hover { background: #fae8e3; }
+        .record-list { display: grid; gap: 7px; list-style: none; margin: 0; max-height: 54dvh; overflow: auto; padding: 0; }
+        .record-row { align-items: center; background: var(--surface-raised); border: 1px solid var(--line); border-radius: 9px; display: flex; gap: 10px; padding: 9px; }
+        .record-row-main { flex: 1; min-width: 0; }
+        .record-row-main strong { display: block; font-size: 12px; }
+        .record-row-main small { color: var(--muted); display: block; font-size: 11px; margin-top: 3px; overflow-wrap: anywhere; }
+        .record-row input { accent-color: var(--maple); height: 18px; width: 18px; }
+        .record-row button { flex: 0 0 auto; }
+        .value-preview { background: #f3eadb; border: 1px solid var(--line); border-radius: 9px; color: var(--chestnut); font: 11px/1.55 ui-monospace, SFMono-Regular, Consolas, monospace; max-height: 185px; overflow: auto; padding: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .empty-state { color: var(--muted); font-size: 13px; padding: 24px 8px; text-align: center; }
+        .hint { color: var(--muted); font-size: 11px; line-height: 1.55; margin-top: 9px; }
+        .leaflet-tooltip.store-tooltip { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; box-shadow: 0 3px 10px rgb(64 34 20 / .15); color: var(--ink); font-size: 11px; padding: 5px 7px; }
+        .leaflet-tooltip.store-tooltip::before { display: none; }
+        @media (max-width: 700px) {
+            .topbar { gap: 8px; height: 58px; padding: 7px 9px; }
+            .brand h1 { font-size: 14px; }
+            .brand p { font-size: 10px; }
+            .toolbar { gap: 4px; }
+            .toolbar .button { font-size: 11px; min-height: 38px; padding: 6px 8px; }
+            .toolbar .button-icon { font-size: 16px; }
+            .toolbar .long-label { display: none; }
+            #map { top: 58px; }
+            .filter-panel { gap: 7px; left: 8px; padding: 9px; top: 67px; width: min(255px, calc(100vw - 16px)); }
+            .filter-row label { font-size: 10px; }
+            .select-input, .text-input { font-size: 16px; min-height: 38px; }
+            .map-status { bottom: 10px; left: 8px; font-size: 11px; }
+            .dialog-body { padding: 16px; }
+        }
+        @media (max-width: 380px) {
+            .brand p { display: none; }
+            .toolbar .button { padding: 5px 6px; }
+            .filter-panel { width: 228px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <a href="index.html" class="back-link" aria-label="トップページに戻る" title="トップページに戻る">←</a>
+        <div class="brand"><h1>🍁 台湾まちかど店舗マップ</h1><p>現在地を記録して、店舗カテゴリー別に保存</p></div>
+        <nav class="toolbar" aria-label="地図の操作">
+            <button id="locateButton" type="button" class="button"><span class="button-icon" aria-hidden="true">⌖</span><span class="long-label">現在地</span></button>
+            <button id="addPinButton" type="button" class="button button-primary" disabled><span class="button-icon" aria-hidden="true">＋</span><span class="long-label">ピンを追加</span></button>
+            <button id="recordsButton" type="button" class="button"><span class="button-icon" aria-hidden="true">📍</span><span class="long-label">保存一覧</span><span id="recordCount">0</span></button>
+            <button id="emailButton" type="button" class="button"><span class="button-icon" aria-hidden="true">✉</span><span class="long-label">メール</span></button>
+        </nav>
+    </header>
+
+    <main id="map" role="application" aria-label="台湾の店舗記録地図"></main>
+
+    <section class="filter-panel" aria-label="保存済みピンの絞り込み">
+        <div class="panel-title">保存したピン <span id="visibleCount" class="count-pill">0 件表示</span></div>
+        <input id="searchInput" class="text-input" type="search" placeholder="カテゴリーや座標で検索" aria-label="カテゴリーや座標で検索">
+        <div class="filter-row">
+            <label>大カテゴリー
+                <select id="level1Filter" class="select-input"><option value="">すべて</option></select>
+            </label>
+            <label>小カテゴリー
+                <select id="level2Filter" class="select-input" disabled><option value="">すべて</option></select>
+            </label>
+        </div>
+    </section>
+    <div id="mapStatus" class="map-status" role="status" aria-live="polite">ピンはこのブラウザーに保存されます。現在地を取得して店舗を登録してください。</div>
+
+    <dialog id="pinDialog">
+        <form id="pinForm" class="dialog-body">
+            <div class="dialog-heading">
+                <div><h2 id="pinDialogTitle">店舗カテゴリーを選択</h2><p>大カテゴリーから選び、小カテゴリーを指定してください。</p></div>
+                <button type="button" class="close-button" data-close="pinDialog" aria-label="閉じる">×</button>
+            </div>
+            <p class="field-label">大カテゴリー</p>
+            <div id="categoryGrid" class="category-grid" role="group" aria-label="大カテゴリー"></div>
+            <label class="field-label" for="level2Select">小カテゴリー
+                <select id="level2Select" class="select-input" required></select>
+            </label>
+            <div id="fixSummary" class="fix-summary"></div>
+            <p id="pinError" class="hint" role="alert"></p>
+            <div class="dialog-actions">
+                <button id="adjustPendingPositionButton" type="button" class="button">地図で位置を調整</button>
+                <button type="button" class="button" data-close="pinDialog">キャンセル</button>
+                <button type="submit" class="button button-primary">このピンを保存</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="detailDialog">
+        <div class="dialog-body">
+            <div class="dialog-heading">
+                <div><h2 id="detailTitle">保存した店舗ピン</h2><p id="detailCategory"></p></div>
+                <button type="button" class="close-button" data-close="detailDialog" aria-label="閉じる">×</button>
+            </div>
+            <div id="detailContent" class="fix-summary"></div>
+            <div class="dialog-actions">
+                <button id="adjustLocationButton" type="button" class="button">地図上で位置を調整</button>
+                <button id="editPinButton" type="button" class="button">カテゴリーを編集</button>
+                <button id="deletePinButton" type="button" class="button button-danger">削除</button>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="recordsDialog">
+        <div class="dialog-body">
+            <div class="dialog-heading">
+                <div><h2>保存したピン</h2><p>選ぶと地図上の位置に移動します。</p></div>
+                <button type="button" class="close-button" data-close="recordsDialog" aria-label="閉じる">×</button>
+            </div>
+            <ul id="recordsList" class="record-list"></ul>
+        </div>
+    </dialog>
+
+    <dialog id="emailDialog">
+        <div class="dialog-body">
+            <div class="dialog-heading">
+                <div><h2>店舗ピンをメールで送信</h2><p>送信する未送信ピンを選び、内容を確認してください。</p></div>
+                <button type="button" class="close-button" data-close="emailDialog" aria-label="閉じる">×</button>
+            </div>
+            <div class="dialog-actions" style="justify-content:flex-start;margin:0 0 10px">
+                <button id="selectAllEmailButton" type="button" class="button">すべて選択</button>
+                <span id="emailSelectionCount" class="count-pill">0 件選択</span>
+            </div>
+            <ul id="emailRecordsList" class="record-list"></ul>
+            <p class="field-label" style="margin-top:15px">送信内容のプレビュー（値のみ）</p>
+            <pre id="emailPreview" class="value-preview"></pre>
+            <p id="emailError" class="hint" role="alert"></p>
+            <p class="hint">位置情報を含むメールを EmailJS 経由で送信します。選択したピンだけが送信対象です。</p>
+            <div class="dialog-actions">
+                <button type="button" class="button" data-close="emailDialog">キャンセル</button>
+                <button id="sendEmailButton" type="button" class="button button-primary">確認して送信</button>
+            </div>
+        </div>
+    </dialog>
+
+    <script>
+        const EMAILJS_CONFIG = {
+            publicKey: '_P7fcXF5Eek9cCvlp',
+            serviceId: 'service_n61w7gp',
+            templateId: 'template_gwvvl9w'
+        };
+        const emailjsConfigured = Boolean(window.emailjs && EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.serviceId && EMAILJS_CONFIG.templateId);
+        if (emailjsConfigured) emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey, limitRate: { id: 'gps-location-email', throttle: 10000 } });
+
+        const DB_NAME = 'taiwan-store-map';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'pins';
+        const MAX_EMAIL_BYTES = 45000;
+        const map = L.map('map', { zoomControl: false }).setView([23.7, 120.97], 7);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        const categories = [
+            { id: 'A', label: '飲食店', icon: '🍜', children: [['A.1', '朝食店'], ['A.2', '麺類・米粉・お粥'], ['A.3', '弁当・セルフ式食堂'], ['A.4', '台湾小吃・滷味'], ['A.5', '餃子・包子'], ['A.6', '火鍋・焼肉'], ['A.7', '中華料理店'], ['A.8', '日本・韓国・各国料理'], ['A.9', 'ベジタリアン料理']] },
+            { id: 'B', label: '飲み物・甘味', icon: '🧋', children: [['B.1', 'タピオカ・台湾茶ドリンク'], ['B.2', 'カフェ・茶館'], ['B.3', 'パン・ベーカリー'], ['B.4', '豆花・かき氷・甘味'], ['B.5', 'ケーキ・アイスクリーム']] },
+            { id: 'C', label: '市場・生鮮', icon: '🥬', children: [['C.1', '伝統市場・夜市の屋台'], ['C.2', '青果店'], ['C.3', '精肉店'], ['C.4', '鮮魚・海鮮'], ['C.5', 'スーパー・量販店']] },
+            { id: 'D', label: '生活用品・小売', icon: '🛍️', children: [['D.1', 'コンビニ'], ['D.2', '雑貨・金物店'], ['D.3', 'ドラッグストア・日用品'], ['D.4', '文具・書店'], ['D.5', '衣料・靴・バッグ'], ['D.6', '家電・通信']] },
+            { id: 'E', label: '生活サービス', icon: '🧺', children: [['E.1', 'コインランドリー・クリーニング'], ['E.2', '美容室・エステ'], ['E.3', '修理・鍵'], ['E.4', '郵便局・宅配'], ['E.5', '銀行・ATM'], ['E.6', 'コピー・印刷']] },
+            { id: 'F', label: '医療・健康', icon: '🏥', children: [['F.1', '診療所'], ['F.2', '歯科'], ['F.3', '薬局'], ['F.4', '漢方薬店']] },
+            { id: 'G', label: '交通・車関連', icon: '🛵', children: [['G.1', 'ガソリン・充電'], ['G.2', '駐車場'], ['G.3', '自動車・バイク整備／用品'], ['G.4', '自転車修理・レンタル']] },
+            { id: 'H', label: '宿泊・観光', icon: '🏨', children: [['H.1', 'ホテル・民宿'], ['H.2', '観光施設・展示館'], ['H.3', 'お土産店']] }
+        ];
+        const categoryById = new Map(categories.map(category => [category.id, category]));
+        const childById = new Map(categories.flatMap(category => category.children.map(([id, label]) => [id, { id, label, parent: category.id }])));
+        const categoryGrid = document.getElementById('categoryGrid');
+        const level2Select = document.getElementById('level2Select');
+        const level1Filter = document.getElementById('level1Filter');
+        const level2Filter = document.getElementById('level2Filter');
+        const mapStatus = document.getElementById('mapStatus');
+        const markers = new Map();
+        const dialogs = ['pinDialog', 'detailDialog', 'recordsDialog', 'emailDialog'].map(id => document.getElementById(id));
+        let dbPromise;
+        let records = [];
+        let latestFix = null;
+        let accuracyCircle = null;
+        let currentLocationMarker = null;
+        let pendingMarker = null;
+        let keepPendingOnDialogClose = false;
+        let pendingCategoryId = 'A';
+        let pendingChildId = 'A.1';
+        let editingRecordId = null;
+        let detailRecordId = null;
+        let positionAdjustmentId = null;
+        let emailSending = false;
+
+        // StoreRecord v1 documents every field in the IndexedDB object store.
+        // schemaVersion: record-format version used for future migrations.
+        // id: unique local record identifier.
+        // recordedAt: capture time in local ISO 8601 form with a numeric UTC offset.
+        // location.latitude / longitude: coordinates submitted from the captured GPS fix.
+        // location.accuracyMeters: the browser-reported GPS accuracy in meters.
+        // location.positionAdjusted: true when the pin was dragged after GPS capture.
+        // delivery.status / emailedAt: local send tracking; excluded from the email rows.
+        // category.level1Id / level2Id: stable A-H and A.1-H.3 category codes.
+        // category.level1Label / level2Label: saved Japanese labels for readable history.
+        // Email value row order: id, recordedAt, latitude, longitude, accuracyMeters,
+        // positionAdjusted, level1Id, level1Label, level2Id, level2Label. Rows contain values only.
+
+        function openDatabase() {
+            if (!dbPromise) {
+                dbPromise = new Promise((resolve, reject) => {
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
+                    request.onupgradeneeded = () => {
+                        const database = request.result;
+                        if (!database.objectStoreNames.contains(STORE_NAME)) {
+                            const store = database.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                            store.createIndex('categoryLevel1', 'category.level1Id', { unique: false });
+                            store.createIndex('deliveryStatus', 'delivery.status', { unique: false });
+                        }
+                    };
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error || new Error('indexeddb-open-failed'));
+                    request.onblocked = () => reject(new Error('indexeddb-open-blocked'));
+                });
+            }
+            return dbPromise;
+        }
+
+        function runStoreRequest(mode, action) {
+            return openDatabase().then(database => new Promise((resolve, reject) => {
+                const transaction = database.transaction(STORE_NAME, mode);
+                const request = action(transaction.objectStore(STORE_NAME));
+                let result;
+                if (request) request.onsuccess = () => { result = request.result; };
+                transaction.oncomplete = () => resolve(result);
+                transaction.onerror = () => reject(transaction.error || new Error('indexeddb-transaction-failed'));
+                transaction.onabort = () => reject(transaction.error || new Error('indexeddb-transaction-aborted'));
+            }));
+        }
+        const getAllRecords = () => runStoreRequest('readonly', store => store.getAll());
+        const putRecord = record => runStoreRequest('readwrite', store => store.put(record));
+        const deleteRecord = id => runStoreRequest('readwrite', store => store.delete(id));
+
+        function setStatus(message, isError = false) {
+            mapStatus.textContent = message;
+            mapStatus.dataset.kind = isError ? 'error' : 'info';
+        }
+
+        function formatLocalIso(date) {
+            const pad = value => String(value).padStart(2, '0');
+            const offset = -date.getTimezoneOffset();
+            const sign = offset >= 0 ? '+' : '-';
+            const zone = `${sign}${pad(Math.floor(Math.abs(offset) / 60))}:${pad(Math.abs(offset) % 60)}`;
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}${zone}`;
+        }
+
+        function createIcon(categoryId, pending = false) {
+            const category = categoryById.get(categoryId);
+            const icon = pending ? '＋' : category?.icon || '📍';
+            return L.divIcon({
+                className: 'store-marker-wrap',
+                html: `<div class="store-marker${pending ? ' pending-marker' : ''}" aria-hidden="true"><span>${icon}</span></div>`,
+                iconSize: pending ? [38, 38] : [36, 36],
+                iconAnchor: [18, 34],
+                tooltipAnchor: [0, -30]
+            });
+        }
+
+        function categoryName(record) {
+            return `${record.category.level1Label} · ${record.category.level2Id} ${record.category.level2Label}`;
+        }
+
+        function refreshFilters() {
+            const selectedTop = level1Filter.value;
+            level1Filter.innerHTML = '<option value="">すべて</option>' + categories.map(category => `<option value="${category.id}">${category.id} ${category.label}</option>`).join('');
+            level1Filter.value = selectedTop;
+            const selectedSub = level2Filter.value;
+            const children = selectedTop ? categoryById.get(selectedTop).children : [];
+            level2Filter.innerHTML = '<option value="">すべて</option>' + children.map(([id, label]) => `<option value="${id}">${id} ${label}</option>`).join('');
+            level2Filter.disabled = !selectedTop;
+            level2Filter.value = children.some(([id]) => id === selectedSub) ? selectedSub : '';
+        }
+
+        function buildCategoryPicker(selectedId = 'A') {
+            categoryGrid.replaceChildren();
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'category-option';
+                button.dataset.categoryId = category.id;
+                button.setAttribute('aria-pressed', String(category.id === selectedId));
+                button.innerHTML = `<span class="category-icon" aria-hidden="true">${category.icon}</span><span><span class="category-code">${category.id}</span> ${category.label}</span>`;
+                button.addEventListener('click', () => {
+                    categoryGrid.querySelectorAll('button').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+                    pendingCategoryId = category.id;
+                    updateLevel2Options(category.id);
+                });
+                categoryGrid.append(button);
+            });
+            updateLevel2Options(selectedId);
+        }
+
+        function updateLevel2Options(categoryId, selectedChildId = '') {
+            const category = categoryById.get(categoryId) || categories[0];
+            level2Select.innerHTML = category.children.map(([id, label]) => `<option value="${id}">${id}　${label}</option>`).join('');
+            if (selectedChildId && category.children.some(([id]) => id === selectedChildId)) level2Select.value = selectedChildId;
+        }
+
+        function makeMarker(record) {
+            const marker = L.marker([record.location.latitude, record.location.longitude], {
+                icon: createIcon(record.category.level1Id),
+                title: categoryName(record),
+                alt: categoryName(record),
+                keyboard: true
+            });
+            marker.bindTooltip(`${categoryById.get(record.category.level1Id)?.icon || '📍'} ${record.category.level1Label} · ${record.category.level2Id}`, { className: 'store-tooltip', direction: 'top' });
+            marker.on('click', () => openDetails(record.id));
+            markers.set(record.id, marker);
+            return marker;
+        }
+
+        function matchesFilters(record) {
+            const top = level1Filter.value;
+            const sub = level2Filter.value;
+            const query = document.getElementById('searchInput').value.trim().toLocaleLowerCase();
+            if (top && record.category.level1Id !== top) return false;
+            if (sub && record.category.level2Id !== sub) return false;
+            if (query) {
+                const searchable = `${record.category.level1Label} ${record.category.level2Id} ${record.category.level2Label} ${record.location.latitude} ${record.location.longitude}`.toLocaleLowerCase();
+                if (!searchable.includes(query)) return false;
+            }
+            return true;
+        }
+
+        function renderMarkers() {
+            markers.forEach(marker => marker.remove());
+            markers.clear();
+            let visible = 0;
+            records.forEach(record => {
+                const marker = makeMarker(record);
+                if (matchesFilters(record)) {
+                    marker.addTo(map);
+                    visible += 1;
+                }
+            });
+            document.getElementById('visibleCount').textContent = `${visible} 件表示`;
+            document.getElementById('recordCount').textContent = String(records.length);
+        }
+
+        async function reloadRecords() {
+            records = (await getAllRecords()).filter(isValidRecord).sort((a, b) => b.recordedAt.localeCompare(a.recordedAt));
+            refreshFilters();
+            renderMarkers();
+            renderRecordList();
+        }
+
+        function isValidRecord(record) {
+            const child = childById.get(record?.category?.level2Id);
+            return record && record.schemaVersion === 1 && typeof record.id === 'string' &&
+                Number.isFinite(record.location?.latitude) && record.location.latitude >= -90 && record.location.latitude <= 90 &&
+                Number.isFinite(record.location?.longitude) && record.location.longitude >= -180 && record.location.longitude <= 180 &&
+                Number.isFinite(record.location?.accuracyMeters) && categoryById.has(record.category?.level1Id) && child?.parent === record.category.level1Id;
+        }
+
+        function showDialog(id) { document.getElementById(id).showModal(); }
+        document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => document.getElementById(button.dataset.close).close()));
+        dialogs.forEach(dialog => dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); }));
+
+        document.getElementById('locateButton').addEventListener('click', captureLocation);
+        function captureLocation() {
+            if (!navigator.geolocation) return setStatus('このブラウザーでは位置情報を利用できません。', true);
+            const button = document.getElementById('locateButton');
+            button.disabled = true;
+            setStatus('現在地を取得しています…');
+            navigator.geolocation.getCurrentPosition(position => {
+                latestFix = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracyMeters: position.coords.accuracy,
+                    capturedAt: new Date(position.timestamp)
+                };
+                if (accuracyCircle) accuracyCircle.remove();
+                if (currentLocationMarker) currentLocationMarker.remove();
+                const point = [latestFix.latitude, latestFix.longitude];
+                accuracyCircle = L.circle(point, { radius: latestFix.accuracyMeters, color: '#a5412b', weight: 1, fillColor: '#c68835', fillOpacity: .12 }).addTo(map);
+                currentLocationMarker = L.circleMarker(point, { radius: 6, color: '#fffaf0', weight: 3, fillColor: '#a5412b', fillOpacity: 1 }).addTo(map);
+                map.setView(point, Math.max(map.getZoom(), 17));
+                document.getElementById('addPinButton').disabled = false;
+                setStatus(`現在地を取得しました。精度は約 ${Math.round(latestFix.accuracyMeters)} m です。「ピンを追加」から保存できます。`);
+                button.disabled = false;
+            }, error => {
+                const message = error.code === 1 ? '位置情報の利用が許可されませんでした。ブラウザーの設定を確認してください。' : '現在地を取得できませんでした。もう一度お試しください。';
+                setStatus(message, true);
+                button.disabled = false;
+            }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 });
+        }
+
+        document.getElementById('addPinButton').addEventListener('click', beginNewPin);
+        function beginNewPin() {
+            if (!latestFix) return setStatus('先に「現在地」で GPS を取得してください。', true);
+            editingRecordId = null;
+            pendingCategoryId = 'A';
+            pendingChildId = 'A.1';
+            pendingMarker?.remove();
+            pendingMarker = L.marker([latestFix.latitude, latestFix.longitude], { icon: createIcon('A', true), draggable: true, autoPan: true }).addTo(map);
+            pendingMarker.on('dragend', updateFixSummary);
+            buildCategoryPicker('A');
+            updateLevel2Options('A', 'A.1');
+            document.getElementById('adjustPendingPositionButton').hidden = false;
+            document.getElementById('pinDialogTitle').textContent = '店舗カテゴリーを選択';
+            document.getElementById('pinError').textContent = '';
+            updateFixSummary();
+            showDialog('pinDialog');
+        }
+
+        function updateFixSummary() {
+            const point = pendingMarker?.getLatLng();
+            const latitude = point?.lat ?? latestFix?.latitude;
+            const longitude = point?.lng ?? latestFix?.longitude;
+            document.getElementById('fixSummary').textContent = `緯度 ${latitude?.toFixed(6)}　経度 ${longitude?.toFixed(6)}　·　GPS 精度 約 ${Math.round(latestFix?.accuracyMeters || 0)} m\n赤いピンをドラッグすると、保存位置を調整できます。`;
+        }
+
+        document.getElementById('pinForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const categoryId = categoryGrid.querySelector('[aria-pressed="true"]')?.dataset.categoryId || 'A';
+            const childId = level2Select.value;
+            const child = childById.get(childId);
+            const category = categoryById.get(categoryId);
+            if (!child || child.parent !== categoryId || !category) {
+                document.getElementById('pinError').textContent = '小カテゴリーを選択してください。';
+                return;
+            }
+            try {
+                if (editingRecordId) {
+                    const existing = records.find(record => record.id === editingRecordId);
+                    if (!existing) throw new Error('record-not-found');
+                    existing.category = { level1Id: category.id, level1Label: `${category.id} ${category.label}`, level2Id: child.id, level2Label: child.label };
+                    await putRecord(existing);
+                    document.getElementById('pinDialog').close();
+                    await reloadRecords();
+                    if (detailRecordId) openDetails(existing.id);
+                    setStatus('カテゴリーを更新しました。');
+                    return;
+                }
+                const point = pendingMarker.getLatLng();
+                const record = {
+                    schemaVersion: 1,
+                    id: crypto.randomUUID(),
+                    recordedAt: formatLocalIso(latestFix.capturedAt),
+                    location: {
+                        latitude: point.lat,
+                        longitude: point.lng,
+                        accuracyMeters: latestFix.accuracyMeters,
+                        positionAdjusted: Math.abs(point.lat - latestFix.latitude) > 0.000001 || Math.abs(point.lng - latestFix.longitude) > 0.000001
+                    },
+                    delivery: { status: 'pending', emailedAt: null },
+                    category: { level1Id: category.id, level1Label: `${category.id} ${category.label}`, level2Id: child.id, level2Label: child.label }
+                };
+                await putRecord(record);
+                pendingMarker.remove();
+                pendingMarker = null;
+                showPendingAdjustment(false);
+                document.getElementById('pinDialog').close();
+                await reloadRecords();
+                map.setView([record.location.latitude, record.location.longitude], Math.max(map.getZoom(), 17));
+                setStatus(`${category.icon} ${categoryName(record)} をこのブラウザーに保存しました。`);
+            } catch {
+                document.getElementById('pinError').textContent = '保存できませんでした。ブラウザーの保存容量を確認してください。';
+            }
+        });
+
+        document.getElementById('pinDialog').addEventListener('close', () => {
+            if (!editingRecordId && pendingMarker && !keepPendingOnDialogClose) {
+                pendingMarker.remove();
+                pendingMarker = null;
+                showPendingAdjustment(false);
+            }
+        });
+
+        document.getElementById('level2Select').addEventListener('change', () => { pendingChildId = level2Select.value; });
+        document.getElementById('adjustPendingPositionButton').addEventListener('click', () => {
+            if (!pendingMarker) return;
+            pendingCategoryId = categoryGrid.querySelector('[aria-pressed="true"]')?.dataset.categoryId || 'A';
+            pendingChildId = level2Select.value;
+            keepPendingOnDialogClose = true;
+            document.getElementById('pinDialog').close();
+            keepPendingOnDialogClose = false;
+            showPendingAdjustment(true);
+            setStatus('赤いピンを地図上でドラッグし、「カテゴリー選択に戻る」を押してください。');
+        });
+
+        const pendingAdjustmentControl = L.control({ position: 'bottomright' });
+        pendingAdjustmentControl.onAdd = () => {
+            const button = L.DomUtil.create('button', 'button button-primary');
+            button.type = 'button';
+            button.id = 'finishPendingAdjustmentButton';
+            button.textContent = 'カテゴリー選択に戻る';
+            button.style.display = 'none';
+            L.DomEvent.disableClickPropagation(button);
+            button.addEventListener('click', () => {
+                if (!pendingMarker) return;
+                buildCategoryPicker(pendingCategoryId);
+                updateLevel2Options(pendingCategoryId, pendingChildId);
+                updateFixSummary();
+                showPendingAdjustment(false);
+                showDialog('pinDialog');
+            });
+            return button;
+        };
+        pendingAdjustmentControl.addTo(map);
+        function showPendingAdjustment(show) { document.getElementById('finishPendingAdjustmentButton').style.display = show ? 'inline-flex' : 'none'; }
+
+        function openDetails(id) {
+            const record = records.find(item => item.id === id);
+            if (!record) return;
+            detailRecordId = id;
+            const icon = categoryById.get(record.category.level1Id)?.icon || '📍';
+            document.getElementById('detailTitle').textContent = `${icon} ${record.category.level1Label}`;
+            document.getElementById('detailCategory').textContent = `${record.category.level2Id} ${record.category.level2Label}`;
+            const content = document.getElementById('detailContent');
+            content.textContent = `記録日時　${record.recordedAt}\n緯度　${record.location.latitude.toFixed(6)}\n経度　${record.location.longitude.toFixed(6)}\nGPS 精度　約 ${Math.round(record.location.accuracyMeters)} m\n位置調整　${record.location.positionAdjusted ? 'あり' : 'なし'}\nメール　${record.delivery.status === 'sent' ? `送信済み（${record.delivery.emailedAt}）` : '未送信'}`;
+            showDialog('detailDialog');
+        }
+
+        document.getElementById('editPinButton').addEventListener('click', () => {
+            const record = records.find(item => item.id === detailRecordId);
+            if (!record) return;
+            document.getElementById('detailDialog').close();
+            editingRecordId = record.id;
+            document.getElementById('adjustPendingPositionButton').hidden = true;
+            showPendingAdjustment(false);
+            buildCategoryPicker(record.category.level1Id);
+            updateLevel2Options(record.category.level1Id, record.category.level2Id);
+            document.getElementById('pinDialogTitle').textContent = 'カテゴリーを編集';
+            document.getElementById('fixSummary').textContent = `${record.category.level1Label} · ${record.category.level2Id} ${record.category.level2Label}`;
+            showDialog('pinDialog');
+        });
+
+        document.getElementById('deletePinButton').addEventListener('click', async () => {
+            const record = records.find(item => item.id === detailRecordId);
+            if (!record || !window.confirm(`「${categoryName(record)}」のピンを削除しますか？`)) return;
+            try {
+                await deleteRecord(record.id);
+                document.getElementById('detailDialog').close();
+                await reloadRecords();
+                setStatus('ピンを削除しました。');
+            } catch {
+                setStatus('削除できませんでした。もう一度お試しください。', true);
+            }
+        });
+
+        document.getElementById('adjustLocationButton').addEventListener('click', () => {
+            const marker = markers.get(detailRecordId);
+            const record = records.find(item => item.id === detailRecordId);
+            if (!marker || !record) return;
+            document.getElementById('detailDialog').close();
+            positionAdjustmentId = record.id;
+            marker.dragging.enable();
+            map.setView(marker.getLatLng(), Math.max(map.getZoom(), 17));
+            setStatus('ピンをドラッグして位置を調整し、画面下の「位置を保存」を押してください。');
+            showPositionSave(true);
+            marker.once('dragend', () => setStatus('位置を調整しました。よければ「位置を保存」を押してください。'));
+        });
+
+        const positionSaveButton = L.control({ position: 'bottomright' });
+        positionSaveButton.onAdd = () => {
+            const button = L.DomUtil.create('button', 'button button-primary');
+            button.type = 'button';
+            button.id = 'saveAdjustedPositionButton';
+            button.textContent = '位置を保存';
+            button.style.display = 'none';
+            L.DomEvent.disableClickPropagation(button);
+            button.addEventListener('click', saveAdjustedPosition);
+            return button;
+        };
+        positionSaveButton.addTo(map);
+        function showPositionSave(show) { document.getElementById('saveAdjustedPositionButton').style.display = show ? 'inline-flex' : 'none'; }
+        async function saveAdjustedPosition() {
+            const record = records.find(item => item.id === positionAdjustmentId);
+            const marker = markers.get(positionAdjustmentId);
+            if (!record || !marker) return;
+            const point = marker.getLatLng();
+            record.location.latitude = point.lat;
+            record.location.longitude = point.lng;
+            record.location.positionAdjusted = true;
+            try {
+                await putRecord(record);
+                marker.dragging.disable();
+                showPositionSave(false);
+                setStatus('調整した位置を保存しました。');
+                await reloadRecords();
+            } catch {
+                setStatus('位置を保存できませんでした。', true);
+            }
+        }
+
+        document.getElementById('recordsButton').addEventListener('click', () => { renderRecordList(); showDialog('recordsDialog'); });
+        function renderRecordList() {
+            const list = document.getElementById('recordsList');
+            list.replaceChildren();
+            if (!records.length) {
+                list.innerHTML = '<li class="empty-state">保存したピンはまだありません。</li>';
+                return;
+            }
+            records.forEach(record => {
+                const item = document.createElement('li');
+                item.className = 'record-row';
+                const main = document.createElement('div');
+                main.className = 'record-row-main';
+                const title = document.createElement('strong');
+                title.textContent = `${categoryById.get(record.category.level1Id)?.icon || '📍'} ${categoryName(record)}`;
+                const detail = document.createElement('small');
+                detail.textContent = `${record.recordedAt} · ${record.location.latitude.toFixed(5)}, ${record.location.longitude.toFixed(5)}`;
+                main.append(title, detail);
+                const open = document.createElement('button');
+                open.type = 'button';
+                open.className = 'button';
+                open.textContent = '地図で見る';
+                open.addEventListener('click', () => {
+                    document.getElementById('recordsDialog').close();
+                    map.setView([record.location.latitude, record.location.longitude], Math.max(map.getZoom(), 17));
+                    markers.get(record.id)?.openTooltip();
+                    openDetails(record.id);
+                });
+                item.append(main, open);
+                list.append(item);
+            });
+        }
+
+        document.getElementById('emailButton').addEventListener('click', openEmailDialog);
+        function openEmailDialog() {
+            document.getElementById('emailError').textContent = '';
+            document.getElementById('emailPreview').textContent = '';
+            if (!emailjsConfigured) {
+                document.getElementById('emailError').textContent = 'EmailJS を利用できません。通信状態を確認してください。';
+            }
+            renderEmailChoices();
+            showDialog('emailDialog');
+        }
+
+        function renderEmailChoices() {
+            const pending = records.filter(record => record.delivery.status !== 'sent');
+            const list = document.getElementById('emailRecordsList');
+            list.replaceChildren();
+            if (!pending.length) {
+                list.innerHTML = '<li class="empty-state">送信できる未送信ピンはありません。</li>';
+                document.getElementById('emailSelectionCount').textContent = '0 件選択';
+                return;
+            }
+            pending.forEach(record => {
+                const item = document.createElement('li');
+                item.className = 'record-row';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = record.id;
+                checkbox.setAttribute('aria-label', `${categoryName(record)}をメールに含める`);
+                checkbox.addEventListener('change', updateEmailPreview);
+                const main = document.createElement('div');
+                main.className = 'record-row-main';
+                const title = document.createElement('strong');
+                title.textContent = `${categoryById.get(record.category.level1Id)?.icon || '📍'} ${categoryName(record)}`;
+                const detail = document.createElement('small');
+                detail.textContent = `${record.recordedAt} · ${record.location.latitude.toFixed(5)}, ${record.location.longitude.toFixed(5)}`;
+                main.append(title, detail);
+                item.append(checkbox, main);
+                list.append(item);
+            });
+            updateEmailPreview();
+        }
+
+        function selectedEmailRecords() {
+            const ids = new Set(Array.from(document.querySelectorAll('#emailRecordsList input:checked'), input => input.value));
+            return records.filter(record => ids.has(record.id));
+        }
+
+        function emailValueRows(selected) {
+            return selected.map(record => [
+                record.id,
+                record.recordedAt,
+                record.location.latitude,
+                record.location.longitude,
+                Math.round(record.location.accuracyMeters),
+                record.location.positionAdjusted,
+                record.category.level1Id,
+                record.category.level1Label,
+                record.category.level2Id,
+                record.category.level2Label
+            ]);
+        }
+
+        function updateEmailPreview() {
+            const selected = selectedEmailRecords();
+            document.getElementById('emailSelectionCount').textContent = `${selected.length} 件選択`;
+            const preview = emailValueRows(selected).map(values => JSON.stringify(values)).join('\n');
+            document.getElementById('emailPreview').textContent = preview || '送信するピンを選択してください。';
+        }
+
+        document.getElementById('selectAllEmailButton').addEventListener('click', () => {
+            document.querySelectorAll('#emailRecordsList input[type="checkbox"]').forEach(input => { input.checked = true; });
+            updateEmailPreview();
+        });
+
+        document.getElementById('sendEmailButton').addEventListener('click', async () => {
+            if (emailSending) return;
+            const selected = selectedEmailRecords();
+            const error = document.getElementById('emailError');
+            error.textContent = '';
+            if (!selected.length) {
+                error.textContent = '送信するピンを1件以上選択してください。';
+                return;
+            }
+            if (!emailjsConfigured) {
+                error.textContent = 'EmailJS を利用できません。通信状態を確認してください。';
+                return;
+            }
+            const sentAt = formatLocalIso(new Date());
+            const body = emailValueRows(selected).map(values => JSON.stringify(values)).join('\n');
+            const params = { batch_count: String(selected.length), sent_at: sentAt, timestamp: sentAt, location_batch: body };
+            if (new TextEncoder().encode(JSON.stringify(params)).length > MAX_EMAIL_BYTES) {
+                error.textContent = '選択内容が1通のメールに入りません。送信するピンの数を減らしてください。';
+                return;
+            }
+            const button = document.getElementById('sendEmailButton');
+            emailSending = true;
+            button.disabled = true;
+            button.textContent = '送信中…';
+            try {
+                await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, params);
+                for (const record of selected) {
+                    record.delivery.status = 'sent';
+                    record.delivery.emailedAt = sentAt;
+                    await putRecord(record);
+                }
+                document.getElementById('emailDialog').close();
+                await reloadRecords();
+                setStatus(`${selected.length} 件の店舗ピンを EmailJS に送信しました。`);
+            } catch {
+                error.textContent = '送信または送信状態の保存に失敗しました。記録は残っています。重複送信にご注意ください。';
+            } finally {
+                emailSending = false;
+                button.disabled = false;
+                button.textContent = '確認して送信';
+            }
+        });
+
+        level1Filter.addEventListener('change', () => { refreshFilters(); renderMarkers(); });
+        level2Filter.addEventListener('change', renderMarkers);
+        document.getElementById('searchInput').addEventListener('input', renderMarkers);
+
+        async function initialize() {
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = `${category.id} ${category.label}`;
+                level1Filter.append(option);
+            });
+            refreshFilters();
+            await reloadRecords();
+        }
+        initialize().catch(() => {
+            document.getElementById('addPinButton').disabled = true;
+            document.getElementById('emailButton').disabled = true;
+            setStatus('このブラウザーでは保存機能を利用できません。IndexedDB を有効にしてください。', true);
+        });
+    </script>
+</body>
+</html>
