@@ -12,6 +12,14 @@
         * { box-sizing:border-box; }
         html,body { height:100%; margin:0; }
         body { background:var(--page); color:var(--ink); font-family:"Noto Sans JP","Yu Gothic UI",Meiryo,sans-serif; }
+        body.page-locked > :not(#accessGate) { visibility:hidden; }
+        #accessGate { align-items:center; background:var(--page); display:flex; inset:0; justify-content:center; padding:20px; position:fixed; z-index:3000; }
+        #accessGate[hidden] { display:none; }
+        #accessForm { background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:0 14px 38px rgb(64 34 20 / .2); max-width:380px; padding:24px; width:100%; }
+        #accessForm h2 { font-size:20px; margin:0 0 8px; }
+        #accessPassword { background:#fffdf8; border:1px solid var(--line); border-radius:9px; margin-top:7px; min-height:42px; padding:9px 11px; width:100%; }
+        #accessError { color:#a7382c; font-size:12px; min-height:20px; }
+        #accessSubmit { background:var(--maple); border:0; border-radius:9px; color:white; font-weight:700; min-height:42px; width:100%; }
         .topbar { align-items:center; background:var(--surface); border-bottom:1px solid var(--line); display:flex; gap:12px; height:62px; padding:8px 16px; }
         .back { align-items:center; border:1px solid var(--line); border-radius:9px; color:var(--chestnut); display:flex; height:38px; justify-content:center; text-decoration:none; width:40px; }
         h1 { font-size:16px; margin:0; } .sub { color:var(--muted); font-size:11px; margin:3px 0 0; }
@@ -31,10 +39,21 @@
         @media(max-width:600px) { .topbar { height:58px; } main { height:calc(100% - 58px); } .panel { top:10px; } #map { min-height:360px; } }
     </style>
 </head>
-<body>
+<body class="page-locked">
+    <section id="accessGate" aria-labelledby="accessGateTitle">
+        <form id="accessForm">
+            <h2 id="accessGateTitle">台湾店舗データベースマップ</h2>
+            <p>パスワードを入力してください。</p>
+            <label for="accessPassword">パスワード</label>
+            <input id="accessPassword" type="password" autocomplete="current-password" required>
+            <p id="accessError" role="alert" aria-live="polite"></p>
+            <button id="accessSubmit" type="submit">開く</button>
+        </form>
+    </section>
     <header class="topbar">
         <a class="back" href="index.html" aria-label="ダッシュボードへ戻る">←</a>
         <div><h1>台湾店舗データベースマップ</h1><p class="sub">EmailJS から反映した店舗ピンを表示します</p></div>
+        <button id="lockPageButton" class="back" type="button" aria-label="ページをロック" style="margin-left:auto;width:auto;padding:0 10px">ロック</button>
     </header>
     <main>
         <div id="map" aria-label="台湾の店舗マップ"></div>
@@ -48,6 +67,16 @@
         </section>
         <div class="status" id="status" role="status" aria-live="polite">データベースを読み込んでいます。</div>
     </main>
+    <script>
+        const ACCESS_CONFIG={salt:'ede33d5388f03fdc5379c8530d37fe24',verifier:'f048abba5cb645e1dd800a3520024261e2a1aedff915dee15fddb1f926374c79',iterations:310000};
+        const ACCESS_SESSION_KEY='gps-location-page-unlocked-v1';
+        const accessGate=document.getElementById('accessGate');const accessForm=document.getElementById('accessForm');const accessPassword=document.getElementById('accessPassword');const accessError=document.getElementById('accessError');const accessEncoder=new TextEncoder();
+        const fromHex=value=>Uint8Array.from(value.match(/.{2}/g)||[],byte=>parseInt(byte,16));
+        function unlockPage(){sessionStorage.setItem(ACCESS_SESSION_KEY,'1');document.body.classList.remove('page-locked');accessGate.hidden=true;requestAnimationFrame(()=>map.invalidateSize());}
+        if(sessionStorage.getItem(ACCESS_SESSION_KEY)==='1'){document.body.classList.remove('page-locked');accessGate.hidden=true;}
+        accessForm.addEventListener('submit',async event=>{event.preventDefault();accessError.textContent='';const submit=document.getElementById('accessSubmit');submit.disabled=true;try{if(!window.crypto?.subtle)throw Error('secure-crypto-unavailable');const key=await crypto.subtle.importKey('raw',accessEncoder.encode(accessPassword.value),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:fromHex(ACCESS_CONFIG.salt),iterations:ACCESS_CONFIG.iterations,hash:'SHA-256'},key,256);const derived=new Uint8Array(bits);const expected=fromHex(ACCESS_CONFIG.verifier);const matches=derived.length===expected.length&&derived.every((byte,index)=>byte===expected[index]);if(matches){accessPassword.value='';unlockPage();}else{accessPassword.value='';accessError.textContent='パスワードが正しくありません。';accessPassword.focus();}}catch{accessError.textContent='安全な接続でページを開いてください。';}finally{submit.disabled=false;}});
+        document.getElementById('lockPageButton').addEventListener('click',()=>{sessionStorage.removeItem(ACCESS_SESSION_KEY);window.location.reload();});
+    </script>
     <script>
         const DB_PATH = 'dB/taiwan_store_db.json';
         const categories = [
@@ -89,6 +118,7 @@
             const coordinates=document.createElement('small'); coordinates.textContent=`${record.location.latitude.toFixed(6)}, ${record.location.longitude.toFixed(6)}`;
             const time=document.createElement('small'); time.textContent=record.recordedAt;
             popup.append(heading,sub,coordinates,document.createElement('br'),time);
+            if(record.isSample===true){const sample=document.createElement('div');sample.textContent='サンプルデータ';sample.style.cssText='color:#a5412b;font-weight:700;margin-top:5px';popup.append(sample);}
             marker.bindPopup(popup); return marker;
         }
         function render() {
@@ -102,7 +132,8 @@
             visible.forEach(record=>makeMarker(record).addTo(markers));
             document.getElementById('recordCount').textContent=`${visible.length} / ${records.length} 件`;
             if (visible.length && !mapFitted && !query && !topFilter.value) { map.fitBounds(markers.getBounds().pad(0.2),{maxZoom:15}); mapFitted=true; }
-            status(visible.length ? `${visible.length} 件の店舗ピンを表示しています。` : '条件に一致する店舗がありません。');
+            const sampleCount=visible.filter(record=>record.isSample===true).length;
+            status(visible.length ? `${visible.length} 件の店舗ピンを表示しています。${sampleCount?`（サンプル ${sampleCount} 件を含む）`:''}` : '条件に一致する店舗がありません。');
         }
         topFilter.addEventListener('change',()=>{fillFilters();render();});
         childFilter.addEventListener('change',render);

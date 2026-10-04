@@ -29,6 +29,14 @@
         * { box-sizing: border-box; }
         html, body { height: 100%; margin: 0; }
         body { background: var(--page); color: var(--ink); font-family: "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif; overflow: hidden; }
+        body.page-locked > :not(#accessGate) { visibility: hidden; }
+        #accessGate { align-items: center; background: var(--page); display: flex; inset: 0; justify-content: center; padding: 20px; position: fixed; z-index: 3000; }
+        #accessGate[hidden] { display: none; }
+        #accessForm { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); max-width: 380px; padding: 24px; width: 100%; }
+        #accessForm h1 { font-size: 20px; margin: 0 0 8px; }
+        #accessPassword { background: var(--surface-raised); border: 1px solid var(--line); border-radius: 9px; margin-top: 7px; min-height: 42px; padding: 9px 11px; width: 100%; }
+        #accessError { color: var(--danger); font-size: 12px; min-height: 20px; }
+        #accessSubmit { background: var(--maple); border: 0; border-radius: 9px; color: white; font-weight: 700; min-height: 42px; width: 100%; }
         button, input, select { color: inherit; font: inherit; }
         button { cursor: pointer; }
         .topbar { align-items: center; background: var(--surface); border-bottom: 1px solid var(--line); display: flex; gap: 12px; height: 62px; padding: 8px 16px; position: absolute; inset: 0 0 auto; z-index: 1000; }
@@ -109,7 +117,17 @@
         }
     </style>
 </head>
-<body>
+<body class="page-locked">
+    <section id="accessGate" aria-labelledby="accessGateTitle">
+        <form id="accessForm">
+            <h1 id="accessGateTitle">台湾まちかど店舗マップ</h1>
+            <p>パスワードを入力してください。</p>
+            <label for="accessPassword">パスワード</label>
+            <input id="accessPassword" type="password" autocomplete="current-password" required>
+            <p id="accessError" role="alert" aria-live="polite"></p>
+            <button id="accessSubmit" type="submit">開く</button>
+        </form>
+    </section>
     <header class="topbar">
         <a href="index.html" class="back-link" aria-label="トップページに戻る" title="トップページに戻る">←</a>
         <div class="brand"><h1>🍁 台湾まちかど店舗マップ</h1><p>現在地を記録して、店舗カテゴリー別に保存</p></div>
@@ -118,6 +136,7 @@
             <button id="addPinButton" type="button" class="button button-primary" disabled><span class="button-icon" aria-hidden="true">＋</span><span class="long-label">ピンを追加</span></button>
             <button id="recordsButton" type="button" class="button"><span class="button-icon" aria-hidden="true">📍</span><span class="long-label">保存一覧</span><span id="recordCount">0</span></button>
             <button id="emailButton" type="button" class="button"><span class="button-icon" aria-hidden="true">✉</span><span class="long-label">メール</span></button>
+            <button id="lockPageButton" type="button" class="button" aria-label="ページをロック">ロック</button>
         </nav>
     </header>
 
@@ -205,6 +224,20 @@
         </div>
     </dialog>
 
+    <script>
+        const ACCESS_CONFIG = { salt:'ede33d5388f03fdc5379c8530d37fe24', verifier:'f048abba5cb645e1dd800a3520024261e2a1aedff915dee15fddb1f926374c79', iterations:310000 };
+        const ACCESS_SESSION_KEY = 'gps-location-page-unlocked-v1';
+        const accessGate = document.getElementById('accessGate');
+        const accessForm = document.getElementById('accessForm');
+        const accessPassword = document.getElementById('accessPassword');
+        const accessError = document.getElementById('accessError');
+        const accessEncoder = new TextEncoder();
+        const fromHex = value => Uint8Array.from(value.match(/.{2}/g) || [], byte => parseInt(byte,16));
+        function unlockPage(){sessionStorage.setItem(ACCESS_SESSION_KEY,'1');document.body.classList.remove('page-locked');accessGate.hidden=true;requestAnimationFrame(()=>map.invalidateSize());}
+        if(sessionStorage.getItem(ACCESS_SESSION_KEY)==='1'){document.body.classList.remove('page-locked');accessGate.hidden=true;}
+        accessForm.addEventListener('submit',async event=>{event.preventDefault();accessError.textContent='';const submit=document.getElementById('accessSubmit');submit.disabled=true;try{if(!window.crypto?.subtle)throw Error('secure-crypto-unavailable');const key=await crypto.subtle.importKey('raw',accessEncoder.encode(accessPassword.value),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:fromHex(ACCESS_CONFIG.salt),iterations:ACCESS_CONFIG.iterations,hash:'SHA-256'},key,256);const derived=new Uint8Array(bits);const expected=fromHex(ACCESS_CONFIG.verifier);const matches=derived.length===expected.length&&derived.every((byte,index)=>byte===expected[index]);if(matches){accessPassword.value='';unlockPage();}else{accessPassword.value='';accessError.textContent='パスワードが正しくありません。';accessPassword.focus();}}catch{accessError.textContent='安全な接続でページを開いてください。';}finally{submit.disabled=false;}});
+        document.getElementById('lockPageButton').addEventListener('click',()=>{sessionStorage.removeItem(ACCESS_SESSION_KEY);window.location.reload();});
+    </script>
     <script>
         const EMAILJS_CONFIG = {
             publicKey: '_P7fcXF5Eek9cCvlp',

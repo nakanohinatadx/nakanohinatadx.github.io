@@ -13,7 +13,7 @@
     "level2Id",
     "level2Label"
   ],
-  "updatedAt": "2026-10-04T15:50:52+08:00",
+  "updatedAt": "2026-10-04T18:10:00+08:00",
   "records": [
     {
       "id": "f44fd826-9d33-410c-8879-517c42992758",
@@ -30,6 +30,34 @@
         "level2Id": "D.1",
         "level2Label": "コンビニ"
       }
+    },
+    {
+      "id": "3a723c18-4d36-4d4c-8f6d-c27e00000001",
+      "recordedAt": "2026-10-04T18:00:00+08:00",
+      "location": { "latitude": 24.78125, "longitude": 121.01935, "accuracyMeters": 18, "positionAdjusted": false },
+      "category": { "level1Id": "A", "level1Label": "A 飲食店", "level2Id": "A.2", "level2Label": "麺類・米粉・お粥" },
+      "isSample": true
+    },
+    {
+      "id": "3a723c18-4d36-4d4c-8f6d-c27e00000002",
+      "recordedAt": "2026-10-04T18:02:00+08:00",
+      "location": { "latitude": 24.7782, "longitude": 121.0161, "accuracyMeters": 25, "positionAdjusted": true },
+      "category": { "level1Id": "B", "level1Label": "B 飲み物・甘味", "level2Id": "B.2", "level2Label": "カフェ・茶館" },
+      "isSample": true
+    },
+    {
+      "id": "3a723c18-4d36-4d4c-8f6d-c27e00000003",
+      "recordedAt": "2026-10-04T18:04:00+08:00",
+      "location": { "latitude": 24.78215, "longitude": 121.01545, "accuracyMeters": 16, "positionAdjusted": false },
+      "category": { "level1Id": "C", "level1Label": "C 市場・生鮮", "level2Id": "C.5", "level2Label": "スーパー・量販店" },
+      "isSample": true
+    },
+    {
+      "id": "3a723c18-4d36-4d4c-8f6d-c27e00000004",
+      "recordedAt": "2026-10-04T18:06:00+08:00",
+      "location": { "latitude": 24.77735, "longitude": 121.0201, "accuracyMeters": 20, "positionAdjusted": false },
+      "category": { "level1Id": "F", "level1Label": "F 医療・健康", "level2Id": "F.3", "level2Label": "薬局" },
+      "isSample": true
     }
   ]
 }

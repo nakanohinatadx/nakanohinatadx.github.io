@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#a5412b">
+    <title>台湾店舗めぐりプランナー</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        :root { color-scheme:light; --page:#f6eddd; --surface:#fffaf0; --raised:#fffdf8; --soft:#f0dfc5; --ink:#38241c; --muted:#806551; --line:#e2c9a8; --maple:#a5412b; --dark:#87351f; --chestnut:#75462f; --ochre:#c68835; --rose:#9c3e48; --danger:#a7382c; --shadow:0 14px 38px rgb(64 34 20 / .2); }
+        * { box-sizing:border-box; } html,body { height:100%; margin:0; }
+        body { background:var(--page); color:var(--ink); font-family:"Noto Sans JP","Yu Gothic UI",Meiryo,sans-serif; overflow:hidden; }
+        body.page-locked > :not(#accessGate) { visibility:hidden; }
+        #accessGate { align-items:center; background:var(--page); display:flex; inset:0; justify-content:center; padding:20px; position:fixed; z-index:3000; }
+        #accessGate[hidden] { display:none; }
+        #accessForm { background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); max-width:380px; padding:24px; width:100%; }
+        #accessForm h2 { font-size:20px; margin:0 0 8px; }
+        #accessPassword { background:var(--raised); border:1px solid var(--line); border-radius:9px; margin-top:7px; min-height:42px; padding:9px 11px; width:100%; }
+        #accessError { color:var(--danger); font-size:12px; min-height:20px; }
+        #accessSubmit { background:var(--maple); border:0; border-radius:9px; color:white; font-weight:700; min-height:42px; width:100%; }
+        button,input,select { color:inherit; font:inherit; } button { cursor:pointer; }
+        .topbar { align-items:center; background:var(--surface); border-bottom:1px solid var(--line); display:flex; gap:12px; height:62px; padding:8px 16px; position:absolute; inset:0 0 auto; z-index:1000; }
+        .back { align-items:center; border:1px solid var(--line); border-radius:9px; color:var(--chestnut); display:flex; height:38px; justify-content:center; text-decoration:none; width:40px; }
+        .brand { min-width:0; } .brand h1 { font-size:16px; line-height:1.25; margin:0; } .brand p { color:var(--muted); font-size:11px; margin:3px 0 0; }
+        #map { background:#e9e3d4; bottom:0; left:0; position:absolute; right:0; top:62px; }
+        .panel { background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:12px; left:14px; max-height:calc(100dvh - 90px); overflow:auto; padding:14px; position:absolute; top:76px; width:min(375px,calc(100vw - 28px)); z-index:500; }
+        .panel-heading { align-items:center; display:flex; justify-content:space-between; } .panel-heading h2,.section-heading h3 { font-size:14px; margin:0; }
+        .count { background:var(--soft); border-radius:999px; color:var(--chestnut); font-size:11px; font-weight:700; padding:4px 9px; }
+        .hint { color:var(--muted); font-size:11px; line-height:1.5; margin:0; }
+        .button { align-items:center; background:var(--raised); border:1px solid var(--line); border-radius:9px; display:inline-flex; gap:7px; justify-content:center; min-height:38px; padding:7px 10px; }
+        .button:hover { background:var(--soft); } .button:focus-visible,input:focus-visible,select:focus-visible { outline:3px solid rgb(198 136 53 / .45); outline-offset:2px; }
+        .button-primary { background:var(--maple); border-color:var(--maple); color:white; font-weight:700; } .button-primary:hover { background:var(--dark); }
+        .button:disabled { cursor:not-allowed; opacity:.55; } .button-row { display:flex; flex-wrap:wrap; gap:7px; }
+        .control { background:var(--raised); border:1px solid var(--line); border-radius:9px; min-height:39px; padding:8px 10px; width:100%; }
+        .section-heading { align-items:center; display:flex; justify-content:space-between; margin-bottom:7px; }
+        .store-list,.route-list { display:grid; gap:6px; list-style:none; margin:0; padding:0; }
+        .store-list { max-height:29vh; overflow:auto; }
+        .store-option { align-items:flex-start; background:var(--raised); border:1px solid var(--line); border-radius:9px; display:grid; gap:9px; grid-template-columns:18px 1fr auto; padding:9px; }
+        .store-option input { accent-color:var(--maple); height:16px; margin:3px 0 0; width:16px; }
+        .store-info { min-width:0; } .store-info strong { display:block; font-size:12px; line-height:1.45; } .store-info small { color:var(--muted); display:block; font-size:10px; margin-top:3px; }
+        .sample-tag { background:#f4e1cd; border-radius:6px; color:var(--maple); font-size:9px; font-weight:700; padding:3px 5px; white-space:nowrap; }
+        .origin-box { background:#f8efdf; border:1px solid var(--line); border-radius:10px; display:grid; gap:7px; padding:10px; }
+        .origin-title { font-size:11px; font-weight:700; } #originStatus { color:var(--muted); font-size:10px; line-height:1.4; }
+        .divider { border-top:1px solid var(--line); padding-top:11px; }
+        .route-row { align-items:center; background:var(--raised); border:1px solid var(--line); border-radius:9px; display:grid; gap:7px; grid-template-columns:24px 1fr auto; padding:7px 8px; }
+        .route-number { align-items:center; background:var(--rose); border-radius:50%; color:white; display:flex; font-size:10px; font-weight:700; height:22px; justify-content:center; width:22px; }
+        .route-name { font-size:11px; font-weight:700; line-height:1.4; min-width:0; } .route-name small { color:var(--muted); display:block; font-size:9px; font-weight:400; }
+        .move-buttons { display:flex; gap:3px; } .move-buttons button { background:#fffdf8; border:1px solid var(--line); border-radius:6px; height:27px; padding:0; width:28px; }
+        .summary { background:#f4e7d2; border-radius:9px; color:var(--chestnut); font-size:11px; line-height:1.55; padding:9px 10px; }
+        .nav-link { align-items:center; background:#49633c; border-radius:9px; color:white; display:flex; font-size:12px; font-weight:700; justify-content:center; min-height:40px; padding:8px 10px; text-align:center; text-decoration:none; }
+        .nav-link[aria-disabled="true"] { opacity:.45; pointer-events:none; }
+        .map-status { background:var(--surface); border:1px solid var(--line); border-radius:9px; bottom:18px; box-shadow:0 5px 20px rgb(64 34 20 / .14); color:var(--muted); font-size:11px; left:14px; max-width:min(540px,calc(100vw - 28px)); padding:9px 12px; position:absolute; z-index:450; }
+        .map-status[data-kind="error"] { border-color:#d6a59b; color:var(--danger); }
+        .leaflet-container { background:#e9e3d4; font:inherit; } .leaflet-control-attribution { background:rgb(255 250 240 / .9)!important; color:#49362d!important; font-size:10px!important; }
+        .store-marker-wrap,.origin-marker-wrap { background:transparent; border:0; }
+        .pin { align-items:center; background:var(--marker-color,var(--maple)); border:2px solid #fff3df; border-radius:50% 50% 50% 8px; box-shadow:0 3px 9px rgb(56 36 28 / .34); color:#fffaf0; display:flex; font-size:15px; height:34px; justify-content:center; transform:rotate(-45deg); width:34px; }
+        .pin span { transform:rotate(45deg); } .pin.sample { background:var(--ochre); } .pin.selected { box-shadow:0 0 0 4px rgb(156 62 72 / .28),0 3px 9px rgb(56 36 28 / .34); }
+        .origin-pin { align-items:center; background:#49633c; border:3px solid #fff; border-radius:50%; box-shadow:0 3px 9px #38241c66; color:white; display:flex; font-size:13px; height:36px; justify-content:center; width:36px; }
+        .route-line { filter:drop-shadow(0 2px 2px #fffaf0aa); }
+        @media(max-width:650px) {
+            .topbar { height:58px; padding:7px 10px; } .brand h1 { font-size:14px; } .brand p { font-size:10px; }
+            #map { top:58px; } .panel { bottom:76px; left:10px; max-height:min(62dvh,560px); padding:11px; top:auto; width:min(375px,calc(100vw - 20px)); }
+            .store-list { max-height:19vh; } .map-status { bottom:12px; left:10px; }
+        }
+    </style>
+</head>
+<body class="page-locked">
+    <section id="accessGate" aria-labelledby="accessGateTitle">
+        <form id="accessForm"><h2 id="accessGateTitle">台湾店舗めぐりプランナー</h2><p>パスワードを入力してください。</p><label for="accessPassword">パスワード</label><input id="accessPassword" type="password" autocomplete="current-password" required><p id="accessError" role="alert" aria-live="polite"></p><button id="accessSubmit" type="submit">開く</button></form>
+    </section>
+    <header class="topbar">
+        <a class="back" href="index.html" aria-label="ダッシュボードへ戻る">←</a>
+        <div class="brand"><h1>台湾店舗めぐりプランナー</h1><p>共有店舗から訪問先を選んでルート作成</p></div>
+        <button id="lockPageButton" class="button" type="button" aria-label="ページをロック" style="margin-left:auto">ロック</button>
+    </header>
+    <div id="map" aria-label="店舗と訪問ルートの地図"></div>
+    <section class="panel" aria-label="訪問ルートの設定">
+        <div class="panel-heading"><h2>訪問する店舗</h2><span id="selectedCount" class="count">0 件選択</span></div>
+        <p class="hint">店舗を選び「訪問順を計算」を押してください。サンプルピンは黄色で表示します。</p>
+        <div class="origin-box">
+            <span class="origin-title">出発地点</span>
+            <span id="originStatus">未設定の場合は、最初に選んだ店舗から出発します。</span>
+            <div class="button-row"><button id="useLocationButton" class="button" type="button">現在地を出発地点にする</button><button id="clearLocationButton" class="button" type="button" hidden>現在地を解除</button></div>
+        </div>
+        <input id="searchInput" class="control" type="search" placeholder="店舗名・カテゴリーを検索" aria-label="店舗を検索">
+        <select id="categoryFilter" class="control" aria-label="大カテゴリーで絞り込む"><option value="">すべてのカテゴリー</option></select>
+        <div class="section-heading"><h3>地図の店舗一覧</h3><div class="button-row"><button id="selectVisibleButton" class="button" type="button">表示中を選択</button><button id="clearSelectionButton" class="button" type="button">選択解除</button></div></div>
+        <ul id="storeList" class="store-list"><li class="hint">データベースを読み込んでいます。</li></ul>
+        <div class="divider">
+            <div class="section-heading"><h3>訪問順</h3><span class="hint">上下ボタンで変更できます</span></div>
+            <ol id="routeList" class="route-list"><li class="hint">店舗を選択してください。</li></ol>
+        </div>
+        <div class="button-row"><button id="calculateButton" class="button button-primary" type="button" disabled>訪問順を計算して経路を表示</button></div>
+        <div id="routeSummary" class="summary">OSRM の道路時間を使ってブラウザー内で訪問順を計算します。選択前のデータ送信はありません。</div>
+        <a id="navigationLink" class="nav-link" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">ナビゲーションアプリで開く</a>
+        <p class="hint">道路ルートは OSRM 公開デモサービス（車）で計算します。接続状況や提供範囲により利用できない場合があります。現在地と選択した座標はルート計算のため OSRM に送信されます。</p>
+    </section>
+    <div id="mapStatus" class="map-status" role="status" aria-live="polite">共有データベースを読み込んでいます。</div>
+    <script>
+        const ACCESS_CONFIG={salt:'ede33d5388f03fdc5379c8530d37fe24',verifier:'f048abba5cb645e1dd800a3520024261e2a1aedff915dee15fddb1f926374c79',iterations:310000};
+        const ACCESS_SESSION_KEY='gps-location-page-unlocked-v1';
+        const accessGate=document.getElementById('accessGate');const accessForm=document.getElementById('accessForm');const accessPassword=document.getElementById('accessPassword');const accessError=document.getElementById('accessError');const accessEncoder=new TextEncoder();
+        const fromHex=value=>Uint8Array.from(value.match(/.{2}/g)||[],byte=>parseInt(byte,16));
+        function unlockPage(){sessionStorage.setItem(ACCESS_SESSION_KEY,'1');document.body.classList.remove('page-locked');accessGate.hidden=true;requestAnimationFrame(()=>map.invalidateSize());}
+        if(sessionStorage.getItem(ACCESS_SESSION_KEY)==='1'){document.body.classList.remove('page-locked');accessGate.hidden=true;}
+        accessForm.addEventListener('submit',async event=>{event.preventDefault();accessError.textContent='';const submit=document.getElementById('accessSubmit');submit.disabled=true;try{if(!window.crypto?.subtle)throw Error('secure-crypto-unavailable');const key=await crypto.subtle.importKey('raw',accessEncoder.encode(accessPassword.value),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:fromHex(ACCESS_CONFIG.salt),iterations:ACCESS_CONFIG.iterations,hash:'SHA-256'},key,256);const derived=new Uint8Array(bits);const expected=fromHex(ACCESS_CONFIG.verifier);const matches=derived.length===expected.length&&derived.every((byte,index)=>byte===expected[index]);if(matches){accessPassword.value='';unlockPage();}else{accessPassword.value='';accessError.textContent='パスワードが正しくありません。';accessPassword.focus();}}catch{accessError.textContent='安全な接続でページを開いてください。';}finally{submit.disabled=false;}});
+        document.getElementById('lockPageButton').addEventListener('click',()=>{sessionStorage.removeItem(ACCESS_SESSION_KEY);window.location.reload();});
+    </script>
+    <script>
+        const DB_PATH = 'dB/taiwan_store_db.json';
+        const OSRM_BASE = 'https://router.project-osrm.org';
+        const categories = [
+            {id:'A',label:'飲食店',icon:'🍜',children:[['A.1','朝食店'],['A.2','麺類・米粉・お粥'],['A.3','弁当・セルフ式食堂'],['A.4','台湾小吃・滷味'],['A.5','餃子・包子'],['A.6','火鍋・焼肉'],['A.7','中華料理店'],['A.8','日本・韓国・各国料理'],['A.9','ベジタリアン料理']]},
+            {id:'B',label:'飲み物・甘味',icon:'🧋',children:[['B.1','タピオカ・台湾茶ドリンク'],['B.2','カフェ・茶館'],['B.3','パン・ベーカリー'],['B.4','豆花・かき氷・甘味'],['B.5','ケーキ・アイスクリーム']]},
+            {id:'C',label:'市場・生鮮',icon:'🥬',children:[['C.1','伝統市場・夜市の屋台'],['C.2','青果店'],['C.3','精肉店'],['C.4','鮮魚・海鮮'],['C.5','スーパー・量販店']]},
+            {id:'D',label:'生活用品・小売',icon:'🛍️',children:[['D.1','コンビニ'],['D.2','雑貨・金物店'],['D.3','ドラッグストア・日用品'],['D.4','文具・書店'],['D.5','衣料・靴・バッグ'],['D.6','家電・通信']]},
+            {id:'E',label:'生活サービス',icon:'🧺',children:[['E.1','コインランドリー・クリーニング'],['E.2','美容室・エステ'],['E.3','修理・鍵'],['E.4','郵便局・宅配'],['E.5','銀行・ATM'],['E.6','コピー・印刷']]},
+            {id:'F',label:'医療・健康',icon:'🏥',children:[['F.1','診療所'],['F.2','歯科'],['F.3','薬局'],['F.4','漢方薬店']]},
+            {id:'G',label:'交通・車関連',icon:'🛵',children:[['G.1','ガソリン・充電'],['G.2','駐車場'],['G.3','自動車・バイク整備／用品'],['G.4','自転車修理・レンタル']]},
+            {id:'H',label:'宿泊・観光',icon:'🏨',children:[['H.1','ホテル・民宿'],['H.2','観光施設・展示館'],['H.3','お土産店']]}
+        ];
+        const categoryMap=new Map(categories.map(category=>[category.id,category]));
+        const childMap=new Map(categories.flatMap(category=>category.children.map(([id,label])=>[id,{parent:category.id,label}])));
+        const map=L.map('map',{zoomControl:false}).setView([24.7798306,121.0180732],15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+        L.control.zoom({position:'bottomright'}).addTo(map);
+        const storeLayer=L.featureGroup().addTo(map);
+        const routeLayer=L.featureGroup().addTo(map);
+        let records=[]; let selectedIds=new Set(); let routeIds=[]; let origin=null; let originMarker=null; let requestSerial=0;
+        const storeList=document.getElementById('storeList');
+        const routeList=document.getElementById('routeList');
+        const categoryFilter=document.getElementById('categoryFilter');
+        const searchInput=document.getElementById('searchInput');
+        function setStatus(message,error=false){const el=document.getElementById('mapStatus');el.textContent=message;el.dataset.kind=error?'error':'info';}
+        function recordName(record){return `${record.category.level1Label} · ${record.category.level2Id} ${record.category.level2Label}`;}
+        function refreshSelectionCount(){document.getElementById('selectedCount').textContent=`${selectedIds.size} 件選択`;document.getElementById('calculateButton').disabled=selectedIds.size===0;}
+        function matchesFilter(record){const query=searchInput.value.trim().toLocaleLowerCase();const group=categoryFilter.value;const searchable=`${record.category.level1Label} ${record.category.level2Id} ${record.category.level2Label} ${record.location.latitude} ${record.location.longitude}`.toLocaleLowerCase();return (!group||record.category.level1Id===group)&&(!query||searchable.includes(query));}
+        function makeStoreMarker(record){const category=categoryMap.get(record.category.level1Id);const chosen=selectedIds.has(record.id);const html=`<div class="pin${record.isSample===true?' sample':''}${chosen?' selected':''}"><span>${category?.icon||'📍'}</span></div>`;const icon=L.divIcon({className:'store-marker-wrap',html,iconSize:[34,34],iconAnchor:[17,32]});const marker=L.marker([record.location.latitude,record.location.longitude],{icon,title:recordName(record)});const popup=document.createElement('div');const title=document.createElement('strong');title.textContent=`${category?.icon||'📍'} ${recordName(record)}`;const code=document.createElement('div');code.textContent=`${record.location.latitude.toFixed(6)}, ${record.location.longitude.toFixed(6)}`;popup.append(title,code);if(record.isSample===true){const badge=document.createElement('div');badge.textContent='サンプルデータ';badge.style.cssText='color:#a5412b;font-weight:700';popup.append(badge);}marker.bindPopup(popup);marker.on('click',()=>{if(!selectedIds.has(record.id)){selectedIds.add(record.id);syncOrder();renderAll();}});return marker;}
+        function renderMap(){storeLayer.clearLayers();records.forEach(record=>makeStoreMarker(record).addTo(storeLayer));if(originMarker){originMarker.remove();originMarker=null;}if(origin){const icon=L.divIcon({className:'origin-marker-wrap',html:'<div class="origin-pin">出</div>',iconSize:[36,36],iconAnchor:[18,18]});originMarker=L.marker([origin.latitude,origin.longitude],{icon,title:'出発地点'}).addTo(map).bindPopup('出発地点');}}
+        function renderStoreList(){storeList.replaceChildren();const visible=records.filter(matchesFilter);if(!visible.length){const empty=document.createElement('li');empty.className='hint';empty.textContent='条件に一致する店舗がありません。';storeList.append(empty);return;}visible.forEach(record=>{const item=document.createElement('li');const label=document.createElement('label');label.className='store-option';const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=selectedIds.has(record.id);checkbox.setAttribute('aria-label',`${recordName(record)}を訪問先に追加`);checkbox.addEventListener('change',()=>{if(checkbox.checked)selectedIds.add(record.id);else selectedIds.delete(record.id);syncOrder();renderAll();});const text=document.createElement('span');text.className='store-info';const title=document.createElement('strong');title.textContent=`${categoryMap.get(record.category.level1Id)?.icon||'📍'} ${recordName(record)}`;const coords=document.createElement('small');coords.textContent=`${record.location.latitude.toFixed(5)}, ${record.location.longitude.toFixed(5)}`;text.append(title,coords);label.append(checkbox,text);if(record.isSample===true){const tag=document.createElement('span');tag.className='sample-tag';tag.textContent='サンプル';label.append(tag);}item.append(label);storeList.append(item);});}
+        function syncOrder(){const next=routeIds.filter(id=>selectedIds.has(id));records.forEach(record=>{if(selectedIds.has(record.id)&&!next.includes(record.id))next.push(record.id);});routeIds=next;requestSerial++;routeLayer.clearLayers();document.getElementById('routeSummary').textContent='選択を変更しました。訪問順を計算して経路を更新してください。';document.getElementById('navigationLink').setAttribute('aria-disabled','true');renderRouteList();}
+        function renderRouteList(){routeList.replaceChildren();const ordered=routeIds.map(id=>records.find(record=>record.id===id)).filter(Boolean);if(!ordered.length){const empty=document.createElement('li');empty.className='hint';empty.textContent='店舗を選択してください。';routeList.append(empty);}
+            ordered.forEach((record,index)=>{const item=document.createElement('li');const row=document.createElement('div');row.className='route-row';const number=document.createElement('span');number.className='route-number';number.textContent=String(index+1);const name=document.createElement('span');name.className='route-name';name.textContent=`${categoryMap.get(record.category.level1Id)?.icon||'📍'} ${recordName(record)}`;const location=document.createElement('small');location.textContent=`${record.location.latitude.toFixed(5)}, ${record.location.longitude.toFixed(5)}`;name.append(location);const moves=document.createElement('span');moves.className='move-buttons';for(const [label,delta] of [['↑',-1],['↓',1]]){const button=document.createElement('button');button.type='button';button.textContent=label;button.setAttribute('aria-label',`${recordName(record)}を${delta<0?'前':'後ろ'}に移動`);button.disabled=index+delta<0||index+delta>=ordered.length;button.addEventListener('click',()=>{const swap=index+delta;[routeIds[index],routeIds[swap]]=[routeIds[swap],routeIds[index]];renderRouteList();drawRouteForCurrentOrder();});moves.append(button);}row.append(number,name,moves);item.append(row);routeList.append(item);});refreshSelectionCount();}
+        function renderAll(){renderStoreList();renderMap();renderRouteList();}
+        function coordsOf(point){return `${point.longitude},${point.latitude}`;}
+        function makePoint(record){return {latitude:record.location.latitude,longitude:record.location.longitude,record};}
+        function optimizePath(matrix){const count=matrix.length;if(count<2)return Array.from({length:count},(_,index)=>index);const remaining=count-1;
+            if(remaining<=12){const stateCount=1<<remaining;const dp=new Float64Array(stateCount*remaining);dp.fill(Infinity);const parent=new Int16Array(stateCount*remaining);parent.fill(-1);for(let j=0;j<remaining;j++){const cost=matrix[0][j+1];if(Number.isFinite(cost))dp[(1<<j)*remaining+j]=cost;}
+                for(let mask=1;mask<stateCount;mask++){for(let last=0;last<remaining;last++){if(!(mask&(1<<last)))continue;const previous=dp[mask*remaining+last];if(!Number.isFinite(previous))continue;for(let next=0;next<remaining;next++){if(mask&(1<<next))continue;const edge=matrix[last+1][next+1];if(!Number.isFinite(edge))continue;const nextMask=mask|(1<<next);const at=nextMask*remaining+next;const candidate=previous+edge;if(candidate<dp[at]){dp[at]=candidate;parent[at]=last;}}}}
+                const full=stateCount-1;let last=-1;let best=Infinity;for(let j=0;j<remaining;j++){const cost=dp[full*remaining+j];if(cost<best){best=cost;last=j;}}if(last<0||!Number.isFinite(best))throw Error('訪問先どうしを道路でつなげませんでした。');const reverse=[];let mask=full;while(last>=0){reverse.push(last+1);const previous=parent[mask*remaining+last];mask^=1<<last;last=previous;}return [0,...reverse.reverse()];}
+            const path=[0];const left=new Set(Array.from({length:remaining},(_,index)=>index+1));while(left.size){const last=path[path.length-1];let bestIndex=-1;let bestCost=Infinity;for(const candidate of left){const cost=matrix[last][candidate];if(cost<bestCost){bestCost=cost;bestIndex=candidate;}}if(bestIndex<0||!Number.isFinite(bestCost))throw Error('訪問先どうしを道路でつなげませんでした。');path.push(bestIndex);left.delete(bestIndex);}return path;
+        }
+        async function getJson(url){const response=await fetch(url);if(!response.ok)throw Error(`ルートサービスの応答エラー（${response.status}）`);const data=await response.json();if(data.code!=='Ok')throw Error(data.message||`ルート計算エラー：${data.code||'不明'}`);return data;}
+        function routePoints(){const selected=routeIds.map(id=>records.find(record=>record.id===id)).filter(Boolean);if(origin)return [{latitude:origin.latitude,longitude:origin.longitude,record:null},...selected.map(makePoint)];return selected.map(makePoint);}
+        function setRouteSummary(text){document.getElementById('routeSummary').textContent=text;}
+        function googleMapsHref(orderedRecords){if(!orderedRecords.length)return null;const start=origin||{latitude:orderedRecords[0].location.latitude,longitude:orderedRecords[0].location.longitude};const end=orderedRecords[orderedRecords.length-1];const waypoints=orderedRecords.slice(origin?0:1,-1).map(record=>`${record.location.latitude},${record.location.longitude}`).join('|');const params=new URLSearchParams({api:'1',origin:`${start.latitude},${start.longitude}`,destination:`${end.location.latitude},${end.location.longitude}`,travelmode:'driving'});if(waypoints)params.set('waypoints',waypoints);return `https://www.google.com/maps/dir/?${params}`;}
+        function updateNavigation(orderedRecords){const link=document.getElementById('navigationLink');const href=googleMapsHref(orderedRecords);if(href){link.href=href;link.setAttribute('aria-disabled','false');}else{link.href='#';link.setAttribute('aria-disabled','true');}}
+        function showRouteGeometry(routeData,points,orderedRecords){routeLayer.clearLayers();if(routeData?.geometry?.coordinates?.length>1){const line=L.geoJSON(routeData.geometry,{style:{color:'#9c3e48',weight:6,opacity:.86,className:'route-line'}}).addTo(routeLayer);map.fitBounds(line.getBounds().pad(.18),{maxZoom:17});}else if(points.length){map.setView([points[0].latitude,points[0].longitude],17);}
+            const distance=routeData?.distance||0;const duration=routeData?.duration||0;const km=(distance/1000).toFixed(2);const mins=Math.max(0,Math.round(duration/60));setRouteSummary(`${orderedRecords.length} 店を${origin?'現在地':'選択店舗'}から訪問する道路順に並べました。車で約 ${km} km・${mins} 分（OSRM 推定、交通渋滞は含みません）。`);updateNavigation(orderedRecords);}
+        async function drawRouteForCurrentOrder(){const serial=++requestSerial;const ordered=routeIds.map(id=>records.find(record=>record.id===id)).filter(Boolean);if(!ordered.length)return;const points=routePoints();routeLayer.clearLayers();setRouteSummary('選択した順番の道路ルートを取得しています…');try{if(points.length<2){showRouteGeometry(null,points,ordered);return;}const coords=points.map(coordsOf).join(';');const route=await getJson(`${OSRM_BASE}/route/v1/driving/${coords}?overview=full&geometries=geojson&steps=false`);if(serial!==requestSerial)return;showRouteGeometry(route.routes?.[0],points,ordered);setStatus('道路ルートを表示しました。');}catch(error){if(serial!==requestSerial)return;setRouteSummary(error.message||'道路ルートを取得できませんでした。');setStatus('ルートサービスに接続できません。時間をおいて再度お試しください。',true);}}
+        async function calculateRoute(){if(!selectedIds.size)return;const serial=++requestSerial;const button=document.getElementById('calculateButton');button.disabled=true;button.textContent='訪問順を計算中…';routeLayer.clearLayers();setStatus('道路の所要時間を取得しています…');setRouteSummary('ルートサービスから道路時間を読み込んでいます。');try{const points=routePoints();if(points.length<2){showRouteGeometry(null,points,routeIds.map(id=>records.find(record=>record.id===id)).filter(Boolean));updateNavigation(routeIds.map(id=>records.find(record=>record.id===id)).filter(Boolean));setStatus('選択した店舗を訪問先に設定しました。');return;}
+                const coords=points.map(coordsOf).join(';');const table=await getJson(`${OSRM_BASE}/table/v1/driving/${coords}?annotations=duration`);if(serial!==requestSerial)return;const matrix=table.durations?.map(row=>row.map(value=>Number.isFinite(value)?value:Infinity));if(!matrix||matrix.length!==points.length)throw Error('所要時間表を読み取れませんでした。');const order=optimizePath(matrix);const orderedPoints=order.map(index=>points[index]);routeIds=orderedPoints.filter(point=>point.record).map(point=>point.record.id);renderRouteList();const orderedRecords=routeIds.map(id=>records.find(record=>record.id===id)).filter(Boolean);const routeCoords=orderedPoints.map(coordsOf).join(';');if(orderedPoints.length<2){showRouteGeometry(null,orderedPoints,orderedRecords);updateNavigation(orderedRecords);return;}const route=await getJson(`${OSRM_BASE}/route/v1/driving/${routeCoords}?overview=full&geometries=geojson&steps=false`);if(serial!==requestSerial)return;showRouteGeometry(route.routes?.[0],orderedPoints,orderedRecords);const note=orderedPoints.length-1<=12?'訪問順は道路時間の最短経路として計算しました。':'訪問先が多いため、訪問順は近い店舗から回る方式で計算しました。';setRouteSummary(`${orderedRecords.length} 店を${origin?'現在地':'選択店舗'}から訪問する順にしました。車で約 ${(route.routes?.[0]?.distance/1000||0).toFixed(2)} km・${Math.round((route.routes?.[0]?.duration||0)/60)} 分。${note}`);setStatus('訪問順と道路ルートを表示しました。');
+            }catch(error){if(serial!==requestSerial)return;setRouteSummary(error.message||'訪問順を計算できませんでした。');setStatus('ルートサービスに接続できません。時間をおいて再度お試しください。',true);}finally{if(serial===requestSerial){button.disabled=selectedIds.size===0;button.textContent='訪問順を計算して経路を表示';}}}
+        document.getElementById('calculateButton').addEventListener('click',calculateRoute);
+        document.getElementById('useLocationButton').addEventListener('click',()=>{if(!navigator.geolocation){setStatus('このブラウザーでは現在地を取得できません。',true);return;}setStatus('現在地を取得しています…');navigator.geolocation.getCurrentPosition(position=>{origin={latitude:position.coords.latitude,longitude:position.coords.longitude};document.getElementById('originStatus').textContent=`現在地 · 精度 約 ${Math.round(position.coords.accuracy)} m`;document.getElementById('clearLocationButton').hidden=false;syncOrder();map.setView([origin.latitude,origin.longitude],16);setStatus('現在地を出発地点に設定しました。');},error=>{const messages={1:'位置情報の利用が許可されていません。',2:'現在地を取得できません。',3:'現在地の取得がタイムアウトしました。'};setStatus(messages[error.code]||'現在地を取得できません。',true);},{enableHighAccuracy:true,timeout:15000,maximumAge:30000});});
+        document.getElementById('clearLocationButton').addEventListener('click',()=>{origin=null;document.getElementById('originStatus').textContent='未設定の場合は、最初に選んだ店舗から出発します。';document.getElementById('clearLocationButton').hidden=true;syncOrder();});
+        document.getElementById('selectVisibleButton').addEventListener('click',()=>{records.filter(matchesFilter).forEach(record=>selectedIds.add(record.id));syncOrder();renderAll();});
+        document.getElementById('clearSelectionButton').addEventListener('click',()=>{selectedIds.clear();syncOrder();renderAll();});
+        searchInput.addEventListener('input',renderStoreList);categoryFilter.addEventListener('change',renderStoreList);
+        async function initialize(){categories.forEach(category=>{const option=document.createElement('option');option.value=category.id;option.textContent=`${category.id} ${category.label}`;categoryFilter.append(option);});try{const response=await fetch(DB_PATH,{cache:'no-store'});if(!response.ok)throw Error('データベースを読み込めません。');const database=await response.json();if(database.schemaVersion!==1||!Array.isArray(database.records))throw Error('データベースの形式が正しくありません。');records=database.records.filter(record=>record&&Number.isFinite(record.location?.latitude)&&Number.isFinite(record.location?.longitude)&&categoryMap.has(record.category?.level1Id)&&childMap.get(record.category?.level2Id)?.parent===record.category?.level1Id);const samples=records.filter(record=>record.isSample===true);if(records.length<=10)records.forEach(record=>selectedIds.add(record.id));else samples.slice(0,10).forEach(record=>selectedIds.add(record.id));renderAll();if(records.length){const bounds=storeLayer.getBounds();if(bounds.isValid())map.fitBounds(bounds.pad(.22),{maxZoom:16});}const sampleCount=samples.length;setStatus(`${records.length} 件の店舗を読み込みました。${sampleCount?`サンプルデータ ${sampleCount} 件を含みます。`:''}`);}catch(error){setStatus(error.message||'ページを GitHub Pages 経由で開いてください。',true);storeList.innerHTML='<li class="hint">共有 JSON を読み込めませんでした。</li>';}}
+        initialize();
+    </script>
+</body>
+</html>
