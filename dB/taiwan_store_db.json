@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "recordFormat": "taiwan-store-pin-v1",
+  "valueRowOrder": [
+    "id",
+    "recordedAt",
+    "latitude",
+    "longitude",
+    "accuracyMeters",
+    "positionAdjusted",
+    "level1Id",
+    "level1Label",
+    "level2Id",
+    "level2Label"
+  ],
+  "updatedAt": "2026-10-04T15:50:52+08:00",
+  "records": [
+    {
+      "id": "f44fd826-9d33-410c-8879-517c42992758",
+      "recordedAt": "2026-10-04T15:50:52+08:00",
+      "location": {
+        "latitude": 24.7798306,
+        "longitude": 121.0180732,
+        "accuracyMeters": 22,
+        "positionAdjusted": false
+      },
+      "category": {
+        "level1Id": "D",
+        "level1Label": "D 生活用品・小売",
+        "level2Id": "D.1",
+        "level2Label": "コンビニ"
+      }
+    }
+  ]
+}

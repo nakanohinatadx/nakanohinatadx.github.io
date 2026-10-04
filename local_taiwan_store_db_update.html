@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#a5412b">
+    <title>台湾店舗データベース更新ツール（ローカル）</title>
+    <style>
+        :root { color-scheme:light; --page:#f6eddd; --surface:#fffaf0; --soft:#f0dfc5; --ink:#38241c; --muted:#806551; --line:#e2c9a8; --maple:#a5412b; --danger:#a7382c; }
+        * { box-sizing:border-box; } body { background:var(--page); color:var(--ink); font-family:"Noto Sans JP","Yu Gothic UI",Meiryo,sans-serif; line-height:1.55; margin:0; padding:24px; }
+        main { margin:0 auto; max-width:900px; } h1 { font-size:clamp(21px,4vw,30px); margin:0; } h2 { font-size:17px; margin:0 0 10px; }
+        .intro { color:var(--muted); margin:7px 0 18px; } .card { background:var(--surface); border:1px solid var(--line); border-radius:14px; margin:14px 0; padding:18px; }
+        .steps { color:var(--muted); font-size:13px; margin:6px 0 0; } label { display:block; font-size:13px; font-weight:700; margin:10px 0 6px; }
+        textarea { background:#fffdf8; border:1px solid var(--line); border-radius:9px; color:var(--ink); font:13px/1.5 ui-monospace,Consolas,monospace; min-height:150px; padding:11px; resize:vertical; width:100%; }
+        input[type=file] { display:block; margin-top:8px; max-width:100%; } .actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:12px; }
+        button { background:#fffdf8; border:1px solid var(--line); border-radius:9px; color:var(--ink); cursor:pointer; font:inherit; min-height:40px; padding:8px 13px; }
+        button.primary { background:var(--maple); border-color:var(--maple); color:white; font-weight:700; } button:disabled { cursor:not-allowed; opacity:.55; }
+        .status { background:var(--soft); border-radius:9px; margin-top:12px; padding:10px 12px; } .status.error { background:#f3ded7; color:var(--danger); }
+        .preview { max-height:260px; min-height:90px; } code { background:var(--soft); border-radius:4px; padding:1px 4px; }
+        @media(max-width:600px) { body { padding:14px; } .card { padding:14px; } }
+    </style>
+</head>
+<body>
+<main>
+    <h1>台湾店舗データベース更新ツール</h1>
+    <p class="intro">ローカル専用ツールです。店舗の追加行を読み込み、既存 JSON に追記した新しいファイルを作成します。GitHub には自動接続しません。</p>
+    <section class="card">
+        <h2>1. 現在のデータベースを読み込む</h2>
+        <p class="steps">リポジトリーの <code>dB/taiwan_store_db.json</code> を選択してください。行は追加専用で、既存の ID と重複する行は無視します。</p>
+        <label for="dbFile">データベース JSON</label><input id="dbFile" type="file" accept="application/json,.json">
+        <div id="dbStatus" class="status" role="status">JSON ファイルを選択してください。</div>
+    </section>
+    <section class="card">
+        <h2>2. EmailJS から返された値の行を貼り付ける</h2>
+        <p class="steps">1 行につき 1 件。例のような JSON 配列を複数行貼り付けられます。レコードの削除や上書きは行いません。</p>
+        <label for="rowsInput">値のみの JSON 行</label>
+        <textarea id="rowsInput" spellcheck="false" placeholder='["f44fd826-9d33-410c-8879-517c42992758","2026-10-04T15:50:52+08:00",24.7798306,121.0180732,22,false,"D","D 生活用品・小売","D.1","コンビニ"]'></textarea>
+        <div class="actions"><button id="previewButton" class="primary" type="button">行を検証して追加</button><button id="clearButton" type="button">入力をクリア</button></div>
+        <div id="rowStatus" class="status" role="status">データベースと値の行を読み込んでください。</div>
+    </section>
+    <section class="card">
+        <h2>3. 更新した JSON を保存して GitHub に同期する</h2>
+        <p class="steps">作成したファイルをリポジトリーの <code>dB/taiwan_store_db.json</code> に置き換え、通常の git commit / push で GitHub に公開します。これはローカルから GitHub への一方向更新です。</p>
+        <label for="previewOutput">追加予定レコード</label><textarea id="previewOutput" class="preview" readonly placeholder="検証結果をここに表示します"></textarea>
+        <div class="actions"><button id="downloadButton" class="primary" type="button" disabled>更新済み JSON をダウンロード</button></div>
+    </section>
+</main>
+<script>
+    const categoryRows = [
+        ['A','飲食店',[['A.1','朝食店'],['A.2','麺類・米粉・お粥'],['A.3','弁当・セルフ式食堂'],['A.4','台湾小吃・滷味'],['A.5','餃子・包子'],['A.6','火鍋・焼肉'],['A.7','中華料理店'],['A.8','日本・韓国・各国料理'],['A.9','ベジタリアン料理']]],
+        ['B','飲み物・甘味',[['B.1','タピオカ・台湾茶ドリンク'],['B.2','カフェ・茶館'],['B.3','パン・ベーカリー'],['B.4','豆花・かき氷・甘味'],['B.5','ケーキ・アイスクリーム']]],
+        ['C','市場・生鮮',[['C.1','伝統市場・夜市の屋台'],['C.2','青果店'],['C.3','精肉店'],['C.4','鮮魚・海鮮'],['C.5','スーパー・量販店']]],
+        ['D','生活用品・小売',[['D.1','コンビニ'],['D.2','雑貨・金物店'],['D.3','ドラッグストア・日用品'],['D.4','文具・書店'],['D.5','衣料・靴・バッグ'],['D.6','家電・通信']]],
+        ['E','生活サービス',[['E.1','コインランドリー・クリーニング'],['E.2','美容室・エステ'],['E.3','修理・鍵'],['E.4','郵便局・宅配'],['E.5','銀行・ATM'],['E.6','コピー・印刷']]],
+        ['F','医療・健康',[['F.1','診療所'],['F.2','歯科'],['F.3','薬局'],['F.4','漢方薬店']]],
+        ['G','交通・車関連',[['G.1','ガソリン・充電'],['G.2','駐車場'],['G.3','自動車・バイク整備／用品'],['G.4','自転車修理・レンタル']]],
+        ['H','宿泊・観光',[['H.1','ホテル・民宿'],['H.2','観光施設・展示館'],['H.3','お土産店']]]
+    ];
+    const parentMap=new Map(categoryRows.map(([id,label,children])=>[id,{label,children}]));
+    const childMap=new Map(categoryRows.flatMap(([parent,,children])=>children.map(([id,label])=>[id,{parent,label}])));
+    let database=null; let additions=[];
+    const dbStatus=document.getElementById('dbStatus'); const rowStatus=document.getElementById('rowStatus');
+    function show(el,message,error=false){el.textContent=message;el.classList.toggle('error',error);}
+    function rowToRecord(row,lineNumber){
+        if(!Array.isArray(row)||row.length!==10)throw Error(`${lineNumber} 行目: 値は 10 項目の配列にしてください。`);
+        const [id,recordedAt,latitude,longitude,accuracyMeters,positionAdjusted,level1Id,level1Label,level2Id,level2Label]=row;
+        if(typeof id!=='string'||!id.trim())throw Error(`${lineNumber} 行目: ID がありません。`);
+        if(typeof recordedAt!=='string'||!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d[+-]\d\d:\d\d$/.test(recordedAt)||Number.isNaN(Date.parse(recordedAt)))throw Error(`${lineNumber} 行目: 日時はタイムゾーン付き ISO 8601 形式にしてください。`);
+        if(!Number.isFinite(latitude)||latitude < -90||latitude > 90||!Number.isFinite(longitude)||longitude < -180||longitude > 180)throw Error(`${lineNumber} 行目: 緯度または経度が不正です。`);
+        if(!Number.isFinite(accuracyMeters)||accuracyMeters<0)throw Error(`${lineNumber} 行目: GPS 精度が不正です。`);
+        if(typeof positionAdjusted!=='boolean')throw Error(`${lineNumber} 行目: 位置調整は true / false にしてください。`);
+        const parent=parentMap.get(level1Id); const child=childMap.get(level2Id);
+        if(!parent||!child||child.parent!==level1Id||level1Label!==`${level1Id} ${parent.label}`||level2Label!==child.label)throw Error(`${lineNumber} 行目: カテゴリー ID とラベルが一致しません。`);
+        return {id,recordedAt,location:{latitude,longitude,accuracyMeters,positionAdjusted},category:{level1Id,level1Label,level2Id,level2Label}};
+    }
+    document.getElementById('dbFile').addEventListener('change',async event=>{
+        const file=event.target.files?.[0]; if(!file)return;
+        try { const parsed=JSON.parse(await file.text()); if(parsed.schemaVersion!==1||!Array.isArray(parsed.records))throw Error('対応する schemaVersion 1 の JSON ではありません。');
+            const seen=new Set(); for(const record of parsed.records){if(!record?.id||seen.has(record.id))throw Error('データベース内の ID が空か重複しています。');seen.add(record.id);}
+            database=parsed; additions=[]; document.getElementById('previewOutput').value=''; document.getElementById('downloadButton').disabled=true;
+            show(dbStatus,`${file.name} を読み込みました（${database.records.length} 件）。`);show(rowStatus,'追加する値の行を貼り付けてください。');
+        } catch(error){database=null;show(dbStatus,error.message||'JSON を読み込めません。',true);}
+    });
+    document.getElementById('previewButton').addEventListener('click',()=>{
+        if(!database){show(rowStatus,'先に現在のデータベース JSON を選択してください。',true);return;}
+        const lines=document.getElementById('rowsInput').value.split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+        if(!lines.length){show(rowStatus,'追加する JSON 行を貼り付けてください。',true);return;}
+        try{
+            const existing=new Set(database.records.map(record=>record.id));const batch=new Set();const parsed=[];
+            lines.forEach((line,index)=>{let row;try{row=JSON.parse(line);}catch{throw Error(`${index+1} 行目: JSON 配列を読み取れません。`);}const record=rowToRecord(row,index+1);if(!existing.has(record.id)&&!batch.has(record.id)){parsed.push(record);batch.add(record.id);}});
+            additions=parsed;const skipped=lines.length-parsed.length;document.getElementById('previewOutput').value=JSON.stringify(additions,null,2);
+            document.getElementById('downloadButton').disabled=!additions.length;
+            show(rowStatus,`${additions.length} 件を追加予定。既存 ID または今回の貼り付け内の重複 ${skipped} 件は無視しました。`);
+        }catch(error){additions=[];document.getElementById('downloadButton').disabled=true;show(rowStatus,error.message||'入力を検証できません。',true);}
+    });
+    document.getElementById('clearButton').addEventListener('click',()=>{document.getElementById('rowsInput').value='';additions=[];document.getElementById('previewOutput').value='';document.getElementById('downloadButton').disabled=true;show(rowStatus,'入力をクリアしました。');});
+    document.getElementById('downloadButton').addEventListener('click',()=>{
+        if(!database||!additions.length)return;
+        const merged={...database,updatedAt:new Date().toISOString(),records:[...database.records,...additions]};
+        const blob=new Blob([`${JSON.stringify(merged,null,2)}\n`],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='taiwan_store_db.json';link.click();URL.revokeObjectURL(url);
+        show(rowStatus,`${additions.length} 件を含む JSON を保存しました。リポジトリーの dB/taiwan_store_db.json と置き換えて push してください。`);
+    });
+</script>
+</body>
+</html>

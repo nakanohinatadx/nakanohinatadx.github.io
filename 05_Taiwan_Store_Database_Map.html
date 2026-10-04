@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#a5412b">
+    <title>台湾店舗データベースマップ</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        :root { color-scheme: light; --page:#f6eddd; --surface:#fffaf0; --soft:#f0dfc5; --ink:#38241c; --muted:#806551; --line:#e2c9a8; --maple:#a5412b; --chestnut:#75462f; }
+        * { box-sizing:border-box; }
+        html,body { height:100%; margin:0; }
+        body { background:var(--page); color:var(--ink); font-family:"Noto Sans JP","Yu Gothic UI",Meiryo,sans-serif; }
+        .topbar { align-items:center; background:var(--surface); border-bottom:1px solid var(--line); display:flex; gap:12px; height:62px; padding:8px 16px; }
+        .back { align-items:center; border:1px solid var(--line); border-radius:9px; color:var(--chestnut); display:flex; height:38px; justify-content:center; text-decoration:none; width:40px; }
+        h1 { font-size:16px; margin:0; } .sub { color:var(--muted); font-size:11px; margin:3px 0 0; }
+        main { height:calc(100% - 62px); position:relative; }
+        #map { height:100%; width:100%; background:#e9e3d4; }
+        .panel { background:var(--surface); border:1px solid var(--line); border-radius:13px; box-shadow:0 14px 38px rgb(64 34 20 / .2); display:grid; gap:9px; left:14px; padding:12px; position:absolute; top:14px; width:min(310px,calc(100vw - 28px)); z-index:500; }
+        .panel-title { align-items:center; display:flex; font-size:13px; font-weight:700; justify-content:space-between; }
+        .count { background:var(--soft); border-radius:999px; color:var(--chestnut); font-size:11px; padding:3px 8px; }
+        input,select { background:#fffdf8; border:1px solid var(--line); border-radius:8px; color:var(--ink); font:inherit; min-height:39px; padding:8px 10px; width:100%; }
+        .row { display:grid; gap:7px; grid-template-columns:1fr 1fr; }
+        .row label { color:var(--muted); display:grid; font-size:11px; gap:5px; }
+        .status { background:var(--surface); border:1px solid var(--line); border-radius:9px; bottom:18px; color:var(--muted); font-size:12px; left:14px; max-width:min(520px,calc(100vw - 28px)); padding:9px 12px; position:absolute; z-index:500; }
+        .status[data-error="true"] { color:#a7382c; }
+        .leaflet-container { font:inherit; } .leaflet-control-attribution { background:rgb(255 250 240 / .9)!important; font-size:10px!important; }
+        .marker-wrap { background:transparent; border:0; } .marker { align-items:center; background:var(--maple); border:2px solid #fff3df; border-radius:50% 50% 50% 8px; box-shadow:0 3px 9px #38241c55; color:#fffaf0; display:flex; font-size:16px; height:36px; justify-content:center; transform:rotate(-45deg); width:36px; }
+        .marker span { transform:rotate(45deg); }
+        @media(max-width:600px) { .topbar { height:58px; } main { height:calc(100% - 58px); } .panel { top:10px; } #map { min-height:360px; } }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <a class="back" href="index.html" aria-label="ダッシュボードへ戻る">←</a>
+        <div><h1>台湾店舗データベースマップ</h1><p class="sub">EmailJS から反映した店舗ピンを表示します</p></div>
+    </header>
+    <main>
+        <div id="map" aria-label="台湾の店舗マップ"></div>
+        <section class="panel" aria-label="地図の絞り込み">
+            <div class="panel-title"><span>登録店舗</span><span class="count" id="recordCount">読み込み中</span></div>
+            <input id="search" type="search" placeholder="カテゴリー・場所を検索" aria-label="店舗を検索">
+            <div class="row">
+                <label>大カテゴリー<select id="level1"><option value="">すべて</option></select></label>
+                <label>小カテゴリー<select id="level2" disabled><option value="">すべて</option></select></label>
+            </div>
+        </section>
+        <div class="status" id="status" role="status" aria-live="polite">データベースを読み込んでいます。</div>
+    </main>
+    <script>
+        const DB_PATH = 'dB/taiwan_store_db.json';
+        const categories = [
+            { id:'A', label:'飲食店', icon:'🍜', children:[['A.1','朝食店'],['A.2','麺類・米粉・お粥'],['A.3','弁当・セルフ式食堂'],['A.4','台湾小吃・滷味'],['A.5','餃子・包子'],['A.6','火鍋・焼肉'],['A.7','中華料理店'],['A.8','日本・韓国・各国料理'],['A.9','ベジタリアン料理']] },
+            { id:'B', label:'飲み物・甘味', icon:'🧋', children:[['B.1','タピオカ・台湾茶ドリンク'],['B.2','カフェ・茶館'],['B.3','パン・ベーカリー'],['B.4','豆花・かき氷・甘味'],['B.5','ケーキ・アイスクリーム']] },
+            { id:'C', label:'市場・生鮮', icon:'🥬', children:[['C.1','伝統市場・夜市の屋台'],['C.2','青果店'],['C.3','精肉店'],['C.4','鮮魚・海鮮'],['C.5','スーパー・量販店']] },
+            { id:'D', label:'生活用品・小売', icon:'🛍️', children:[['D.1','コンビニ'],['D.2','雑貨・金物店'],['D.3','ドラッグストア・日用品'],['D.4','文具・書店'],['D.5','衣料・靴・バッグ'],['D.6','家電・通信']] },
+            { id:'E', label:'生活サービス', icon:'🧺', children:[['E.1','コインランドリー・クリーニング'],['E.2','美容室・エステ'],['E.3','修理・鍵'],['E.4','郵便局・宅配'],['E.5','銀行・ATM'],['E.6','コピー・印刷']] },
+            { id:'F', label:'医療・健康', icon:'🏥', children:[['F.1','診療所'],['F.2','歯科'],['F.3','薬局'],['F.4','漢方薬店']] },
+            { id:'G', label:'交通・車関連', icon:'🛵', children:[['G.1','ガソリン・充電'],['G.2','駐車場'],['G.3','自動車・バイク整備／用品'],['G.4','自転車修理・レンタル']] },
+            { id:'H', label:'宿泊・観光', icon:'🏨', children:[['H.1','ホテル・民宿'],['H.2','観光施設・展示館'],['H.3','お土産店']] }
+        ];
+        const categoryMap = new Map(categories.map(item => [item.id, item]));
+        const childMap = new Map(categories.flatMap(item => item.children.map(([id,label]) => [id,{ parent:item.id,label }])));
+        const map = L.map('map').setView([23.7,120.97],7);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:19, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }).addTo(map);
+        L.control.zoom({ position:'bottomright' }).addTo(map);
+        const markers = L.featureGroup().addTo(map);
+        const topFilter = document.getElementById('level1');
+        const childFilter = document.getElementById('level2');
+        let records = [];
+        let mapFitted = false;
+        function status(message,error=false) { const el=document.getElementById('status'); el.textContent=message; el.dataset.error=String(error); }
+        function fillFilters() {
+            const selected=topFilter.value;
+            topFilter.innerHTML='<option value="">すべて</option>'+categories.map(c=>`<option value="${c.id}">${c.id} ${c.label}</option>`).join('');
+            topFilter.value=selected;
+            const children=selected ? categoryMap.get(selected).children : [];
+            childFilter.innerHTML='<option value="">すべて</option>'+children.map(([id,label])=>`<option value="${id}">${id} ${label}</option>`).join('');
+            childFilter.disabled=!selected;
+        }
+        function makeMarker(record) {
+            const category=categoryMap.get(record.category.level1Id);
+            const icon=L.divIcon({ className:'marker-wrap', html:`<div class="marker"><span>${category?.icon||'📍'}</span></div>`, iconSize:[36,36], iconAnchor:[18,34] });
+            const marker=L.marker([record.location.latitude,record.location.longitude],{icon,title:`${record.category.level1Label} · ${record.category.level2Id} ${record.category.level2Label}`});
+            const popup=document.createElement('div');
+            const heading=document.createElement('strong'); heading.textContent=`${category?.icon||'📍'} ${record.category.level1Label}`;
+            const sub=document.createElement('div'); sub.textContent=`${record.category.level2Id} ${record.category.level2Label}`;
+            const coordinates=document.createElement('small'); coordinates.textContent=`${record.location.latitude.toFixed(6)}, ${record.location.longitude.toFixed(6)}`;
+            const time=document.createElement('small'); time.textContent=record.recordedAt;
+            popup.append(heading,sub,coordinates,document.createElement('br'),time);
+            marker.bindPopup(popup); return marker;
+        }
+        function render() {
+            markers.clearLayers();
+            const query=document.getElementById('search').value.trim().toLocaleLowerCase();
+            const visible=records.filter(record=>{
+                const category=record.category;
+                const text=`${category.level1Label} ${category.level2Id} ${category.level2Label} ${record.location.latitude} ${record.location.longitude} ${record.recordedAt}`.toLocaleLowerCase();
+                return (!topFilter.value||category.level1Id===topFilter.value) && (!childFilter.value||category.level2Id===childFilter.value) && (!query||text.includes(query));
+            });
+            visible.forEach(record=>makeMarker(record).addTo(markers));
+            document.getElementById('recordCount').textContent=`${visible.length} / ${records.length} 件`;
+            if (visible.length && !mapFitted && !query && !topFilter.value) { map.fitBounds(markers.getBounds().pad(0.2),{maxZoom:15}); mapFitted=true; }
+            status(visible.length ? `${visible.length} 件の店舗ピンを表示しています。` : '条件に一致する店舗がありません。');
+        }
+        topFilter.addEventListener('change',()=>{fillFilters();render();});
+        childFilter.addEventListener('change',render);
+        document.getElementById('search').addEventListener('input',render);
+        fetch(DB_PATH,{cache:'no-store'}).then(response=>{if(!response.ok)throw new Error('database-fetch-failed');return response.json();}).then(database=>{
+            if(database.schemaVersion!==1 || !Array.isArray(database.records)) throw new Error('database-schema-invalid');
+            records=database.records.filter(record=>record && Number.isFinite(record.location?.latitude) && Number.isFinite(record.location?.longitude) && categoryMap.has(record.category?.level1Id) && childMap.get(record.category.level2Id)?.parent===record.category.level1Id);
+            categories.forEach(category=>{const option=document.createElement('option');option.value=category.id;option.textContent=`${category.id} ${category.label}`;topFilter.append(option);});
+            fillFilters(); render();
+        }).catch(()=>status('データベースを読み込めません。ページを GitHub Pages 経由で開いてください。',true));
+    </script>
+</body>
+</html>
