@@ -104,3 +104,11 @@ The data path is case-sensitive on GitHub Pages. Preserve the exact spelling sho
 - For HTML changes, check tag and attribute structure and verify internal links.
 - For map or data changes, check that the JSON parses, the page's relative data path matches the repository casing, and coordinates/category IDs are read from the current schema.
 - Use focused syntax checks for inline JavaScript when it changes. No build system or automated test suite is defined.
+
+## Local Git workflow (Windows)
+
+- The working repository is `C:\DISK_Codex\01_Github\02_Github_Page_Code`; its canonical remote is `git@github.com:nakanohinatadx/nakanohinatadx.github.io.git` (`origin`).
+- Git for Windows is installed at `C:\Program Files\Git\cmd\git.exe`. If `git` is not on `PATH`, invoke that executable directly.
+- Check `git status` and the current branch before editing, committing, or pushing. Stage only the files intended for the change. Keep the local untracked `.codex/` directory out of commits unless a task explicitly requires reviewing and adding its contents.
+- If Git reports “dubious ownership” for this checkout, run Git with the per-command option `-c safe.directory=C:/DISK_Codex/01_Github/02_Github_Page_Code`. Do not add a broad `safe.directory=*` exception.
+- Push intended commits to `origin` on `main`. Never place SSH keys, tokens, or other credentials in the repository or this guide.
