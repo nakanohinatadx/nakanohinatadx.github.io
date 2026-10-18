@@ -54,10 +54,10 @@
 .numbered-map-pin span{display:flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 5px;border:2px solid #fff;border-radius:16px;background:#2459a6;color:#fff;box-shadow:0 2px 7px #13223866;font:750 13px/1 system-ui,"Segoe UI",Arial,sans-serif}
 .mapcode-marker-label{visibility:hidden;opacity:0;transition:opacity .12s;border:1px solid #b7c9dc;border-radius:6px;background:#fff;color:#173e70;padding:3px 6px;box-shadow:0 2px 6px #13223830;font:700 11px/1.2 ui-monospace,Consolas,monospace;white-space:nowrap}
 .mapcode-labels-visible .mapcode-marker-label{visibility:visible;opacity:1}
-@media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr)}.map-panel{position:static;grid-row:1}}
+@media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr)}.map-panel{position:sticky;top:8px;z-index:10;grid-row:1;align-self:start}}
 </style>
 <style>
-@media(max-width:700px){.timeline-panel{height:auto;max-height:none;overflow:visible}.timeline{flex:0 0 auto;height:auto;max-height:none;min-height:auto;overflow:visible;overscroll-behavior:auto;scrollbar-gutter:auto}}
+@media(max-width:700px){.map-panel{top:6px}#map{height:38vh;height:38dvh;min-height:200px;max-height:340px}.timeline-panel{height:min(48vh,480px);height:min(48dvh,480px);min-height:260px;max-height:calc(100vh - 280px);max-height:calc(100dvh - 280px);overflow:hidden}.timeline{flex:1 1 0;height:auto;max-height:none;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;touch-action:pan-y}}
 .node-mapcode[hidden]{display:none!important}
 </style></head>
 <body>
