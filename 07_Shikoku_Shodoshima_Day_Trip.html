@@ -53,7 +53,7 @@
 @media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr)}.map-panel{position:static;grid-row:1}}
 </style>
 <style>
-@media(max-width:700px){.timeline-panel{height:auto;max-height:none;overflow:visible}.timeline{flex:0 0 auto;height:auto;max-height:none;min-height:auto;overflow:visible;overscroll-behavior:auto;scrollbar-gutter:auto}}
+@media(max-width:700px){.map-panel{position:sticky;top:8px;z-index:10;align-self:start}#map{height:38vh;height:38dvh;min-height:220px;max-height:340px}.timeline-panel{height:min(48vh,480px);height:min(48dvh,480px);min-height:280px;max-height:calc(100vh - 300px);max-height:calc(100dvh - 300px);overflow:hidden}.timeline{flex:1 1 0;height:auto;max-height:none;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;touch-action:pan-y}}
 .node-mapcode[hidden]{display:none!important}
 </style>
 <style>
