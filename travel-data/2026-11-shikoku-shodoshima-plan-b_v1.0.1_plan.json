@@ -1,0 +1,309 @@
+{
+  "plan_id": "2026-11-shikoku-shodoshima-plan-b",
+  "plan_version": "1.0.1",
+  "template": {
+    "template_id": "travel-day-map",
+    "version": "1.0.8",
+    "file": "02_Script/05_Travel/2026-11-shikoku-shodoshima_v1.0.8_template.html"
+  },
+  "plan_name": "推薦自駕行程路線規劃",
+  "destination": "小豆島，香川縣，日本",
+  "date": "2026-11-14",
+  "weekday": "星期六",
+  "transport_note": "開車隨船搭乘請預留約 30–40 分鐘至高松港候船排隊。所列為規劃班次，出發前請以四國渡輪官方時刻表及車輛登船安排為準。島上駕駛時間為估算，須另計停車與步行時間。",
+  "transport_cards": [
+    {
+      "title": "渡輪與車輛登船",
+      "text": "規劃使用 07:20 或 08:02 高松港出發班次；所列時刻於官方時刻表分別對應 08:20、09:02 抵達土庄港。開車隨船搭乘請預留約 30–40 分鐘候船排隊。07:20 班次不接受車輛預約，請查看官方說明。"
+    },
+    {
+      "title": "中山千枚田與午餐",
+      "text": "11:00–12:00 安排棚田散步及午餐。こまめ食堂官方資訊為 11:00–15:00、最後點餐 14:00，週二及週四休息且另有不定休；當日營業與候位請先確認。"
+    },
+    {
+      "title": "棚田周邊行車",
+      "text": "中山地區道路較窄，請使用指定停車場，勿在路邊或田地旁停車；停車後徒步散策，勿進入田區。"
+    },
+    {
+      "title": "路線與返程時間",
+      "text": "地圖顯示 OSRM 道路資料估算，不是即時交通時間。2026-11-14 小豆島日落約 17:00，所列 17:30–18:15 已在日落後；若要看夕陽，請把此時段提前。若 18:15 才離開景點，18:40 土庄港班次幾乎沒有回港及車輛登船緩衝；除非已核實路線與截止時間，建議改選 19:30 或 20:10。"
+    }
+  ],
+  "tide_windows": [
+    {
+      "label": "上午退潮時段",
+      "start": "04:21",
+      "end": "10:21"
+    },
+    {
+      "label": "下午退潮時段",
+      "start": "17:46",
+      "end": "23:46"
+    }
+  ],
+  "tide_note": "依 2026 年 11 月 14 日原行程所列潮汐資料整理；天使之路能否通行仍請以渡輪官方潮見表及現場公告為準。",
+  "places": [
+    {
+      "id": "takamatsu",
+      "name": "高松港",
+      "latitude": 34.35408,
+      "longitude": 134.04866,
+      "mapcode": "60 666 064*43",
+      "kind": "渡輪港",
+      "time": "07:20 / 08:02",
+      "description": "搭乘一般渡輪前往土庄港；車輛請依營運業者指示排隊與登船。",
+      "official_links": [
+        {
+          "url": "https://www.shikokuferry.com/route2",
+          "label": "四國渡輪官方：航班、車輛與港口資訊"
+        }
+      ]
+    },
+    {
+      "id": "tonosho",
+      "name": "土庄港",
+      "latitude": 34.4892091,
+      "longitude": 134.1717535,
+      "mapcode": "364 845 298*88",
+      "kind": "渡輪港",
+      "time": "08:20 / 09:02",
+      "description": "依選擇的高松出發班次抵達；下船後再駕車前往天使之路。",
+      "official_links": [
+        {
+          "url": "https://www.shikokuferry.com/route2",
+          "label": "四國渡輪官方：航班、車輛與港口資訊"
+        }
+      ]
+    },
+    {
+      "id": "angel",
+      "name": "天使之路",
+      "latitude": 34.47597,
+      "longitude": 134.18865,
+      "mapcode": "364 787 658*41",
+      "kind": "潮汐景點",
+      "time": "09:15 – 10:30；夕陽備選",
+      "description": "上午安排散步與拍照。可留意潮汐與現場安全指示；傍晚也可作為夕陽時段的替代選項。",
+      "official_links": [
+        {
+          "url": "https://www.town.tonosho.kagawa.jp/gyosei/soshiki/shoko/4/3/172.html",
+          "label": "土庄町官方：天使之路與約束之丘資訊"
+        },
+        {
+          "url": "https://www.shikokuferry.com/angel",
+          "label": "四國渡輪官方：天使之路潮見表"
+        }
+      ]
+    },
+    {
+      "id": "nakayama",
+      "name": "中山千枚田",
+      "latitude": 34.505817,
+      "longitude": 134.242069,
+      "mapcode": "758 014 010*15",
+      "mapcode_target": "中山無料駐車場（棚田散策起點）",
+      "mapcode_source_url": "https://cardhunter.jp/list/axpE7kZn9EzsEryJqWnlmu68kDoO/pref/37",
+      "kind": "棚田 / 午餐",
+      "time": "11:00 – 12:00",
+      "description": "日本棚田百選之一，可欣賞梯田與里山景致。午餐可前往こまめ食堂，提供棚田米飯糰定食。梯田周邊道路較窄，請停在指定停車場後徒步進入，不要進入田區。",
+      "official_links": [
+        {
+          "url": "https://www.town.shodoshima.lg.jp/kanko/miru/nature/sennmaida.html",
+          "label": "小豆島町官方：中山千枚田"
+        },
+        {
+          "url": "https://shodoshima.or.jp/sightseeing/detail.php?c=3&id=65",
+          "label": "小豆島觀光協會官方：こまめ食堂"
+        },
+        {
+          "url": "https://www.dreamisland.cc/cafe/komame-cafe.html",
+          "label": "こまめ食堂官方網站：營業與停車資訊"
+        }
+      ]
+    },
+    {
+      "id": "olive",
+      "name": "小豆島橄欖公園",
+      "latitude": 34.4729,
+      "longitude": 134.27372,
+      "mapcode": "364 798 305*26",
+      "kind": "公園",
+      "time": "12:30 – 15:00",
+      "description": "白色風車、免費借用掃帚拍照、橄欖紀念館、香草園與教堂造景。園區範圍較大，請為停車及步行預留時間。",
+      "official_links": [
+        {
+          "url": "https://olive-pk.jp/",
+          "label": "小豆島橄欖公園官方網站"
+        }
+      ]
+    },
+    {
+      "id": "kankakei",
+      "name": "寒霞溪纜車與展望台",
+      "latitude": 34.51559,
+      "longitude": 134.30066,
+      "mapcode": "758 051 432*80",
+      "kind": "溪谷 / 纜車",
+      "time": "15:30 – 17:00",
+      "description": "可依營運狀況搭乘纜車並前往展望台。實際纜車營運時間、票價與天候影響請以官方公告為準。",
+      "official_links": [
+        {
+          "url": "https://www.kankakei.co.jp/ropeway/",
+          "label": "寒霞溪纜車官方：營運資訊"
+        }
+      ]
+    },
+    {
+      "id": "yuhigaoka",
+      "name": "屋形崎夕陽之丘",
+      "latitude": 34.52083,
+      "longitude": 134.2189,
+      "mapcode": "758 071 107*73",
+      "kind": "夕陽景點（二選一）",
+      "time": "17:30 – 18:15",
+      "description": "夕陽方案 A：屋形崎夕陽之丘。2026-11-14 小豆島日落約 17:00，使用者提供的 17:30–18:15 時段在日落後；若要看夕陽需提前安排，並預留返回土庄港及辦理車輛登船的時間。",
+      "official_links": [
+        {
+          "url": "https://www.town.tonosho.kagawa.jp/gyosei/soshiki/shoko/4/3/2604.html",
+          "label": "土庄町官方：屋形崎夕陽之丘"
+        }
+      ]
+    },
+    {
+      "id": "return",
+      "name": "土庄港返回高松",
+      "latitude": 34.4892091,
+      "longitude": 134.1717535,
+      "mapcode": "364 845 298*88",
+      "kind": "返程港口",
+      "time": "18:40 / 19:30 / 20:10",
+      "description": "所列班次為規劃參考，請確認當日官方時刻表。選擇夕陽景點後，應先確認能否及時返回港口完成登船手續。",
+      "official_links": [
+        {
+          "url": "https://www.shikokuferry.com/route2",
+          "label": "四國渡輪官方：土庄至高松時刻表"
+        }
+      ]
+    }
+  ],
+  "stages": [
+    {
+      "time": "07:20 / 08:02",
+      "title": "高松港出發（渡輪）",
+      "text": "開車隨船搭乘；請提早約 30–40 分鐘至港口候船排隊。07:20 班次不接受車輛預約，請依官方指示候船。",
+      "place_id": "takamatsu",
+      "tag": "出發 / 車輛登船",
+      "mode": "start"
+    },
+    {
+      "time": "08:20 / 09:02",
+      "title": "抵達土庄港",
+      "text": "兩個抵達時間分別對應 07:20、08:02 高松出發的一般渡輪；以官方當日航班資訊為準。",
+      "place_id": "tonosho",
+      "tag": "渡輪約 60 分鐘",
+      "mode": "ferry"
+    },
+    {
+      "time": "09:15 – 10:30",
+      "title": "【景點 1】天使之路（上午場）",
+      "text": "早晨遊客較少，適合漫步與拍照。周邊有免費停車場；寶生院或土庄老街（迷路之街）可視時間順遊。留意潮汐及現場指示。",
+      "place_id": "angel",
+      "tag": "上午散步與拍照",
+      "mode": "driving"
+    },
+    {
+      "time": "11:00 – 12:00",
+      "title": "【景點 2】中山千枚田 + 午餐",
+      "text": "欣賞日本棚田百選與里山景致。午餐建議こまめ食堂的棚田米飯糰定食（營業日及候位請先確認）。道路較窄，請停在指定停車場後徒步進入。",
+      "place_id": "nakayama",
+      "tag": "棚田散步 / 午餐",
+      "mode": "driving"
+    },
+    {
+      "time": "12:30 – 15:00",
+      "title": "【景點 3】小豆島橄欖公園（核心重點）",
+      "text": "白色風車、借掃帚拍照、橄欖紀念館、香草園與聖瑪利亞教堂造景。園區設有大型停車場，步行範圍廣，按現場時間安排參觀。",
+      "place_id": "olive",
+      "tag": "主要停留景點",
+      "mode": "driving"
+    },
+    {
+      "time": "15:30 – 17:00",
+      "title": "【景點 4】寒霞溪（纜車與展望台）",
+      "text": "欣賞溪谷與展望景觀；纜車與擲瓦片體驗依營運狀況、天候及開放時間而定。",
+      "place_id": "kankakei",
+      "tag": "營運狀況請先確認",
+      "mode": "driving"
+    },
+    {
+      "time": "17:30 – 18:15",
+      "title": "【景點 5】夕陽時段（兩處擇一）",
+      "text": "方案 A：屋形崎夕陽之丘。方案 B：若潮汐時間配合，改至天使之路傍晚場。兩處只能擇一。2026-11-14 日落約 17:00，所列 17:30–18:15 已在日落後；若要看夕陽需提前，並按道路時間和返港登船時間調整。",
+      "place_id": "yuhigaoka",
+      "tag": "屋形崎 / 天使之路二選一",
+      "mode": "driving"
+    },
+    {
+      "time": "18:40 / 19:30 / 20:10",
+      "title": "土庄港返回高松",
+      "text": "完成車輛候船與登船手續後搭乘返程渡輪。若 18:15 才離開夕陽景點，18:40 班次幾乎沒有回港及車輛登船緩衝；除非先核實路線與截止時間，建議選 19:30 或 20:10。",
+      "place_id": "return",
+      "tag": "返程船班請確認",
+      "mode": "driving"
+    }
+  ],
+  "sources": [
+    {
+      "label": "四國渡輪官方：高松－土庄航線與時刻表",
+      "url": "https://www.shikokuferry.com/route2"
+    },
+    {
+      "label": "四國渡輪官方：天使之路潮見表",
+      "url": "https://www.shikokuferry.com/angel"
+    },
+    {
+      "label": "小豆島町官方：中山千枚田",
+      "url": "https://www.town.shodoshima.lg.jp/kanko/miru/nature/sennmaida.html"
+    },
+    {
+      "label": "小豆島觀光協會官方：こまめ食堂",
+      "url": "https://shodoshima.or.jp/sightseeing/detail.php?c=3&id=65"
+    },
+    {
+      "label": "こまめ食堂官方網站",
+      "url": "https://www.dreamisland.cc/cafe/komame-cafe.html"
+    },
+    {
+      "label": "中山千枚田 MapCode 資料（中山免費停車場）",
+      "url": "https://cardhunter.jp/list/axpE7kZn9EzsEryJqWnlmu68kDoO/pref/37"
+    },
+    {
+      "label": "小豆島橄欖公園官方網站",
+      "url": "https://olive-pk.jp/"
+    },
+    {
+      "label": "寒霞溪纜車官方網站",
+      "url": "https://www.kankakei.co.jp/ropeway/"
+    },
+    {
+      "label": "土庄町官方：屋形崎夕陽之丘",
+      "url": "https://www.town.tonosho.kagawa.jp/gyosei/soshiki/shoko/4/3/2604.html"
+    },
+    {
+      "label": "2026 年小豆島日出日落時間參考",
+      "url": "https://www.surf-life.blue/sunrisesunset/%E9%A6%99%E5%B7%9D%E7%9C%8C/%E5%B0%8F%E8%B1%86%E9%83%A1%E5%B0%8F%E8%B1%86%E5%B3%B6%E7%94%BA/202611/"
+    },
+    {
+      "label": "MapFan：土庄港 FT（四国フェリー）座標",
+      "url": "https://mapfan.com/spots/SC3IH,J,DY"
+    },
+    {
+      "label": "Mapion：土庄港 FT（四国フェリー）MapCode",
+      "url": "https://www.mapion.co.jp/phonebook/M12005/37322/ILSP0000032654_ipclm/"
+    },
+    {
+      "label": "OSRM 路線服務文件",
+      "url": "https://project-osrm.org/docs/v5.24.0/api/"
+    }
+  ]
+}

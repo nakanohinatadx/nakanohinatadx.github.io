@@ -1,0 +1,281 @@
+{
+  "plan_id": "2026-11-shikoku-1117",
+  "plan_version": "1.0.1",
+  "template": {
+    "template_id": "travel-day-map",
+    "version": "1.0.2",
+    "file": "02_Script/05_Travel/2026-11-shikoku-1117_v1.0.2_template.html"
+  },
+  "plan_name": "德島劍山登山與回程高松自駕一日遊",
+  "destination": "德島縣劍山、美馬郡貞光、香川縣塩江與高松，日本",
+  "date": "2026-11-17",
+  "weekday": "星期二",
+  "transport_note": "登山纜車官方列 2026 年 11 月 30 日前營運，但以天候及當日公告為準。預計登頂劍山或走次郎笈方向擇一，不建議在 4 小時內安排兩者。德島縣目前公告國道 438 號木屋平至見之越方向有工作日時間帶交通管制（預定至 2026-12-25，無迂迴路）；可能影響下山車程，出發當日核對規制。道の駅しおのえ每週二店舖定休，11/17 不安排購物或足湯；停車區是否開放依現場為準。",
+  "transport_cards": [
+    {
+      "title": "劍山纜車與登山時間",
+      "text": "2026 年營運期間預計至 11 月 30 日，通常 09:00–16:30，見之越至西島約 15 分鐘。登頂劍山或延伸次郎笈方向請擇一；冬季山區天候變化快，需穿登山鞋並攜保暖、防雨裝備。起登前確認纜車、登山道與下山時間。"
+    },
+    {
+      "title": "國道 438 號交通管制",
+      "text": "德島縣目前公告 11/4–12/25 國道 438 號美馬市木屋平至見之越方向有工作日時間帶交通管制，無迂迴路。11/17 為星期二，請在出發前查看最新規制並為等待預留時間；若延誤，優先取消貞光或塩江停留。"
+    },
+    {
+      "title": "貞光ゆうゆう館",
+      "text": "安排約 30 分鐘短停。11 月物產館冬季營業至 17:30；店舖及餐廳各有不同休業日，出發前查詢當日開放情況。"
+    },
+    {
+      "title": "道の駅しおのえ週二休館",
+      "text": "11/17 為星期二，官方列物產中心每週二定休。不能依賴站內購物、餐飲或足湯；停車休息區若未開放，請改在沿線營業中的便利商店或加油站短停。"
+    },
+    {
+      "title": "高松酒店與停車",
+      "text": "HOTEL LiVEMAX Takamatsu Eki Mae 官方資訊列無酒店停車場，請先確認高松市區停車位置及租車還車安排。道路時間為估算，不含交通管制、候車、停車或天候影響。"
+    }
+  ],
+  "tide_windows": [
+    {
+      "label": "登山纜車通常營運",
+      "time": "09:00–16:30"
+    },
+    {
+      "label": "山頂行程預留",
+      "time": "09:15–13:30"
+    },
+    {
+      "label": "道の駅しおのえ",
+      "time": "週二物產中心定休"
+    },
+    {
+      "label": "高松酒店入住",
+      "time": "15:00 起"
+    }
+  ],
+  "tide_note": "11 月中旬劍山山頂可能有低溫、強風、雨雪或結冰；依當日預報與現場狀況決定是否登山。若纜車停駛或道路管制造成延誤，縮短路線並提早下山。",
+  "places": [
+    {
+      "id": "tougenkyo",
+      "name": "出發｜桃源郷祖谷の山里（落合集落）",
+      "latitude": 33.877917,
+      "longitude": 133.938,
+      "mapcode": "357 142 897*16",
+      "mapcode_target": "接待辦公室近似導航點；已訂古民家位置依住宿棟不同",
+      "kind": "出發住宿",
+      "time": "08:30",
+      "description": "從昨晚入住的古民家出發。地圖 GPS/MapCode 為落合接待辦公室附近參考點，不代表每一棟古民家；依住宿方提供的棟別位置設定導航。",
+      "official_links": [
+        {
+          "label": "桃源郷祖谷の山里官方：交通與接待辦公室",
+          "url": "https://www.tougenkyo-iya.jp/?page_id=2149"
+        }
+      ],
+      "mapping_source": "https://www.tougenkyo-iya.jp/?page_id=2149",
+      "coordinate_source": "https://www.tougenkyo-iya.jp/?page_id=2149"
+    },
+    {
+      "id": "tsurugi_lift",
+      "name": "劍山登山口｜見之越纜車站",
+      "latitude": 33.867389,
+      "longitude": 134.089806,
+      "mapcode": "497 401 602*66",
+      "mapcode_target": "見之越登山口／纜車乘車處",
+      "kind": "登山口／纜車",
+      "time": "09:15",
+      "description": "從落合集落山路前往見之越，預估 35–45 分鐘，須按實際住宿棟與道路狀況確認。2026 年纜車營運至 11 月 30 日，平常 09:00–16:30，單程約 15 分鐘；天候等因素可能變動。GPS 為見之越登山口地圖定位。",
+      "official_links": [
+        {
+          "label": "劍山觀光登山纜車官方網站",
+          "url": "https://turugirift.com/index.html"
+        },
+        {
+          "label": "德島縣觀光情報：剣山観光登山リフト（2026營運期間）",
+          "url": "https://www.awanavi.jp/archives/spot/19046"
+        }
+      ],
+      "mapping_source": "https://www.awanavi.jp/archives/spot/19046",
+      "coordinate_source": "https://tozanguchi-p.com/tsurugisan/"
+    },
+    {
+      "id": "sadamitsu",
+      "name": "休息｜道の駅 貞光ゆうゆう館",
+      "latitude": 34.04261794,
+      "longitude": 134.05999907,
+      "mapcode": "228 142 645*04",
+      "mapcode_target": "道之驛入口／停車場",
+      "kind": "道之驛／休息",
+      "time": "15:30 – 16:00",
+      "description": "道之驛位於德島縣つるぎ町貞光字大須賀11-1。11月營業時間依官方公告：物產館冬季至 17:30。此次短停以洗手間、補水及伸展為主；店舖臨時資訊請出發前確認。",
+      "official_links": [
+        {
+          "label": "道の駅 貞光ゆうゆう館官方網站",
+          "url": "https://yuyukan.jp/"
+        },
+        {
+          "label": "德島縣官方設施資料",
+          "url": "https://maps.pref.tokushima.lg.jp/ud/search/facility_140.html"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M08003/36468/ILSP0000033995_ipclm/",
+      "coordinate_source": "https://www.mapion.co.jp/m2/15.00/34.04261794/134.05999907/0/0?poi=ILSP0000033995_ipclm"
+    },
+    {
+      "id": "shionoe",
+      "name": "休息點｜道の駅 しおのえ（週二店舖休館）",
+      "latitude": 34.17021591,
+      "longitude": 134.08200912,
+      "mapcode": "60 010 004*44",
+      "mapcode_target": "道之驛／觀光物產中心",
+      "kind": "道之驛／條件式短停",
+      "time": "16:45 – 17:15",
+      "description": "地址：香川縣高松市塩江町安原上東390-21。四國道之驛官方資料列物產中心週二定休；2026-11-17 為週二，店舖與補給不可依計畫使用。是否能在場內停車休息請依現場開放狀況；若不開放，改在沿線營業中的便利商店或加油站短停。未查到 11 月週二足湯開放資訊，故不列為行程內容。",
+      "official_links": [
+        {
+          "label": "四國地區道之驛官方：しおのえ（營業日與 MapCode）",
+          "url": "https://www.sk-michinoeki.jp/michinoeki/359"
+        },
+        {
+          "label": "道の駅官方：しおのえ",
+          "url": "https://www.michi-no-eki.jp/stations/views/19635"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M08003/37201/ILSP0000033998_ipclm/",
+      "coordinate_source": "https://www.mapion.co.jp/phonebook/M08003/37201/ILSP0000033998_ipclm/"
+    },
+    {
+      "id": "livemax",
+      "name": "抵達｜HOTEL LiVEMAX Takamatsu Eki Mae",
+      "latitude": 34.3475915,
+      "longitude": 134.0449247,
+      "mapcode": "60 635 291*02",
+      "mapcode_target": "酒店入口",
+      "kind": "住宿／高松市區",
+      "time": "17:45 之後",
+      "description": "香川縣高松市錦町1-8-9。官方入住時間 15:00 起，酒店沒有停車場，請事先確認租車還車與停車安排。GPS/MapCode 指酒店入口參考位置。",
+      "official_links": [
+        {
+          "label": "HOTEL LiVEMAX Takamatsu Eki Mae 官方網站",
+          "url": "https://www.hotel-livemax.com/kagawa/takamatsust/"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M05002/37201/ILSP0083560617_ipclm/",
+      "coordinate_source": "https://mapfan.com/spots/SC3A4,J,NH7"
+    }
+  ],
+  "stages": [
+    {
+      "time": "08:30",
+      "title": "從桃源郷祖谷の山里出發",
+      "text": "依實際預訂古民家的位置出發；落合接待辦公室 GPS/MapCode 僅作附近參考。沿住宿方建議的東祖谷山路前往見之越，估計 35–45 分鐘。",
+      "place_id": "tougenkyo",
+      "tag": "出發",
+      "mode": "start"
+    },
+    {
+      "time": "09:15 – 09:30",
+      "title": "抵達見之越與搭乘登山纜車",
+      "text": "確認當日纜車運行及天候，乘纜車至西島站約 15 分鐘。登山行程結束時須預留下山纜車時間。",
+      "place_id": "tsurugi_lift",
+      "tag": "纜車／登山起點",
+      "mode": "driving"
+    },
+    {
+      "time": "09:30 – 13:30",
+      "title": "劍山登山健行（擇一登頂路線）",
+      "text": "建議以劍山山頂往返為主，可走大劍神社與御神水路線；若選次郎笈稜線，請以體力、天氣和下山纜車末班倒推，不要把兩條路線都排入。13:30 前回到見之越。",
+      "place_id": "tsurugi_lift",
+      "tag": "登山約 4 小時（含纜車與休息）",
+      "mode": "walking",
+      "route_note": "登山路線示意；實際路徑請依官方登山地圖、登山道標示及現場狀況行走。"
+    },
+    {
+      "time": "13:30 – 約 15:30",
+      "title": "下山後沿國道 438 號前往貞光",
+      "text": "預估 1.5–2 小時，但工作日時間帶管制可能造成等待。當天以德島縣防災/道路管制公告為準；如延誤，略過貞光與塩江休息點並直返高松。",
+      "place_id": "sadamitsu",
+      "tag": "國道 438 號／交通管制",
+      "mode": "driving"
+    },
+    {
+      "time": "15:30 – 16:00",
+      "title": "貞光ゆうゆう館短暫休息",
+      "text": "伸展、洗手間與補水。物產館 11 月冬季營業時間至 17:30，實際依官方當日公告。",
+      "place_id": "sadamitsu",
+      "tag": "休息約 30 分鐘",
+      "mode": "info"
+    },
+    {
+      "time": "16:00 – 約 16:45",
+      "title": "前往塩江方向",
+      "text": "依導航行駛往高松南部，估計約 40–45 分鐘；交通管制或山路路況可能使時間延長。",
+      "place_id": "shionoe",
+      "tag": "駕車",
+      "mode": "driving"
+    },
+    {
+      "time": "16:45 – 17:15",
+      "title": "道の駅しおのえ周邊休息（條件式）",
+      "text": "11/17 為星期二，物產中心定休。若停車區開放，可短暫休息；若未開放，改在沿線營業地點短停。此行不安排購物或足湯。",
+      "place_id": "shionoe",
+      "tag": "週二休館；備用休息點",
+      "mode": "info"
+    },
+    {
+      "time": "17:15 – 約 17:45",
+      "title": "返回高松市區",
+      "text": "沿國道 193 號北上，車程估計約 30 分鐘；依市區交通調整。",
+      "place_id": "livemax",
+      "tag": "駕車",
+      "mode": "driving"
+    },
+    {
+      "time": "17:45 之後",
+      "title": "抵達 HOTEL LiVEMAX Takamatsu Eki Mae",
+      "text": "辦理入住並處理停車/租車還車。酒店沒有自有停車場，請依預訂與租車安排處理。",
+      "place_id": "livemax",
+      "tag": "住宿",
+      "mode": "info"
+    }
+  ],
+  "sources": [
+    {
+      "label": "劍山觀光登山纜車官方網站",
+      "url": "https://turugirift.com/index.html"
+    },
+    {
+      "label": "德島縣觀光情報：剣山観光登山リフト",
+      "url": "https://www.awanavi.jp/archives/spot/19046"
+    },
+    {
+      "label": "西阿波官方：劍山登山路線時間",
+      "url": "https://nishi-awa.jp/tsurugisan/"
+    },
+    {
+      "label": "德島縣縣土防災資訊：道路規制公告",
+      "url": "https://bousai.pref.tokushima.lg.jp/map/"
+    },
+    {
+      "label": "道の駅 貞光ゆうゆう館官方網站",
+      "url": "https://yuyukan.jp/"
+    },
+    {
+      "label": "德島縣官方：貞光ゆうゆう館設施資料",
+      "url": "https://maps.pref.tokushima.lg.jp/ud/search/facility_140.html"
+    },
+    {
+      "label": "四國地區道之驛官方：しおのえ",
+      "url": "https://www.sk-michinoeki.jp/michinoeki/359"
+    },
+    {
+      "label": "HOTEL LiVEMAX Takamatsu Eki Mae 官方網站",
+      "url": "https://www.hotel-livemax.com/kagawa/takamatsust/"
+    },
+    {
+      "label": "桃源郷祖谷の山里官方：交通方式",
+      "url": "https://www.tougenkyo-iya.jp/?page_id=2149"
+    },
+    {
+      "label": "OSRM 路線服務文件",
+      "url": "https://project-osrm.org/docs/v5.24.0/api/"
+    }
+  ]
+}

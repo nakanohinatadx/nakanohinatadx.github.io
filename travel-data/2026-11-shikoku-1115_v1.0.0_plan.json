@@ -1,0 +1,318 @@
+{
+  "plan_id": "2026-11-shikoku-1115",
+  "plan_version": "1.0.0",
+  "template": {
+    "template_id": "travel-day-map",
+    "version": "1.0.1",
+    "file": "02_Script/05_Travel/2026-11-shikoku-1115_v1.0.1_template.html"
+  },
+  "plan_name": "香川縣自駕一日遊（琴平・觀音寺・三豐）",
+  "destination": "香川縣琴平町、觀音寺市、三豐市，日本",
+  "date": "2026-11-15",
+  "weekday": "星期日",
+  "transport_note": "行程以自駕為主。金刀比羅宮沒有訪客停車場，請先停町營琴平駅西停車場。高屋神社本宮於 2026-09-28 至 2026-12-25 因林道工程封閉，僅可由下宮步行上山，官方估計單程約 50 分鐘；本行程 14:15–15:30 僅 75 分鐘，無法涵蓋往返步行與參拜，需選擇延長行程或取消登頂。父母濱 2026-11-15 日落約 17:02，官方列出的低潮時段為 07:00–11:30，與日落不重疊，當晚不應預期常見的天空之鏡倒影。",
+  "transport_cards": [
+    {
+      "title": "金刀比羅宮停車",
+      "text": "神社官方表示境內沒有停車場，請使用琴平町內停車場。此圖以町營琴平駅西停車場作為開車導航點；停車後步行前往參道。"
+    },
+    {
+      "title": "高屋神社封閉與步行限制",
+      "text": "2026-09-28 08:30 至 2026-12-25 林道封閉；一般車輛和接駁車均不能到本宮。由下宮步行至本宮官方估計單程約 50 分鐘。14:15–15:30 的 75 分鐘不足以完成往返步行及參拜，請調整此段或改為只到下宮。"
+    },
+    {
+      "title": "父母濱日落與潮汐",
+      "text": "2026-11-15 日落約 17:02；官方潮汐表列當日低潮時段 07:00–11:30。日落時不在低潮窗口內，海面鏡像效果不保證。父母濱附近請使用公共停車場，不要路邊停車。"
+    },
+    {
+      "title": "出發酒店與租車",
+      "text": "HOTEL LiVEMAX Takamatsu Eki Mae 官方資訊表示酒店沒有停車場。若從酒店出發，請先確認租車取車點或附近停車安排。"
+    },
+    {
+      "title": "道路時間估算",
+      "text": "地圖上的駕車時間由 OSRM 道路資料估算，不是即時交通資訊；不包括停車、塞車、道路管制或天候影響。高屋神社的封路期間不可依一般汽車路線前往本宮。"
+    }
+  ],
+  "tide_windows": [
+    {
+      "label": "父母濱低潮窗口",
+      "time": "07:00–11:30"
+    },
+    {
+      "label": "日落",
+      "time": "17:02"
+    }
+  ],
+  "tide_note": "香川縣三豐市觀光交流局公布的 2026 潮汐表：11 月 15 日低潮約在上午，日落為 17:02。低潮與日落不重疊；是否有倒影也會受潮位、風浪及天候影響。",
+  "places": [
+    {
+      "id": "livemax",
+      "name": "出發｜HOTEL LiVEMAX Takamatsu Eki Mae",
+      "latitude": 34.3475915,
+      "longitude": 134.0449247,
+      "mapcode": "60 635 291*02",
+      "mapcode_target": "酒店入口（GPS/MapCode 導航點）",
+      "kind": "出發酒店",
+      "time": "08:30",
+      "description": "地址：香川縣高松市錦町 1-8-9。酒店官方資訊註明沒有停車場；請預先安排租車取車或附近停車。",
+      "official_links": [
+        {
+          "label": "HOTEL LiVEMAX Takamatsu Eki Mae 官方網站",
+          "url": "https://www.hotel-livemax.com/kagawa/takamatsust/"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M05002/37201/ILSP0083560617_ipclm/",
+      "coordinate_source": "https://mapfan.com/spots/SC3A4,J,NH7"
+    },
+    {
+      "id": "kotohira_parking",
+      "name": "琴平町營 琴平駅西停車場",
+      "latitude": 34.190667,
+      "longitude": 133.821595,
+      "mapcode": "77 383 448*15",
+      "mapcode_target": "停車場入口",
+      "kind": "停車／步行轉乘",
+      "time": "09:00 – 09:15",
+      "description": "町營停車場位於榎井 831-3。琴平町資料列有一般車位 53 格；停車後步行至金刀比羅宮參道。請以現場標示和最新收費為準。",
+      "official_links": [
+        {
+          "label": "琴平町：琴平駅西停車場",
+          "url": "https://www.town.kotohira.kagawa.jp/soshiki/8/11326.html"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M08002/37403/ILSP0060316391_ipclm/",
+      "coordinate_source": "https://opendata.pref.kagawa.lg.jp/dataset/153/resource/738/content.html"
+    },
+    {
+      "id": "konpira",
+      "name": "金刀比羅宮（琴平町）",
+      "latitude": 34.18399403,
+      "longitude": 133.80941793,
+      "mapcode": "77 352 613*03",
+      "mapcode_target": "金刀比羅宮（本宮側座標）",
+      "kind": "神社／石階參拜",
+      "time": "09:15 – 12:30",
+      "description": "從參道登上御本宮。神社官方資料為參道起點至御本宮 785 階，單程約 1 小時；請預留休息時間。金刀比羅宮沒有訪客停車場，請勿把導航目的地設為神社入口，先導航至町營停車場或 JR 琴平駅。",
+      "official_links": [
+        {
+          "label": "金刀比羅宮官方：交通方式與參拜資訊",
+          "url": "https://www.konpira.or.jp/index.htm?language=JAPANESE&stageID=hp_charms"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M06005/37403/ILSP0000082405_ipclm/",
+      "coordinate_source": "https://www.mapion.co.jp/phonebook/M06005/37403/ILSP0000082405_ipclm/"
+    },
+    {
+      "id": "udon",
+      "name": "午餐｜こんぴらうどん 參道店",
+      "latitude": 34.18701642,
+      "longitude": 133.81781354,
+      "mapcode": "77 383 043*18",
+      "mapcode_target": "參道店入口",
+      "kind": "午餐／讚岐烏龍麵",
+      "time": "12:30 – 13:30",
+      "description": "位於琴平町表參道一帶，作為午餐導航點的代表店家；營業時間或臨時休業請於出發前向店家確認。",
+      "official_links": [
+        {
+          "label": "琴平町觀光協會：こんぴらうどん 參道店",
+          "url": "https://www.kotohirakankou.jp/spot/eat/entry-94.html"
+        },
+        {
+          "label": "讚岐烏龍麵官方店家名錄",
+          "url": "https://www.honba-sanukiudon.jp/shoplist/detail.php?i=10"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M01003/37403/G7627682-001/",
+      "coordinate_source": "https://www.mapion.co.jp/phonebook/M01003/37403/G7627682-001/"
+    },
+    {
+      "id": "takaya_lower",
+      "name": "高屋神社下宮（本宮登山口）",
+      "latitude": 34.1523583,
+      "longitude": 133.6498722,
+      "mapcode": "77 213 818*11",
+      "mapcode_target": "下宮停車場／登山起點",
+      "kind": "神社／登山口",
+      "time": "14:15 – 15:30",
+      "description": "2026-11-15 林道工程期間，只能到下宮；本宮不能由一般車輛或接駁車抵達。官方說由下宮步行至本宮約 50 分鐘單程，故此 75 分鐘時段不足以往返及參拜。下宮可停車，請穿適合山路的鞋。",
+      "official_links": [
+        {
+          "label": "觀音寺市官方：高屋神社交通及林道封閉公告",
+          "url": "https://www.city.kanonji.kagawa.jp/soshiki/21/13387.html"
+        }
+      ],
+      "mapping_source": "https://traveljapan47.net/archives/9286/",
+      "coordinate_source": "https://jmapps.ne.jp/kokugakuin/det.html?data_id=183237"
+    },
+    {
+      "id": "takaya_summit",
+      "name": "高屋神社本宮（封閉期間不可自駕抵達）",
+      "latitude": 34.160744,
+      "longitude": 133.654906,
+      "mapcode": "77 274 032*34",
+      "mapcode_target": "本宮旁登山停車區（封路期間不可導航自駕）",
+      "kind": "目的地參考點／封閉",
+      "time": "登頂選項（不計入目前行程）",
+      "description": "作為目標位置參考。2026-09-28 至 2026-12-25 林道封閉；需由下宮步行，官方估計單程約 50 分鐘。MapCode 指向本宮旁停車區，封路期間請勿按此導航開車。",
+      "official_links": [
+        {
+          "label": "觀音寺市官方：高屋神社交通及林道封閉公告",
+          "url": "https://www.city.kanonji.kagawa.jp/soshiki/21/13387.html"
+        }
+      ],
+      "mapping_source": "https://traveljapan47.net/archives/9286/",
+      "coordinate_source": "https://jmapps.ne.jp/kokugakuin/det.html?data_id=183237"
+    },
+    {
+      "id": "chichibu",
+      "name": "父母濱（Chichibugahama Beach）",
+      "latitude": 34.1884811,
+      "longitude": 133.6490587,
+      "mapcode": "77 363 279*66",
+      "mapcode_target": "父母濱公共海灘／巴士站附近",
+      "kind": "海灘／日落",
+      "time": "16:00 – 18:30",
+      "description": "地址：三豐市仁尾町仁尾乙 203-3。2026-11-15 日落約 17:02；官方潮汐表低潮在 07:00–11:30，與日落不重疊。海面倒影取決於潮位、風浪與天候。使用公共停車場，勿在道路旁停車。",
+      "official_links": [
+        {
+          "label": "三豐市觀光交流局官方：父母濱",
+          "url": "https://www.mitoyo-kanko.com/chichibugahama/"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M12001/37208/BS3700810/",
+      "coordinate_source": "https://mapfan.com/spots/SCC3A,J,11"
+    },
+    {
+      "id": "routeinn",
+      "name": "住宿｜HOTEL ROUTE-INN KAN-ONJI",
+      "latitude": 34.1182765,
+      "longitude": 133.64574739,
+      "mapcode": "77 092 744*57",
+      "mapcode_target": "酒店入口",
+      "kind": "住宿",
+      "time": "18:30 之後",
+      "description": "酒店地址：觀音寺市南町 4-3-46。官方資訊列有免費停車場，入住時間 15:00 起；請以訂房資料及當天入住資訊為準。GPS 與 MapCode 依 Mapion 酒店地圖資料定位。",
+      "official_links": [
+        {
+          "label": "HOTEL ROUTE-INN KAN-ONJI 官方網站",
+          "url": "https://www.route-inn.co.jp/hotel_list/kagawa/index_hotel_id_744/"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M05002/37205/ILSP0085861375_ipclm/",
+      "coordinate_source": "https://www.mapion.co.jp/m2/15.00/34.1182765/133.64574739/0/0?poi=ILSP0085861375_ipclm"
+    }
+  ],
+  "stages": [
+    {
+      "time": "08:30",
+      "title": "從高松酒店出發",
+      "text": "先確認租車取車點或酒店附近停車；酒店本身沒有停車場。",
+      "place_id": "livemax",
+      "tag": "出發"
+    },
+    {
+      "time": "約 09:00",
+      "title": "停車｜琴平駅西停車場",
+      "text": "金刀比羅宮沒有訪客停車場。先把車停在町營停車場，再步行前往參道。",
+      "place_id": "kotohira_parking",
+      "tag": "停車導航點",
+      "mode": "driving"
+    },
+    {
+      "time": "09:15 – 12:30",
+      "title": "金刀比羅宮參拜",
+      "text": "御本宮官方參拜資料列 785 階、單程約 1 小時。此段時間包括參拜和上下階梯；實際依體力調整。",
+      "place_id": "konpira",
+      "tag": "785 階（官方資料）",
+      "mode": "walking",
+      "route_note": "此為停車後的步行方向示意線；實際請依路牌走至參道。"
+    },
+    {
+      "time": "12:30 – 13:30",
+      "title": "表參道午餐｜讚岐烏龍麵",
+      "text": "以 こんぴらうどん 參道店作為地圖導航代表店家，可按當天營業情況選擇周邊店家。",
+      "place_id": "udon",
+      "tag": "午餐",
+      "mode": "walking",
+      "route_note": "步行至表參道店家；此線為地圖直線示意。"
+    },
+    {
+      "time": "13:30 – 14:15",
+      "title": "移動至高屋神社下宮",
+      "text": "琴平町至下宮一帶的道路車程依導航和路況確認；上山林道封閉期間不可駕車前往本宮。",
+      "place_id": "takaya_lower",
+      "tag": "林道封閉期間只到下宮",
+      "mode": "driving"
+    },
+    {
+      "time": "14:15 – 15:30",
+      "title": "高屋神社｜下宮與登山口",
+      "text": "本宮只能由下宮步行前往，官方估計單程約 50 分鐘；目前 75 分鐘不足以完成上下山及參拜。請決定延長登山時段，或只參觀下宮後繼續行程。",
+      "place_id": "takaya_lower",
+      "tag": "需修訂停留時間",
+      "mode": "info"
+    },
+    {
+      "time": "15:30 – 16:00",
+      "title": "前往父母濱",
+      "text": "從下宮周邊出發，實際時間以當天導航和路況為準。",
+      "place_id": "chichibu",
+      "tag": "駕車",
+      "mode": "driving"
+    },
+    {
+      "time": "16:00 – 18:30",
+      "title": "父母濱散步與日落",
+      "text": "日落約 17:02。低潮窗口在早上，與日落不重疊，因此本日不宜把天空之鏡倒影列為確定可見。",
+      "place_id": "chichibu",
+      "tag": "日落約 17:02；低潮在上午",
+      "mode": "info"
+    },
+    {
+      "time": "18:30 之後",
+      "title": "入住觀音寺市酒店",
+      "text": "前往 HOTEL ROUTE-INN KAN-ONJI 或實際預訂的住宿。",
+      "place_id": "routeinn",
+      "tag": "住宿",
+      "mode": "driving"
+    }
+  ],
+  "sources": [
+    {
+      "label": "金刀比羅宮官方：交通與參拜",
+      "url": "https://www.konpira.or.jp/index.htm?language=JAPANESE&stageID=hp_charms"
+    },
+    {
+      "label": "琴平町官方：琴平駅西停車場",
+      "url": "https://www.town.kotohira.kagawa.jp/soshiki/8/11326.html"
+    },
+    {
+      "label": "觀音寺市官方：高屋神社封路與步行資訊",
+      "url": "https://www.city.kanonji.kagawa.jp/soshiki/21/13387.html"
+    },
+    {
+      "label": "三豐市觀光交流局官方：父母濱、潮汐與日落",
+      "url": "https://www.mitoyo-kanko.com/chichibugahama/"
+    },
+    {
+      "label": "HOTEL LiVEMAX Takamatsu Eki Mae 官方網站",
+      "url": "https://www.hotel-livemax.com/kagawa/takamatsust/"
+    },
+    {
+      "label": "HOTEL ROUTE-INN KAN-ONJI 官方網站",
+      "url": "https://www.route-inn.co.jp/hotel_list/kagawa/index_hotel_id_744/"
+    },
+    {
+      "label": "OSRM 路線服務文件",
+      "url": "https://project-osrm.org/docs/v5.24.0/api/"
+    },
+    {
+      "label": "MapFan：高松酒店座標",
+      "url": "https://mapfan.com/spots/SC3A4,J,NH7"
+    },
+    {
+      "label": "Mapion：各地點 MapCode 參考",
+      "url": "https://www.mapion.co.jp/"
+    }
+  ]
+}

@@ -1,0 +1,241 @@
+{
+  "plan_id": "2026-11-shikoku-1117-plan-b",
+  "plan_version": "1.1.0",
+  "template": {
+    "template_id": "travel-day-map",
+    "version": "1.0.2",
+    "file": "02_Script/05_Travel/2026-11-shikoku-1117-plan-b_v1.0.2_template.html"
+  },
+  "plan_name": "劍山登山健行與高松回程（避開國道438號管制走廊）",
+  "destination": "德島縣東祖谷、大步危與香川縣高松，日本",
+  "date": "2026-11-17",
+  "weekday": "星期二",
+  "transport_note": "本方案保留劍山登山健行，改由東祖谷經國道439號前往見之越，避開國道438號木屋平至見之越的管制走廊。注意：國道439號東祖谷路段也有工作日時間通行管制，並非全程無管制。06:00提早出發以趕在部分管制時段前通過；下山返程須依道路管理單位當日公布的放行窗口行駛，預留等待時間，預估約19:30–20:30抵達高松。未確認放行窗口時不得進入封閉路段；若無法安全通過，需在當地停留並聯絡道路管理單位/住宿方。",
+  "transport_cards": [
+    {
+      "title": "劍山健行（保留）",
+      "text": "見之越站搭乘纜車或依現場狀況走登山道，預留09:00–13:30。劍山山頂與次郎笈稜線擇一；山頂步道、纜車營運及天候以當日公告為準。需為回程道路管制保留時間。"
+    },
+    {
+      "title": "避開國道438號管制走廊",
+      "text": "去程由東祖谷經國道439號至見之越；回程沿東側國道439號往大步危、池田，接國道32號及高速公路前往高松。不走國道438號木屋平至見之越方向。"
+    },
+    {
+      "title": "國道439號分時管制",
+      "text": "德島縣公告東祖谷落合、小川等路段在工作日有時間通行管制，部分路段沒有迂迴路。出發前核對11/17最新放行時段及現場指示；回程若需等待，略過大步危停留並以安全抵達為優先。"
+    },
+    {
+      "title": "預估抵達高松",
+      "text": "登山後等待/配合國道439號放行，再經大步危、池田及高速公路返高松；預計約19:30–20:30，未包含額外管制或事故延誤。酒店無自有停車場，請事先安排停車/還車。"
+    }
+  ],
+  "tide_windows": [
+    {
+      "label": "東祖谷出發",
+      "time": "06:00（提早通過去程管制點）"
+    },
+    {
+      "label": "劍山纜車/登山健行",
+      "time": "09:00–13:30（以當日運轉為準）"
+    },
+    {
+      "label": "國道439號回程",
+      "time": "依官方放行窗口；預留管制等待"
+    },
+    {
+      "label": "抵達高松",
+      "time": "約19:30–20:30"
+    }
+  ],
+  "tide_note": "本方案避開國道438號管制走廊並保留劍山健行，但東祖谷的國道439號亦有分時管制。此路線須依道路管理單位公布的通行窗口及現場管制員指示；管制資訊可能更新，未取得可行放行安排前，不應假設能按預估時間通行。",
+  "places": [
+    {
+      "id": "tougenkyo",
+      "name": "出發｜桃源郷祖谷の山里（落合集落）",
+      "latitude": 33.877917,
+      "longitude": 133.938,
+      "mapcode": "357 142 897*16",
+      "mapcode_target": "接待辦公室近似導航點；已訂古民家位置依住宿棟不同",
+      "kind": "出發住宿",
+      "time": "06:00",
+      "description": "06:00 提早由落合集落出發，沿東祖谷方向前往見之越。座標/MapCode 為落合接待辦公室附近參考點，實際住宿棟位置請依住宿方設定導航；國道439號當日管制請先確認。",
+      "official_links": [
+        {
+          "label": "桃源郷祖谷の山里官方：交通與接待辦公室",
+          "url": "https://www.tougenkyo-iya.jp/?page_id=2149"
+        }
+      ],
+      "mapping_source": "https://www.tougenkyo-iya.jp/?page_id=2149",
+      "coordinate_source": "https://www.tougenkyo-iya.jp/?page_id=2149"
+    },
+    {
+      "id": "tsurugi_lift",
+      "name": "劍山登山口｜見之越纜車站",
+      "latitude": 33.867389,
+      "longitude": 134.089806,
+      "mapcode": "497 401 602*66",
+      "mapcode_target": "見之越登山口／纜車乘車處",
+      "kind": "登山口／纜車",
+      "time": "約07:00抵達；09:00登山",
+      "description": "由住宿地經東祖谷道路前往見之越。Plan B 走國道439號東側接近路線，避開國道438號木屋平方向管制走廊；國道439號本身仍有工作日分時管制。纜車通常09:00開始營運，預計至11月30日，依天候和官方公告為準。",
+      "official_links": [
+        {
+          "label": "劍山觀光登山纜車官方網站",
+          "url": "https://turugirift.com/index.html"
+        },
+        {
+          "label": "德島縣觀光情報：剣山観光登山リフト（2026營運期間）",
+          "url": "https://www.awanavi.jp/archives/spot/19046"
+        }
+      ],
+      "mapping_source": "https://www.awanavi.jp/archives/spot/19046",
+      "coordinate_source": "https://tozanguchi-p.com/tsurugisan/"
+    },
+    {
+      "id": "roadstation_oboke",
+      "name": "大步危方向｜道の駅 大步危（時間許可才停留）",
+      "latitude": 33.8811968,
+      "longitude": 133.7601264,
+      "mapcode": "357 151 345",
+      "mapcode_target": "道之驛停車場/入口",
+      "kind": "道之驛／博物館",
+      "time": "返程視管制；預計17:00前後",
+      "description": "位於國道32號旁，可短暫休息。僅在國道439號放行後仍有餘裕時停留；若已接近閉店時間或管制延誤，直接經國道32號前往池田與高速公路。",
+      "official_links": [
+        {
+          "label": "四國地區道之驛官方：大步危",
+          "url": "https://www.sk-michinoeki.jp/michinoeki/339"
+        },
+        {
+          "label": "全國道之驛官方：營業與 MapCode",
+          "url": "https://www.michi-no-eki.jp/stations/views/19625"
+        }
+      ],
+      "mapping_source": "https://mapfan.com/spots/SCAQC%2CJ%2C2DZ9Q5",
+      "coordinate_source": "https://mapfan.com/spots/SCAQC%2CJ%2C2DZ9Q5"
+    },
+    {
+      "id": "livemax",
+      "name": "抵達｜HOTEL LiVEMAX Takamatsu Eki Mae",
+      "latitude": 34.3475915,
+      "longitude": 134.0449247,
+      "mapcode": "60 635 291*02",
+      "mapcode_target": "酒店入口",
+      "kind": "住宿／高松市區",
+      "time": "約19:30–20:30",
+      "description": "香川縣高松市錦町1-8-9。官方入住時間 15:00 起，酒店沒有停車場，請事先確認租車還車與停車安排。GPS/MapCode 指酒店入口參考位置。",
+      "official_links": [
+        {
+          "label": "HOTEL LiVEMAX Takamatsu Eki Mae 官方網站",
+          "url": "https://www.hotel-livemax.com/kagawa/takamatsust/"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M05002/37201/ILSP0083560617_ipclm/",
+      "coordinate_source": "https://mapfan.com/spots/SC3A4,J,NH7"
+    }
+  ],
+  "stages": [
+    {
+      "time": "06:00",
+      "title": "從桃源郷祖谷の山里提早出發",
+      "text": "先核對德島縣道路管制公告及住宿方資訊。沿東祖谷方向走國道439號前往見之越；提早出發是為了在部分工作日管制開始前通過，不代表保證道路開放。",
+      "place_id": "tougenkyo",
+      "tag": "Plan B 出發",
+      "mode": "start"
+    },
+    {
+      "time": "06:00–約07:00",
+      "title": "由東祖谷經國道439號前往見之越",
+      "text": "行駛東側接近路線，避開國道438號木屋平至見之越管制走廊。國道439號落合、小川等路段仍有工作日分時管制，依現場放行及安全指示通過。",
+      "place_id": "tsurugi_lift",
+      "tag": "替代進山路線／國道439號",
+      "mode": "driving",
+      "route_note": "走國道439號東側接近見之越，避免國道438號管制走廊；國道439號另有分時管制，路線時間不含等候。"
+    },
+    {
+      "time": "約07:00–09:00",
+      "title": "見之越登山前整備與早餐",
+      "text": "停車、整理裝備及確認纜車/登山道運行。見之越設施開放時間各異，請勿假設商店或餐飲已營業；備妥飲水與早餐。",
+      "place_id": "tsurugi_lift",
+      "tag": "登山前準備",
+      "mode": "info"
+    },
+    {
+      "time": "09:00–13:30",
+      "title": "劍山登山健行（含纜車，路線擇一）",
+      "text": "搭乘見之越至西島纜車（營運時才使用），再走大劍神社、御神水至劍山山頂往返；若選次郎笈稜線則以其取代山頂延伸，不要兩者都排。設定13:30為下山回到見之越的最晚目標，預留回程管制等待。",
+      "place_id": "tsurugi_lift",
+      "tag": "劍山健行",
+      "mode": "walking",
+      "route_note": "登山路線示意；依纜車營運、官方登山地圖、現場標示與天候調整。"
+    },
+    {
+      "time": "13:30–約17:00（視放行時段）",
+      "title": "沿國道439號東側回程至大步危方向",
+      "text": "依德島縣及現場管制員公布的通行窗口，從見之越沿國道439號往大步危、池田。此路段部分管制沒有迂迴路，不能將預估駕駛時間視為保證；不得進入封閉路段。若管制延誤，取消所有沿途停留。",
+      "place_id": "roadstation_oboke",
+      "tag": "國道439號／預留管制等待",
+      "mode": "driving",
+      "route_note": "回程不走國道438號管制走廊；國道439號有分時管制，須遵守官方放行窗口，OSRM時間不含封路等待。"
+    },
+    {
+      "time": "視抵達時間；最遲約17:00前",
+      "title": "道の駅大步危短暫休息（有餘裕才停）",
+      "text": "道之驛官方營業至17:00。若管制造成延誤或已接近閉店時間，略過停留，直接續行國道32號至池田。",
+      "place_id": "roadstation_oboke",
+      "tag": "條件式休息",
+      "mode": "info"
+    },
+    {
+      "time": "約17:00–19:30/20:30",
+      "title": "經國道32號、池田及高速公路返回高松",
+      "text": "從大步危沿國道32號至池田後接高速公路前往高松。預估約2小時以上，不含山區管制等待、停車與市區交通；延誤時以安全駕駛為先。",
+      "place_id": "livemax",
+      "tag": "晚間回程／自駕",
+      "mode": "driving",
+      "route_note": "道路路線示意：國道32號往池田，再接德島自動車道及高松自動車道；不走國道438號管制區。"
+    },
+    {
+      "time": "約19:30–20:30之後",
+      "title": "抵達 HOTEL LiVEMAX Takamatsu Eki Mae",
+      "text": "抵達高松後辦理入住並處理停車/還車。酒店無自有停車場，請依預訂安排停車。",
+      "place_id": "livemax",
+      "tag": "住宿",
+      "mode": "info"
+    }
+  ],
+  "sources": [
+    {
+      "label": "德島縣防災資訊：11/17道路管制公告（出發前重查）",
+      "url": "https://bousai.pref.tokushima.lg.jp/map/"
+    },
+    {
+      "label": "德島縣官方：由大步危方向前往見之越的道路",
+      "url": "https://www.pref.tokushima.lg.jp/FAQ/docs/00028899/"
+    },
+    {
+      "label": "劍山觀光登山纜車官方網站",
+      "url": "https://turugirift.com/index.html"
+    },
+    {
+      "label": "德島縣觀光情報：劍山纜車營運資訊",
+      "url": "https://www.awanavi.jp/archives/spot/19046"
+    },
+    {
+      "label": "西阿波官方：劍山健行路線",
+      "url": "https://nishi-awa.jp/tsurugisan/"
+    },
+    {
+      "label": "四國地區道之驛官方：大步危",
+      "url": "https://www.sk-michinoeki.jp/michinoeki/339"
+    },
+    {
+      "label": "HOTEL LiVEMAX Takamatsu Eki Mae 官方網站",
+      "url": "https://www.hotel-livemax.com/kagawa/takamatsust/"
+    },
+    {
+      "label": "OSRM 路線服務文件",
+      "url": "https://project-osrm.org/docs/v5.24.0/api/"
+    }
+  ]
+}

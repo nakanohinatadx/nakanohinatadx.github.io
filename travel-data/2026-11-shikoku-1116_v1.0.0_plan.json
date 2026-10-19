@@ -1,0 +1,303 @@
+{
+  "plan_id": "2026-11-shikoku-1116",
+  "plan_version": "1.0.0",
+  "template": {
+    "template_id": "travel-day-map",
+    "version": "1.0.1",
+    "file": "02_Script/05_Travel/2026-11-shikoku-1116_v1.0.1_template.html"
+  },
+  "plan_name": "德島祖谷秘境自駕一日遊",
+  "destination": "德島縣三好市大步危與祖谷，日本",
+  "date": "2026-11-16",
+  "weekday": "星期一",
+  "transport_note": "行程以自駕為主。加油站至大步危遊覽船約需 20 分鐘，已納入行程。遊覽船約 30 分鐘，需確認天候與出航狀況。祖谷山路狹窄彎曲，地圖時間不含停車、路況及管制；小便小僧沒有專用停車場。住宿 MapCode 指向接待辦公室，非個別古民家。",
+  "transport_cards": [
+    {
+      "title": "山區前加油",
+      "text": "32号池田SS 官方列 24 小時營業，建議在此加滿油。從觀音寺出發約 70 分鐘，預計 09:40 抵達；離站後至遊覽船乘船處再需約 20 分鐘。"
+    },
+    {
+      "title": "遊覽船與祖谷藤蔓橋",
+      "text": "遊覽船官方營運 09:00–17:00、末班 16:30，航程約 30 分鐘；天候或水位可能停航。藤蔓橋冬季時段（9月至3月）為 08:00–17:00，警報或臨時管制時可能關閉。"
+    },
+    {
+      "title": "祖谷山路與小便小僧",
+      "text": "山路狹窄彎曲，預留緩衝並依現場標示慢行。小便小僧沒有正式停車場，只能在不阻礙交通的安全寬處短停；若無安全位置請略過。"
+    },
+    {
+      "title": "入住桃源郷祖谷の山里",
+      "text": "先前往落合403接待辦公室辦理入住（官方入住時間 15:00–18:00），職員再帶往預訂古民家。各棟位置不同，請採用住宿方指定路線；不要直接把辦公室座標當作古民家地址。"
+    },
+    {
+      "title": "道路估時",
+      "text": "地圖駕車路線為道路資料估算，非即時交通或山路通行保證；不含天候、停車、道路管制。住宿方指出替代山路可能陡峭、狹窄且無手機訊號，請遵循官方進入路線。"
+    }
+  ],
+  "tide_windows": [
+    {
+      "label": "池田加油站停留",
+      "time": "09:40–09:55"
+    },
+    {
+      "label": "加油站至遊覽船乘船處",
+      "time": "約 20 分鐘"
+    },
+    {
+      "label": "遊覽船航程",
+      "time": "約 30 分鐘"
+    },
+    {
+      "label": "住宿辦理入住",
+      "time": "15:00–18:00"
+    }
+  ],
+  "tide_note": "11 月 16 日為星期一。遊覽船與藤蔓橋官方資訊列全年營運，仍可能因天候、警報或臨時管制停駛/關閉。餐飲店及夢舞台商店當日營業請另行確認。",
+  "places": [
+    {
+      "id": "routeinn",
+      "name": "出發｜HOTEL ROUTE-INN KAN-ONJI",
+      "latitude": 34.1182765,
+      "longitude": 133.64574739,
+      "mapcode": "77 092 744*57",
+      "mapcode_target": "酒店入口",
+      "kind": "出發酒店",
+      "time": "08:30",
+      "description": "從觀音寺市區出發。GPS 與 MapCode 導航至酒店入口。",
+      "official_links": [
+        {
+          "label": "HOTEL ROUTE-INN KAN-ONJI 官方網站",
+          "url": "https://www.route-inn.co.jp/hotel_list/kagawa/index_hotel_id_744/"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M05002/37205/ILSP0085861375_ipclm/",
+      "coordinate_source": "https://www.mapion.co.jp/m2/15.00/34.1182765/133.64574739/0/0?poi=ILSP0085861375_ipclm"
+    },
+    {
+      "id": "fuel",
+      "name": "補給｜apollostation 32号池田SS",
+      "latitude": 34.02957817,
+      "longitude": 133.79336816,
+      "mapcode": "357 695 135*12",
+      "mapcode_target": "加油站入口",
+      "kind": "加油站／補給",
+      "time": "09:40 – 09:55",
+      "description": "西日本宇佐美 32号池田SS，位於國道 32 號沿線。官方資料列為 24 小時營業；建議在進入祖谷山區前加滿油。地址：德島縣三好市池田町ウヱノ3158-9。",
+      "official_links": [
+        {
+          "label": "出光官方：32号池田SS（營業時間與地址）",
+          "url": "https://map.idemitsu.com/b/a/info/0000007986/"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M08004/36208/23630081438/",
+      "coordinate_source": "https://www.mapion.co.jp/m2/15.00/34.02957817/133.79336816/0/0?poi=23630081438"
+    },
+    {
+      "id": "oboke",
+      "name": "大步危峽觀光遊覽船",
+      "latitude": 33.88597718,
+      "longitude": 133.76039221,
+      "mapcode": "357 151 826*14",
+      "mapcode_target": "遊覽船乘船處",
+      "kind": "遊覽船／溪谷步道",
+      "time": "10:05 – 11:15",
+      "description": "遊覽船航程約 30 分鐘，另留時間沿岸步道散步。營運時間及出航會受天候、水位影響；官方資料列每日 09:00–17:00、末班 16:30，出發前再確認。",
+      "official_links": [
+        {
+          "label": "大步危峽觀光遊覽船官方網站",
+          "url": "https://mannaka.co.jp/sightseeingboat/"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M04024/36208/23630083471/",
+      "coordinate_source": "https://www.mapion.co.jp/phonebook/M04024/36208/23630083471/"
+    },
+    {
+      "id": "kazurabashi",
+      "name": "祖谷藤蔓橋・蔓橋夢舞台",
+      "latitude": 33.87513381,
+      "longitude": 133.83537472,
+      "mapcode": "357 130 556*14",
+      "mapcode_target": "蔓橋入口／夢舞台停車場一帶",
+      "kind": "吊橋／午餐補給",
+      "time": "12:15 – 14:15",
+      "description": "祖谷藤蔓橋與蔓橋夢舞台。官方冬季（9月至3月）開放 08:00–17:00，遇警報或臨時管制可能關閉。夢舞台可作停車、午餐與伴手禮補給點；餐飲及商店營業請當日確認。",
+      "official_links": [
+        {
+          "label": "三好市官方觀光：祖谷藤蔓橋",
+          "url": "https://miyoshi-tourism.jp/spot/46/?spot_classification=tourism"
+        },
+        {
+          "label": "德島縣官方：蔓橋夢舞台",
+          "url": "https://maps.pref.tokushima.lg.jp/ud/search/facility_136.html"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M06007/36208/ILSP0000660228_ipclm/",
+      "coordinate_source": "https://www.mapion.co.jp/m2/15.00/33.87513381/133.83537472/0/0?poi=ILSP0000660228_ipclm"
+    },
+    {
+      "id": "peeing_boy",
+      "name": "祖谷溪小便小僧展望點",
+      "latitude": 33.92146,
+      "longitude": 133.81709,
+      "mapcode": "357 308 376*24",
+      "mapcode_target": "小便小僧官方 MapCode 點（無專用停車場）",
+      "kind": "展望點／短停",
+      "time": "14:35 – 15:15",
+      "description": "由蔓橋夢舞台駕車約 20 分鐘。此處沒有正式停車場；僅在不妨礙交通的路肩較寬處短停，切勿占道或冒險下車。GPS 為附近地圖定位參考，MapCode 依三好市官方 FAQ。",
+      "official_links": [
+        {
+          "label": "德島縣官方 FAQ：小便小僧位置與車程",
+          "url": "https://www.pref.tokushima.lg.jp/FAQ/docs/00028998"
+        },
+        {
+          "label": "三好市官方 FAQ：祖谷交通與小便小僧 MapCode",
+          "url": "https://miyoshi-tourism.jp/qa/"
+        }
+      ],
+      "mapping_source": "https://miyoshi-tourism.jp/qa/",
+      "coordinate_source": "https://www.mapion.co.jp/phonebook/M06001/36208/ILSP0000114820_ipclm/"
+    },
+    {
+      "id": "tougenkyo",
+      "name": "入住｜桃源郷祖谷の山里 接待辦公室",
+      "latitude": 33.877917,
+      "longitude": 133.938,
+      "mapcode": "357 142 897*16",
+      "mapcode_target": "接待辦公室（先辦理入住；非個別古民家座標）",
+      "kind": "住宿／接待辦公室",
+      "time": "16:00 之後",
+      "description": "導航至德島縣三好市東祖谷落合403接待辦公室，地址/MapCode 對應辦理入住地點；職員再引導至已預訂古民家。各棟位置不同，實際住宿點可能需再行駛 5–20 分鐘。官方入住時間 15:00–18:00；請依住宿方指定路線行駛山路。",
+      "official_links": [
+        {
+          "label": "桃源郷祖谷の山里官方：交通與接待辦公室",
+          "url": "https://www.tougenkyo-iya.jp/?page_id=2149"
+        },
+        {
+          "label": "桃源郷祖谷の山里官方：入住方式",
+          "url": "https://www.tougenkyo-iya.jp/?page_id=6026"
+        }
+      ],
+      "mapping_source": "https://www.tougenkyo-iya.jp/?page_id=2149",
+      "coordinate_source": "https://www.tougenkyo-iya.jp/?page_id=2149"
+    }
+  ],
+  "stages": [
+    {
+      "time": "08:30",
+      "title": "從觀音寺市區出發",
+      "text": "沿國道 32 號往德島方向南下。規劃約 70 分鐘，預計 09:40 抵達池田加油站；依當日導航與路況調整。",
+      "place_id": "routeinn",
+      "tag": "出發",
+      "mode": "start"
+    },
+    {
+      "time": "09:40 – 09:55",
+      "title": "補給｜32号池田SS 加滿油",
+      "text": "加油站位於前往祖谷山區的路線旁，官方營業時間為 24 小時。",
+      "place_id": "fuel",
+      "tag": "加油",
+      "mode": "driving"
+    },
+    {
+      "time": "09:55 – 約 10:15",
+      "title": "前往大步危遊覽船",
+      "text": "從池田加油站至遊覽船乘船處約需 20 分鐘；留意沿路路況。",
+      "place_id": "oboke",
+      "tag": "駕車約 20 分鐘",
+      "mode": "driving"
+    },
+    {
+      "time": "10:15 – 11:15",
+      "title": "大步危峽遊覽船與步道",
+      "text": "安排約 30 分鐘遊船及岸邊步道/拍照時間。請先確認當天出航；行程緩衝有限，若停航可改為溪谷步道與觀景。",
+      "place_id": "oboke",
+      "tag": "遊船＋散步",
+      "mode": "info"
+    },
+    {
+      "time": "11:15 – 12:15",
+      "title": "沿祖谷街道前往蔓橋夢舞台",
+      "text": "路線經祖谷口與縣道 32 號，山路狹窄，約 60 分鐘規劃時間；以實際導航為準。",
+      "place_id": "kazurabashi",
+      "tag": "祖谷山路",
+      "mode": "driving"
+    },
+    {
+      "time": "12:15 – 14:15",
+      "title": "祖谷藤蔓橋、午餐與補給",
+      "text": "遊覽藤蔓橋並於蔓橋夢舞台用餐、購買點心或伴手禮。餐飲及商店營業情況請出發前確認。",
+      "place_id": "kazurabashi",
+      "tag": "景點／午餐",
+      "mode": "info"
+    },
+    {
+      "time": "14:15 – 約 14:35",
+      "title": "沿山路前往祖谷溪",
+      "text": "縣道 32 號山路行車約 20 分鐘。",
+      "place_id": "peeing_boy",
+      "tag": "駕車",
+      "mode": "driving"
+    },
+    {
+      "time": "約 14:35 – 15:15",
+      "title": "祖谷溪小便小僧短停觀景",
+      "text": "官方資訊稱由夢舞台開車約 20 分鐘。當地沒有專用停車場，只在不阻礙車流的安全位置短停；若無安全停車空間請略過。",
+      "place_id": "peeing_boy",
+      "tag": "無專用停車場",
+      "mode": "info"
+    },
+    {
+      "time": "15:15 – 約 16:00",
+      "title": "前往桃源郷祖谷の山里接待辦公室",
+      "text": "導航至落合403接待辦公室。35–40 分鐘僅為初步規劃，需以住宿方指定路線與當天導航為準。",
+      "place_id": "tougenkyo",
+      "tag": "住宿接待處",
+      "mode": "driving"
+    },
+    {
+      "time": "16:00 之後",
+      "title": "辦理入住並前往預訂古民家",
+      "text": "先在接待辦公室辦理入住，職員會引導或按預約安排前往住宿棟。官方入住時間 15:00–18:00。",
+      "place_id": "tougenkyo",
+      "tag": "入住",
+      "mode": "info"
+    }
+  ],
+  "sources": [
+    {
+      "label": "出光官方：32号池田SS",
+      "url": "https://map.idemitsu.com/b/a/info/0000007986/"
+    },
+    {
+      "label": "大步危峽觀光遊覽船官方",
+      "url": "https://mannaka.co.jp/sightseeingboat/"
+    },
+    {
+      "label": "三好市官方：祖谷藤蔓橋與開放時間",
+      "url": "https://miyoshi-tourism.jp/spot/46/?spot_classification=tourism"
+    },
+    {
+      "label": "德島縣官方：蔓橋夢舞台",
+      "url": "https://maps.pref.tokushima.lg.jp/ud/search/facility_136.html"
+    },
+    {
+      "label": "德島縣官方 FAQ：小便小僧位置與車程",
+      "url": "https://www.pref.tokushima.lg.jp/FAQ/docs/00028998"
+    },
+    {
+      "label": "三好市官方 FAQ：祖谷交通與 MapCode",
+      "url": "https://miyoshi-tourism.jp/qa/"
+    },
+    {
+      "label": "桃源郷祖谷の山里官方：交通方式",
+      "url": "https://www.tougenkyo-iya.jp/?page_id=2149"
+    },
+    {
+      "label": "桃源郷祖谷の山里官方：入住方式",
+      "url": "https://www.tougenkyo-iya.jp/?page_id=6026"
+    },
+    {
+      "label": "OSRM 路線服務文件",
+      "url": "https://project-osrm.org/docs/v5.24.0/api/"
+    }
+  ]
+}

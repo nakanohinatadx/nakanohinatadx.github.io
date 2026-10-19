@@ -1,0 +1,330 @@
+{
+  "plan_id": "2026-11-shikoku-1113-b",
+  "plan_version": "1.0.0",
+  "template": {
+    "template_id": "travel-day-map",
+    "version": "1.0.1",
+    "file": "02_Script/05_Travel/2026-11-shikoku-1113-plan-b_v1.0.1_template.html"
+  },
+  "plan_name": "鳴門漩渦與美術館｜Plan B 大塚國際美術館",
+  "destination": "德島縣鳴門市與香川縣東部、日本",
+  "date": "2026-11-13",
+  "weekday": "星期五",
+  "transport_note": "行程以自駕為主。為搭乘 09:45 AQUA EDDY 並留報到時間，出發時間提前至 08:00（高松至鳴門約75分鐘）。鳴門市官方觀潮表列 11/13 滿潮 08:10（大潮）、干潮 14:50（中潮）；潮流最佳時段以滿/干潮前後為參考，實際觀潮仍依船班與海況。回程使用經查證的道之駅津田の松原；未查到「道の駅引田」。",
+  "transport_cards": [
+    {
+      "title": "潮汐與觀潮船班",
+      "text": "鳴門市官方潮見表：11/13 滿潮 08:10（大潮）、干潮 14:50（中潮）。大潮觀潮建議以滿/干潮前後約 2 小時作為參考；09:45 AQUA EDDY 在滿潮窗口末段附近，請於出發前確認船公司當日推薦船班與運行狀況。AQUA EDDY 需預約，請至少提前 10 分鐘報到；大型 WONDER NARUTO 通常 09:40 有班次、無需預約，可作備案。"
+    },
+    {
+      "title": "鳴門公園與景點二選一",
+      "text": "Plan A：渦之道與大鳴門橋架橋記念館 Edi，兩處步行約3分鐘；官方估計合計約1–1.25小時。Plan B：大塚國際美術館。館內約4公里；此方案安排至15:00，包含館外停車及免費接駁，館內時間約1小時45分鐘，可按官方模型路線看重點，仍無法完整參觀。"
+    },
+    {
+      "title": "回程道之驛名稱校正",
+      "text": "未能在官方道之驛名錄找到「道の駅 引田」。此行改用路線上的「道の駅 津田の松原」（官方名稱及營業資訊可查），物產中心 09:00–17:00。"
+    },
+    {
+      "title": "鳴門鯛與餐廳",
+      "text": "午餐安排在鳴門公園周邊，依當日營業情況選海鮮/鳴門鯛料理；本計畫未指定未核實的單一餐廳。"
+    }
+  ],
+  "tide_windows": [
+    {
+      "label": "鳴門滿潮（大潮）",
+      "time": "08:10"
+    },
+    {
+      "label": "AQUA EDDY 預定班次",
+      "time": "09:45"
+    },
+    {
+      "label": "鳴門干潮（中潮）",
+      "time": "14:50"
+    },
+    {
+      "label": "津田の松原物產中心",
+      "time": "09:00–17:00"
+    }
+  ],
+  "tide_note": "11 月 13 日上午的滿潮大潮時間是 08:10；官方表示大潮觀潮以滿/干潮前後約 2 小時為參考。潮流和渦潮受潮汐、海況影響，這不是保證可見大漩渦的時間。",
+  "places": [
+    {
+      "id": "livemax",
+      "name": "出發／住宿｜HOTEL LiVEMAX Takamatsu Eki Mae",
+      "latitude": 34.3475915,
+      "longitude": 134.0449247,
+      "mapcode": "60 635 291*02",
+      "mapcode_target": "酒店入口 GPS/MapCode 導航點",
+      "kind": "出發酒店／住宿",
+      "time": "08:00",
+      "description": "香川縣高松市錦町1-8-9。官方資訊列酒店沒有停車場；出發前確認租車取車方式及附近停車。地圖座標為酒店入口參考點。",
+      "official_links": [
+        {
+          "label": "HOTEL LiVEMAX Takamatsu Eki Mae 官方網站",
+          "url": "https://www.hotel-livemax.com/kagawa/takamatsust/"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M05002/37201/ILSP0083560617_ipclm/",
+      "coordinate_source": "https://mapfan.com/spots/SC3A4,J,NH7"
+    },
+    {
+      "id": "boat",
+      "name": "鳴門觀光汽船｜亀浦観光港",
+      "latitude": 34.2307687,
+      "longitude": 134.6233836,
+      "mapcode": "406 210 244*28",
+      "mapcode_target": "亀浦観光港乘船處",
+      "kind": "觀潮船／集合點",
+      "time": "09:45",
+      "description": "觀潮船分大型觀潮船 WONDER NARUTO 與需預約的小型水中觀潮船 AQUA EDDY；AQUA EDDY 每 30 分鐘一班，航程約 25 分鐘，請預留取票/報到時間並按當日潮汐選班。09:45 班需提前預約。地址：鳴門市鳴門町土佐泊浦字大毛264-1。",
+      "official_links": [
+        {
+          "label": "鳴門觀光汽船官方：船班、潮見與預約",
+          "url": "https://www.uzusio.com/en/geton/"
+        },
+        {
+          "label": "鳴門觀光協會官方：觀潮船",
+          "url": "https://www.naruto-kankou.jp/charm/charm-2769/"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M04024/36202/23630045147/",
+      "coordinate_source": "https://opendata.pref.tokushima.lg.jp/dataset/24/resource/23/content.html"
+    },
+    {
+      "id": "naruto_park",
+      "name": "鳴門公園｜千疊敷展望台與午餐區",
+      "latitude": 34.237003,
+      "longitude": 134.62454,
+      "mapcode": "406 212 783*33",
+      "mapcode_target": "鳴門公園停車／千疊敷展望台區域參考點",
+      "kind": "展望台／午餐區",
+      "time": "10:15 – 13:00",
+      "description": "鳴門公園內千疊敷展望台與周邊餐飲區。GPS 為園區參考定位，MapCode 導航鳴門公園訪客停車區附近；依停車場標示步行。午餐店家未指定，當日依營業情況選鳴門鯛/海鮮或在地料理。",
+      "official_links": [
+        {
+          "label": "鳴門市官方觀光：千疊敷展望台",
+          "url": "https://naruto-tourism.jp/jp/spot/16990"
+        }
+      ],
+      "mapping_source": "https://dora-tabi.com/naruto-park/",
+      "coordinate_source": "https://naruto-uzushio.jp/en/wp-content/uploads/2024/11/report_natural-aspects.pdf"
+    },
+    {
+      "id": "otsuka_parking",
+      "name": "大塚國際美術館專用停車場",
+      "latitude": 34.23148461,
+      "longitude": 134.63035177,
+      "mapcode": "406 210 359*80",
+      "mapcode_target": "美術館專用停車場入口（館外）",
+      "kind": "停車／免費接駁",
+      "time": "約13:00",
+      "description": "車輛請導航至館外專用停車場，停車後搭免費接駁車至美術館正面入口；不要直接駛往館舍入口。GPS 與 MapCode 為停車場定位。",
+      "official_links": [
+        {
+          "label": "大塚國際美術館官方：從鳴門北 IC 到專用停車場與免費接駁",
+          "url": "https://o-museum.or.jp/english/files/libs/291/201507191728041998.pdf"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M04003/36202/23630045185/",
+      "coordinate_source": "https://www.mapion.co.jp/m2/15.00/34.23148461/134.63035177/0/0?poi=23630045185"
+    },
+    {
+      "id": "otsuka_museum",
+      "name": "大塚國際美術館",
+      "latitude": 34.2325154,
+      "longitude": 134.63772,
+      "mapcode": "406 211 476*72",
+      "mapcode_target": "美術館館舍 GPS/MapCode 導航點（車輛請用館外專用停車場及接駁車）",
+      "kind": "陶板名畫美術館",
+      "time": "13:00 – 14:30",
+      "description": "官方開館09:30–17:00（售票至16:00），週一休館；11/13為星期五。館內約4公里、約1,000件作品，90分鐘僅適合參觀模型重點路線，無法完整看展。自駕請依官方指示停館外專用停車場並搭免費接駁車至館舍。",
+      "official_links": [
+        {
+          "label": "大塚國際美術館官方網站：開館時間與日曆",
+          "url": "https://o-museum.or.jp/"
+        },
+        {
+          "label": "大塚國際美術館官方：交通與專用停車場",
+          "url": "https://o-museum.or.jp/pages/824/"
+        },
+        {
+          "label": "大塚國際美術館官方 FAQ：鑑賞時間與模型路線",
+          "url": "https://o-museum.or.jp/pages/31/"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M04101/36202/0000OTKB_001pa/",
+      "coordinate_source": "https://opendata.pref.tokushima.lg.jp/dataset/24/resource/23/content.html"
+    },
+    {
+      "id": "tsuda",
+      "name": "回程休息｜道の駅 津田の松原",
+      "latitude": 34.287721,
+      "longitude": 134.252666,
+      "mapcode": "364 105 771",
+      "mapcode_target": "道之驛停車場／物產中心",
+      "kind": "道之驛／海岸休息",
+      "time": "15:30 – 16:00",
+      "description": "這是香川縣沿線經查證的道之驛名稱，位於香川縣さぬき市津田町津田103-3；未查到「道の駅 引田」此站。物產中心 09:00–17:00，松原烏龍麵 10:30–15:00。可在短停時散步到琴林公園海岸。",
+      "official_links": [
+        {
+          "label": "四國地區道之驛官方：津田の松原",
+          "url": "https://www.sk-michinoeki.jp/michinoeki/345"
+        },
+        {
+          "label": "さぬき市官方：道の駅津田の松原",
+          "url": "https://www.city.sanuki.lg.jp/soshiki/hishokoho/gyomu/2/4/1352.html"
+        }
+      ],
+      "mapping_source": "https://www.michi-no-eki.jp/stations/views/19628",
+      "coordinate_source": "https://www.navitime.co.jp/poi?spt=02301.t2033"
+    },
+    {
+      "id": "hotel_return",
+      "name": "抵達｜HOTEL LiVEMAX Takamatsu Eki Mae",
+      "latitude": 34.3475915,
+      "longitude": 134.0449247,
+      "mapcode": "60 635 291*02",
+      "mapcode_target": "酒店入口 GPS/MapCode 導航點",
+      "kind": "住宿／還車",
+      "time": "17:00 之後",
+      "description": "回到高松市區並入住或休息。酒店沒有自有停車場，請事先安排附近停車及租車歸還。",
+      "official_links": [
+        {
+          "label": "HOTEL LiVEMAX Takamatsu Eki Mae 官方網站",
+          "url": "https://www.hotel-livemax.com/kagawa/takamatsust/"
+        }
+      ],
+      "mapping_source": "https://www.mapion.co.jp/phonebook/M05002/37201/ILSP0083560617_ipclm/",
+      "coordinate_source": "https://mapfan.com/spots/SC3A4,J,NH7"
+    }
+  ],
+  "stages": [
+    {
+      "time": "08:00",
+      "title": "從 HOTEL LiVEMAX Takamatsu Eki Mae 出發",
+      "text": "因鳴門至港口車程約75分鐘，並需預留停車、報到，較原稿08:30提前出發。",
+      "place_id": "livemax",
+      "tag": "提早至08:00出發",
+      "mode": "start"
+    },
+    {
+      "time": "約09:15",
+      "title": "抵達鳴門觀光港與辦理登船",
+      "text": "預留停車、取票及步行到乘船處；AQUA EDDY 請至少提前10分鐘報到。",
+      "place_id": "boat",
+      "tag": "預約/報到",
+      "mode": "driving"
+    },
+    {
+      "time": "09:45 – 10:10",
+      "title": "AQUA EDDY 水中觀潮船",
+      "text": "預約09:45班次，航程約25分鐘。若該班無位或停航，查詢大型觀潮船替代班次並按潮見表調整。",
+      "place_id": "boat",
+      "tag": "小型水中觀潮船",
+      "mode": "info"
+    },
+    {
+      "time": "10:15 – 11:30",
+      "title": "鳴門公園展望與步行",
+      "text": "前往千疊敷展望台及園區展望點，依鳴門公園停車場標示停車。",
+      "place_id": "naruto_park",
+      "tag": "千疊敷展望台",
+      "mode": "driving"
+    },
+    {
+      "time": "11:30 – 13:00",
+      "title": "鳴門鯛與在地料理午餐",
+      "text": "在鳴門公園周邊選擇當日營業的海鮮或在地料理店；店家未預訂，請視營業/候位調整。",
+      "place_id": "naruto_park",
+      "tag": "午餐",
+      "mode": "info"
+    },
+    {
+      "time": "13:00 – 約13:15",
+      "title": "Plan B｜停放美術館專用停車場",
+      "text": "依官方交通指示駛往館外專用停車場，再搭免費接駁車至美術館入口。接駁候車時間依現場班距。",
+      "place_id": "otsuka_parking",
+      "tag": "停車＋免費接駁",
+      "mode": "driving"
+    },
+    {
+      "time": "約13:15 – 15:00",
+      "title": "大塚國際美術館重點路線",
+      "text": "約1小時45分鐘可使用館內時間，包含約1小時20分鐘的官方模型路線及少量緩衝；若專用停車場接駁候車較久，請再縮短館內參觀。全館約4公里，不能完整看完。開館至17:00、售票至16:00。",
+      "place_id": "otsuka_museum",
+      "tag": "陶板名畫／快速重點參觀",
+      "mode": "info"
+    },
+    {
+      "time": "15:00 – 約16:00",
+      "title": "沿高松自動車道往香川東部",
+      "text": "經鳴門北IC往津田東IC方向；車程時間依實際導航及交通調整。",
+      "place_id": "tsuda",
+      "tag": "高速公路",
+      "mode": "driving"
+    },
+    {
+      "time": "約16:00 – 16:20",
+      "title": "道の駅 津田の松原短停",
+      "text": "物產中心營業至17:00；此方案約16:00抵達，可採買伴手禮並短程步行至琴林公園海岸。",
+      "place_id": "tsuda",
+      "tag": "休息／海岸",
+      "mode": "info"
+    },
+    {
+      "time": "16:20 – 約17:20",
+      "title": "返回高松市區",
+      "text": "沿高松自動車道/市區道路返回酒店，依交通狀況調整。",
+      "place_id": "hotel_return",
+      "tag": "駕車",
+      "mode": "driving"
+    },
+    {
+      "time": "17:20 之後",
+      "title": "抵達 HOTEL LiVEMAX Takamatsu Eki Mae",
+      "text": "入住或休息；酒店無自有停車場，先確認附近停車及租車還車安排。",
+      "place_id": "hotel_return",
+      "tag": "住宿／還車",
+      "mode": "info"
+    }
+  ],
+  "sources": [
+    {
+      "label": "鳴門市觀光協會官方：2026年11月潮見表",
+      "url": "https://www.naruto-kankou.jp/uzu/?str_month=11&str_year=2026"
+    },
+    {
+      "label": "鳴門觀光汽船官方：船班、AQUA EDDY預約",
+      "url": "https://www.uzusio.com/en/geton/"
+    },
+    {
+      "label": "渦之道官方：營業時間、交通與共通票",
+      "url": "https://www.uzunomichi.jp/usage-guide-uzu-no-michi/"
+    },
+    {
+      "label": "大塚國際美術館官方：開館時間與休館資訊",
+      "url": "https://o-museum.or.jp/"
+    },
+    {
+      "label": "大塚國際美術館官方：常見問題與鑑賞路線",
+      "url": "https://o-museum.or.jp/pages/31/"
+    },
+    {
+      "label": "鳴門市官方觀光：千疊敷展望台",
+      "url": "https://naruto-tourism.jp/jp/spot/16990"
+    },
+    {
+      "label": "四國地區道之驛官方：津田の松原",
+      "url": "https://www.sk-michinoeki.jp/michinoeki/345"
+    },
+    {
+      "label": "HOTEL LiVEMAX Takamatsu Eki Mae 官方網站",
+      "url": "https://www.hotel-livemax.com/kagawa/takamatsust/"
+    },
+    {
+      "label": "OSRM 路線服務文件",
+      "url": "https://project-osrm.org/docs/v5.24.0/api/"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "catalog_version": "1.9.0",
+  "plans": [
+    {
+      "plan_id": "2026-11-shikoku",
+      "title": "2026-11 四國",
+      "destination": "香川縣與德島縣，日本",
+      "days": [
+        {
+          "id": "2026-11-13",
+          "title": "Day 2 - 鳴門漩渦與東香川沿海自駕",
+          "date": "2026-11-13",
+          "options": [
+            {
+              "id": "plan-a",
+              "title": "Plan A（渦之道）",
+              "href": "2026-11-shikoku-1113-plan-a_v1.0.1_template.html"
+            },
+            {
+              "id": "plan-b",
+              "title": "Plan B（大塚國際美術館）",
+              "href": "2026-11-shikoku-1113-plan-b_v1.0.1_template.html"
+            }
+          ]
+        },
+        {
+          "id": "2026-11-14",
+          "title": "Day 3 - 小豆島一日遊",
+          "date": "2026-11-14",
+          "options": [
+            {
+              "id": "plan-a",
+              "title": "Plan A",
+              "href": "2026-11-shikoku-shodoshima_v1.0.8_template.html?plan=plan-a"
+            },
+            {
+              "id": "plan-b",
+              "title": "Plan B（自駕方案）",
+              "href": "2026-11-shikoku-shodoshima_v1.0.8_template.html?plan=plan-b"
+            }
+          ]
+        },
+        {
+          "id": "2026-11-15",
+          "title": "Day 4 - 香川縣自駕一日遊",
+          "date": "2026-11-15",
+          "options": [
+            {
+              "id": "default",
+              "title": "香川縣自駕一日遊",
+              "href": "2026-11-shikoku-1115_v1.0.1_template.html"
+            }
+          ]
+        },
+        {
+          "id": "2026-11-16",
+          "title": "Day 5 - 德島祖谷秘境自駕一日遊",
+          "date": "2026-11-16",
+          "options": [
+            {
+              "id": "default",
+              "title": "德島祖谷秘境自駕一日遊",
+              "href": "2026-11-shikoku-1116_v1.0.1_template.html"
+            }
+          ]
+        },
+        {
+          "id": "2026-11-17",
+          "title": "Day 6 - 德島劍山登山與回程高松自駕一日遊",
+          "date": "2026-11-17",
+          "options": [
+            {
+              "id": "plan-a",
+              "title": "Plan A（劍山登山；留意道路管制）",
+              "href": "2026-11-shikoku-1117_v1.0.2_template.html"
+            },
+            {
+              "id": "plan-b",
+              "title": "Plan B（劍山健行；走國道439號避開438號管制走廊）",
+              "href": "2026-11-shikoku-1117-plan-b_v1.0.2_template.html"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
