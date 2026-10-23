@@ -14,12 +14,12 @@
             {
               "id": "plan-a",
               "title": "Plan A（渦之道）",
-              "href": "2026-11-shikoku-1113-plan-a_v1.0.1_template.html"
+              "href": "/07_Shikoku_Travel_Plan_Deck/days/2026-11-13/plan-a.html"
             },
             {
               "id": "plan-b",
               "title": "Plan B（大塚國際美術館）",
-              "href": "2026-11-shikoku-1113-plan-b_v1.0.1_template.html"
+              "href": "/07_Shikoku_Travel_Plan_Deck/days/2026-11-13/plan-b.html"
             }
           ]
         },
@@ -31,12 +31,12 @@
             {
               "id": "plan-a",
               "title": "Plan A",
-              "href": "2026-11-shikoku-shodoshima_v1.0.8_template.html?plan=plan-a"
+              "href": "/07_Shikoku_Travel_Plan_Deck/days/2026-11-14-shodoshima/templates/shodoshima_v1.0.8_template.html?plan=plan-a"
             },
             {
               "id": "plan-b",
               "title": "Plan B（自駕方案）",
-              "href": "2026-11-shikoku-shodoshima_v1.0.8_template.html?plan=plan-b"
+              "href": "/07_Shikoku_Travel_Plan_Deck/days/2026-11-14-shodoshima/templates/shodoshima_v1.0.8_template.html?plan=plan-b"
             }
           ]
         },
@@ -48,7 +48,7 @@
             {
               "id": "default",
               "title": "香川縣自駕一日遊",
-              "href": "2026-11-shikoku-1115_v1.0.1_template.html"
+              "href": "/07_Shikoku_Travel_Plan_Deck/days/2026-11-15/index.html"
             }
           ]
         },
@@ -60,7 +60,7 @@
             {
               "id": "default",
               "title": "德島祖谷秘境自駕一日遊",
-              "href": "2026-11-shikoku-1116_v1.0.1_template.html"
+              "href": "/07_Shikoku_Travel_Plan_Deck/days/2026-11-16/index.html"
             }
           ]
         },
@@ -72,12 +72,12 @@
             {
               "id": "plan-a",
               "title": "Plan A（劍山登山；留意道路管制）",
-              "href": "2026-11-shikoku-1117_v1.0.2_template.html"
+              "href": "/07_Shikoku_Travel_Plan_Deck/days/2026-11-17/plan-a.html"
             },
             {
               "id": "plan-b",
               "title": "Plan B（劍山健行；走國道439號避開438號管制走廊）",
-              "href": "/travel/shikoku-1117-b/"
+              "href": "/07_Shikoku_Travel_Plan_Deck/days/2026-11-17/plan-b.html"
             }
           ]
         }

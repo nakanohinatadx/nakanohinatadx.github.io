@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="travel-template-id" content="travel-day-map">
-<meta name="travel-template-version" content="1.0.4">
+<meta name="travel-template-version" content="1.0.5">
 <title>Module 07 - Shodoshima Day Trip</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
@@ -43,6 +43,10 @@
 .transport-card p{font-size:13px;color:#6b5b42;margin:0}
 .timeline-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
 .timeline-heading .panel-title{margin:0}
+.timeline-actions{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.plan-choice{display:flex;align-items:center;gap:7px;white-space:nowrap;color:#42566e;font-size:12px;font-weight:700}
+.plan-choice select{width:104px;border:1px solid #b9cbe0;border-radius:9px;background:#fff;color:#214a7c;padding:8px 24px 8px 10px;font:600 12px/1.2 system-ui,"Segoe UI",Arial,sans-serif}
+.plan-choice select:focus-visible{outline:3px solid #78a9f5;outline-offset:2px}
 .show-all-button{flex:none;border:1px solid #b9cbe0;border-radius:9px;background:#f3f7fc;color:#214a7c;padding:8px 11px;font:650 12px/1.2 system-ui,"Segoe UI",Arial,sans-serif;cursor:pointer}
 .show-all-button:hover{background:#e7f0fb;border-color:#8eacd0}
 .show-all-button:focus-visible{outline:3px solid #78a9f5;outline-offset:2px}
@@ -50,65 +54,30 @@
 .numbered-map-pin span{display:flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 5px;border:2px solid #fff;border-radius:16px;background:#2459a6;color:#fff;box-shadow:0 2px 7px #13223866;font:750 13px/1 system-ui,"Segoe UI",Arial,sans-serif}
 .mapcode-marker-label{visibility:hidden;opacity:0;transition:opacity .12s;border:1px solid #b7c9dc;border-radius:6px;background:#fff;color:#173e70;padding:3px 6px;box-shadow:0 2px 6px #13223830;font:700 11px/1.2 ui-monospace,Consolas,monospace;white-space:nowrap}
 .mapcode-labels-visible .mapcode-marker-label{visibility:visible;opacity:1}
-@media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr)}.map-panel{position:static;grid-row:1}}
+@media(max-width:1100px){.layout{grid-template-columns:minmax(0,1fr)}.map-panel{position:sticky;top:8px;z-index:10;grid-row:1;align-self:start}}
 </style>
 <style>
-@media(max-width:700px){.map-panel{position:sticky;top:8px;z-index:10;align-self:start}#map{height:38vh;height:38dvh;min-height:220px;max-height:340px}.timeline-panel{height:min(48vh,480px);height:min(48dvh,480px);min-height:280px;max-height:calc(100vh - 300px);max-height:calc(100dvh - 300px);overflow:hidden}.timeline{flex:1 1 0;height:auto;max-height:none;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;touch-action:pan-y}}
+@media(max-width:700px){.map-panel{top:6px}#map{height:38vh;height:38dvh;min-height:200px;max-height:340px}.timeline-panel{height:min(48vh,480px);height:min(48dvh,480px);min-height:260px;max-height:calc(100vh - 280px);max-height:calc(100dvh - 280px);overflow:hidden}.timeline{flex:1 1 0;height:auto;max-height:none;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;touch-action:pan-y}}
 .node-mapcode[hidden]{display:none!important}
-</style>
-<style>
-body.page-locked{display:block;background:#f4f7fb}
-body.page-locked>main{display:none}
-#accessGate{align-items:center;background:#132238;display:flex;inset:0;justify-content:center;padding:20px;position:fixed;z-index:2000}
-#accessGate[hidden]{display:none}
-#accessForm{background:#fff;border:1px solid #dbe3ec;border-radius:16px;box-shadow:0 14px 38px #0003;color:#182230;max-width:380px;padding:24px;width:100%}
-#accessForm h2{font-size:20px;margin:0 0 8px}
-#accessForm p{color:#64748b;margin:0 0 16px}
-#accessPassword{background:#fff;border:1px solid #dbe3ec;border-radius:9px;margin-top:7px;min-height:42px;padding:9px 11px;width:100%}
-#accessError{color:#a7382c;font-size:12px;min-height:20px;margin:8px 0}
-#accessSubmit{background:#2459a6;border:0;border-radius:9px;color:white;font-weight:700;min-height:42px;width:100%;cursor:pointer}
-#accessSubmit:disabled{opacity:.65;cursor:wait}
 </style><style>
 @media(max-width:700px){
   .map-panel{position:sticky;top:8px;z-index:20;align-self:start}
   #map{height:32dvh;min-height:190px;max-height:280px}
-}
-</style>
-<style>
-@media(max-width:700px){
   .timeline-panel{height:auto;min-height:0;max-height:none;display:block;overflow:visible}
   .timeline{flex:none;height:auto;max-height:none;min-height:0;overflow:visible;overscroll-behavior:auto;touch-action:auto;scrollbar-gutter:auto}
 }
 </style>
 </head>
-<body class="page-locked">
-
-<section id="accessGate" aria-labelledby="accessGateTitle">
-<form id="accessForm">
-<h2 id="accessGateTitle">小豆島一日遊行程</h2>
-<p>請輸入密碼以開啟 Module 07。</p>
-<label for="accessPassword">密碼</label>
-<input id="accessPassword" type="password" autocomplete="current-password" required>
-<p id="accessError" role="alert" aria-live="polite"></p>
-<button id="accessSubmit" type="submit">開啟行程</button>
-</form>
-</section>
+<body>
 
 <main><div class="hero"><div><div class="eyebrow">2026 年 11 月 14 日 · 香川縣小豆島</div><h1>小豆島一日遊快閃行程</h1><p class="lead"></p></div><div class="hero-date">星期六 · 自駕建議</div></div>
-<div class="layout"><section class="panel timeline-panel"><div class="timeline-heading"><h2 class="panel-title">一日時間軸</h2><button class="show-all-button" id="show-all-locations" type="button" title="在地圖顯示並框選當日全部行程地點">顯示全部地點</button></div><div class="timeline" id="timeline"></div></section><section class="panel map-panel"><div class="map-head"><h2>景點地圖</h2><p id="map-status">地圖標示所有港口與行程景點</p></div><div id="map" role="application" aria-label="小豆島行程景點地圖"></div><div class="map-caption">地圖 © OpenStreetMap 貢獻者 · 點選左側行程可聚焦地點</div></section></div>
+<div class="layout"><section class="panel timeline-panel"><div class="timeline-heading"><h2 class="panel-title">一日時間軸</h2><div class="timeline-actions"><label class="plan-choice"><span>行程方案</span><select id="plan-variant" aria-label="選擇小豆島一日遊方案"><option value="plan-a">Plan A</option><option value="plan-b">Plan B</option></select></label><button class="show-all-button" id="show-all-locations" type="button" title="在地圖顯示並框選當日全部行程地點">顯示全部地點</button></div></div><div class="timeline" id="timeline"></div></section><section class="panel map-panel"><div class="map-head"><h2>景點地圖</h2><p id="map-status">地圖標示所有港口與行程景點</p></div><div id="map" role="application" aria-label="小豆島行程景點地圖"></div><div class="map-caption">地圖 © OpenStreetMap 貢獻者 · 點選左側行程可聚焦地點</div></section></div>
 <section class="panel detail"><h2>天使之路潮汐窗口</h2><p>依據你提供的小豆島渡輪官方潮見表，2026 年 11 月 14 日預估可步行時段如下。出發前請再查看官方最新公告及現場指示。</p><div class="tide"><div><span>上午退潮時段</span><strong>04:21 – 10:21</strong></div><div><span>下午退潮時段</span><strong>17:46 – 23:46</strong></div></div></section>
 <section class="panel transport-panel"><h2>交通與行程提醒</h2><div class="transport-cards" id="transport-cards"></div></section>
 <div class="sources">座標參考：<a href="https://www.my-kagawa.jp/point/306" target="_blank" rel="noreferrer">香川縣觀光協會－天使之路</a>、<a href="https://www.my-kagawa.jp/point/316" target="_blank" rel="noreferrer">香川縣觀光協會－寒霞溪</a>、<a href="https://www.olive-pk.jp/" target="_blank" rel="noreferrer">小豆島橄欖公園官方網站</a>、<a href="https://www.town.tonosho.kagawa.jp/gyosei/soshiki/shoko/4/3/2604.html" target="_blank" rel="noreferrer">土庄町－屋形崎夕陽之丘</a>。地圖座標以各地圖服務所示地點為準。</div></main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-const ACCESS_CONFIG={salt:'b7008bcc6101f57f19127ff537c28bb1',verifier:'f7f854bd4059904faeaf2441f784bbc98fcb234457f962f7ca6a445e10c79b9b',iterations:310000};
-const ACCESS_SESSION_KEY='module-07-shikoku-unlocked-v1';
-const gate=document.getElementById('accessGate'),form=document.getElementById('accessForm'),password=document.getElementById('accessPassword'),errorBox=document.getElementById('accessError'),encoder=new TextEncoder();
-const fromHex=value=>Uint8Array.from(value.match(/.{2}/g)||[],byte=>parseInt(byte,16));
-function unlockModule(){sessionStorage.setItem(ACCESS_SESSION_KEY,'1');document.body.classList.remove('page-locked');gate.hidden=true;requestAnimationFrame(()=>map?.invalidateSize());}
-if(sessionStorage.getItem(ACCESS_SESSION_KEY)==='1'){document.body.classList.remove('page-locked');gate.hidden=true;}
-form.addEventListener('submit',async event=>{event.preventDefault();errorBox.textContent='';const submit=document.getElementById('accessSubmit');submit.disabled=true;try{if(!window.crypto?.subtle)throw Error('secure-crypto-unavailable');const key=await crypto.subtle.importKey('raw',encoder.encode(password.value),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:fromHex(ACCESS_CONFIG.salt),iterations:ACCESS_CONFIG.iterations,hash:'SHA-256'},key,256);const actual=new Uint8Array(bits),expected=fromHex(ACCESS_CONFIG.verifier),matches=actual.length===expected.length&&actual.every((byte,index)=>byte===expected[index]);if(matches){password.value='';unlockModule();}else{password.value='';errorBox.textContent='密碼不正確。';password.focus();}}catch{errorBox.textContent='請使用安全連線開啟此頁面。';}finally{submit.disabled=false;}});
 let places=[],stages=[],map=null,markers={};
 const timeline=document.querySelector("#timeline"),mapStatus=document.querySelector("#map-status");
 let routeLayer=null,endpointLayer=null,routeRequestId=0,activeGoalPlaceId=null,mapcodeTooltip=null;
@@ -122,6 +91,10 @@ function showDetail(placeId,stageIndex,content){const p=places.find(x=>x.id===pl
 function showLeg(stageIndex,summary){const requestId=++routeRequestId,stage=stages[stageIndex],previous=stages[stageIndex-1],to=places.find(p=>p.id===stage?.place);if(routeLayer&&map){map.removeLayer(routeLayer);routeLayer=null}if(endpointLayer&&map){map.removeLayer(endpointLayer);endpointLayer=null}Object.values(markers).forEach(marker=>{if(map&&!map.hasLayer(marker))map.addLayer(marker);marker.setOpacity(.55)});if(!previous){summary.querySelector("p").textContent="此為行程起點。地圖已聚焦起點位置。";if(map&&to){map.setView(to.coords,14,{animate:true});if(markers[to.id])map.removeLayer(markers[to.id]);const rootEndpoint=L.circleMarker(to.coords,{radius:9,color:"#fff",weight:3,fillColor:"#dc2626",fillOpacity:1}).bindPopup("<strong>"+to.name+"</strong><br>車用 MapCode：<strong>"+(to.mapcode||"未提供")+"</strong>").bindTooltip(placeNumberLabel(to.id)+" 目前站點："+to.name,{permanent:true,direction:"top",offset:[0,-8],className:"route-endpoint-label"}).addTo(endpointLayer=L.layerGroup().addTo(map));updateMapcodeLabels()}return}const from=places.find(p=>p.id===previous.place);if(!from||!to)return;if(stage.mode==="ferry"){summary.querySelector("p").textContent="一般渡輪航段：船程時間與票價依實際班次公告確認；此段非自駕路線。";if(map){routeLayer=L.polyline([from.coords,to.coords],{color:"#0f766e",weight:4,dashArray:"8 8",opacity:.8}).addTo(map);markRouteEndpoints(from,to);map.fitBounds(routeLayer.getBounds().pad(.25),{maxZoom:12})}return}summary.querySelector("p").textContent="正在計算「"+from.name+" → "+to.name+"」的估計車程…";if(!map)return;markRouteEndpoints(from,to);const pair=from.coords[1]+","+from.coords[0]+";"+to.coords[1]+","+to.coords[0],url="https://router.project-osrm.org/route/v1/driving/"+pair+"?overview=full&geometries=geojson&steps=false";fetch(url).then(r=>{if(!r.ok)throw new Error("路線服務暫時無法使用");return r.json()}).then(data=>{if(requestId!==routeRequestId)return;if(data.code!=="Ok"||!data.routes?.length)throw new Error("找不到可用的道路路線");const route=data.routes[0];routeLayer=L.geoJSON(route.geometry,{style:{color:"#2459a6",weight:6,opacity:.9}}).addTo(map);map.fitBounds(routeLayer.getBounds().pad(.12),{maxZoom:15});Object.values(markers).forEach(m=>m.setOpacity(.35));const minutes=Math.max(1,Math.round(route.duration/60)),distance=(route.distance/1000).toFixed(1);summary.querySelector("p").textContent="「"+from.name+" → "+to.name+"」估計車程約 "+minutes+" 分鐘（約 "+distance+" 公里）。估算依道路資料，未含即時交通、停車與道路狀況。"}).catch(error=>{if(requestId!==routeRequestId)return;summary.querySelector("p").textContent=error.message+"；可改用地圖連結查詢。";map.fitBounds(L.latLngBounds(from.coords,to.coords).pad(.25),{maxZoom:13})})}
 function renderPlan(){timeline.replaceChildren();const nodes=[];stages.forEach((s,i)=>{const node=document.createElement("details");node.className="timeline-node";const summary=document.createElement("summary");const time=document.createElement("span");time.className="node-time";time.textContent=s.time;const title=document.createElement("span");title.className="node-title";title.textContent=(i+1)+". "+s.title;summary.append(time,title);const content=document.createElement("div");content.className="node-content";const note=document.createElement("p");note.textContent=s.text;const tag=document.createElement("p");tag.className="node-kind";tag.textContent=s.tag;content.append(note,tag);node.append(summary,content);node.addEventListener("toggle",()=>{if(node.open){nodes.forEach(other=>{if(other!==node)other.open=false});showDetail(s.place,i,content)}});timeline.append(node);nodes.push(node)});if(window.L){if(!map){map=L.map("map",{scrollWheelZoom:false}).setView([34.493,134.245],11);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);map.on("zoomend moveend",updateMapcodeLabels)}Object.values(markers).forEach(m=>map.removeLayer(m));markers={};places.forEach(p=>{const numberedIcon=L.divIcon({className:"numbered-map-pin",html:"<span>"+placeNumberLabel(p.id)+"</span>",iconSize:[36,28],iconAnchor:[18,14],popupAnchor:[0,-13]});const m=L.marker(p.coords,{icon:numberedIcon}).addTo(map).bindPopup("<strong>"+p.name+"</strong><br>"+p.kind);m.setOpacity(.55);markers[p.id]=m;m.on("click",()=>{const i=stages.findIndex(s=>s.place===p.id),index=Math.max(0,i);nodes[index].open=true;showDetail(p.id,index,nodes[index].querySelector(".node-content"))})});map.fitBounds(places.map(p=>p.coords),{padding:[24,24]});updateMapcodeLabels();setTimeout(()=>map.invalidateSize(),100)}else{document.querySelector("#map").innerHTML='<div style="padding:30px;color:#475569">地圖圖磚目前無法載入。請使用各節點中的 OpenStreetMap 或 Google 地圖連結查看座標。</div>'}}
 document.querySelector("#show-all-locations").addEventListener("click",showAllLocations);
-fetch("./2026-11-shikoku-shodoshima_v1.0.4_plan.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("無法載入旅行計畫資料");return r.json()}).then(plan=>{places=plan.places.map(p=>{const coords=[p.latitude,p.longitude];return{...p,coords,map:"https://www.openstreetmap.org/?mlat="+p.latitude+"&mlon="+p.longitude+"#map=15/"+p.latitude+"/"+p.longitude}});stages=plan.stages.map((s,i)=>({...s,place:s.place_id,mode:i===0?"start":i===1?"ferry":"driving"}));document.querySelector(".eyebrow").textContent=plan.date+" · "+plan.destination;document.querySelector("h1").textContent=plan.plan_name;document.querySelector(".hero-date").textContent=plan.weekday+" · 自駕建議";const cardBox=document.querySelector("#transport-cards");cardBox.replaceChildren(...plan.transport_cards.map(card=>{const article=document.createElement("article"),heading=document.createElement("h3"),body=document.createElement("p");article.className="transport-card";heading.textContent=card.title;body.textContent=card.text;article.append(heading,body);return article}));const tideBox=document.querySelector(".tide");tideBox.replaceChildren(...plan.tide_windows.map(t=>{const item=document.createElement("div"),label=document.createElement("span"),time=document.createElement("strong");label.textContent=t.label;time.textContent=t.start+" – "+t.end;item.append(label,time);return item}));document.querySelector(".tide").previousElementSibling.textContent=plan.tide_note;const sources=document.querySelector(".sources");sources.replaceChildren(document.createTextNode("座標與景點資料參考："),...plan.sources.flatMap((s,i)=>{const a=document.createElement("a");a.href=s.url;a.target="_blank";a.rel="noreferrer";a.textContent=s.label;const sep=document.createTextNode(i===plan.sources.length-1?"。":"、");return[a,sep]}));renderPlan()}).catch(error=>{timeline.textContent=error.message;document.querySelector("#map").textContent="請確認此 HTML 與旅行計畫 JSON 位於同一個資料夾。"});
+const planChoice=document.querySelector("#plan-variant"),planFiles={"plan-a":"2026-11-shikoku-shodoshima_v1.0.7_plan.json","plan-b":"2026-11-shikoku-shodoshima-plan-b_v1.0.1_plan.json"};function loadPlan(){fetch("../../plans/"+planFiles[planChoice.value],{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("無法載入旅行計畫資料");return r.json()}).then(plan=>{places=plan.places.map(p=>{const coords=[p.latitude,p.longitude];return{...p,coords,map:"https://www.openstreetmap.org/?mlat="+p.latitude+"&mlon="+p.longitude+"#map=15/"+p.latitude+"/"+p.longitude}});stages=plan.stages.map((s,i)=>({...s,place:s.place_id,mode:s.mode||(i===0?"start":i===1?"ferry":"driving")}));document.querySelector(".eyebrow").textContent=plan.date+" · "+plan.destination;document.querySelector("h1").textContent=plan.plan_name;document.querySelector(".hero-date").textContent=plan.weekday+" · 自駕建議";const cardBox=document.querySelector("#transport-cards");cardBox.replaceChildren(...plan.transport_cards.map(card=>{const article=document.createElement("article"),heading=document.createElement("h3"),body=document.createElement("p");article.className="transport-card";heading.textContent=card.title;body.textContent=card.text;article.append(heading,body);return article}));const tideBox=document.querySelector(".tide");tideBox.replaceChildren(...plan.tide_windows.map(t=>{const item=document.createElement("div"),label=document.createElement("span"),time=document.createElement("strong");label.textContent=t.label;time.textContent=t.start+" – "+t.end;item.append(label,time);return item}));document.querySelector(".tide").previousElementSibling.textContent=plan.tide_note;const sources=document.querySelector(".sources");sources.replaceChildren(document.createTextNode("座標與景點資料參考："),...plan.sources.flatMap((s,i)=>{const a=document.createElement("a");a.href=s.url;a.target="_blank";a.rel="noreferrer";a.textContent=s.label;const sep=document.createTextNode(i===plan.sources.length-1?"。":"、");return[a,sep]}));renderPlan()}).catch(error=>{timeline.textContent=error.message;document.querySelector("#map").textContent="請確認此 HTML 與旅行計畫 JSON 位於同一個資料夾。"});}planChoice.addEventListener("change",loadPlan);loadPlan();
 
 </script></body></html>
+
+
+
+

@@ -13,7 +13,7 @@
   };
   document.addEventListener("travel:day-loaded",event=>{
     const date=event.detail&&event.detail.date;if(!date)return;
-    fetch("/travel-data/travel_catalog.json",{cache:"no-store"}).then(response=>{if(!response.ok)throw new Error("catalog unavailable");return response.json()}).then(catalog=>{
+    fetch("/07_Shikoku_Travel_Plan_Deck/data/travel_catalog.json",{cache:"no-store"}).then(response=>{if(!response.ok)throw new Error("catalog unavailable");return response.json()}).then(catalog=>{
       const trip=(catalog.plans||[]).find(plan=>(plan.days||[]).some(day=>day.date===date));
       if(!trip)return;
       const days=trip.days.slice().sort((a,b)=>a.date.localeCompare(b.date));
