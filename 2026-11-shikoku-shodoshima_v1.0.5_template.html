@@ -59,7 +59,15 @@
 <style>
 @media(max-width:700px){.map-panel{top:6px}#map{height:38vh;height:38dvh;min-height:200px;max-height:340px}.timeline-panel{height:min(48vh,480px);height:min(48dvh,480px);min-height:260px;max-height:calc(100vh - 280px);max-height:calc(100dvh - 280px);overflow:hidden}.timeline{flex:1 1 0;height:auto;max-height:none;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;touch-action:pan-y}}
 .node-mapcode[hidden]{display:none!important}
-</style></head>
+</style><style>
+@media(max-width:700px){
+  .map-panel{position:sticky;top:8px;z-index:20;align-self:start}
+  #map{height:32dvh;min-height:190px;max-height:280px}
+  .timeline-panel{height:auto;min-height:0;max-height:none;display:block;overflow:visible}
+  .timeline{flex:none;height:auto;max-height:none;min-height:0;overflow:visible;overscroll-behavior:auto;touch-action:auto;scrollbar-gutter:auto}
+}
+</style>
+</head>
 <body>
 
 <main><div class="hero"><div><div class="eyebrow">2026 年 11 月 14 日 · 香川縣小豆島</div><h1>小豆島一日遊快閃行程</h1><p class="lead"></p></div><div class="hero-date">星期六 · 自駕建議</div></div>

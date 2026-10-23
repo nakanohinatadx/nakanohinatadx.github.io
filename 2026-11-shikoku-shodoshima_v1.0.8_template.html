@@ -67,6 +67,14 @@
 .timeline-actions .plan-choice select{width:104px;max-width:104px;padding:8px 24px 8px 10px;font:600 12px/1.2 system-ui,"Segoe UI",Arial,sans-serif}
 .timeline-actions .plan-choice select:focus-visible{outline:3px solid #78a9f5;outline-offset:2px}
 </style><style>.day-navigation{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,1.35fr) minmax(0,1fr);align-items:stretch;gap:12px;margin:-7px 0 20px}.day-nav-item,.day-nav-current{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 14px;text-decoration:none}.day-nav-item:hover{border-color:#8eacd0;background:#f7faff}.day-nav-item:last-child{text-align:right}.day-nav-direction{color:var(--blue);font-size:12px;font-weight:750}.day-nav-title{overflow:hidden;color:var(--ink);font-size:13px;text-overflow:ellipsis;white-space:nowrap}.day-nav-current{align-items:center;text-align:center;background:#eaf2fd;border-color:#c6d9ee}.day-nav-current-label{font-weight:750;color:#173e70;font-size:13px}.day-nav-current-date{font-size:12px;color:var(--muted)}.day-nav-item.is-disabled{background:#f7f9fc;color:#94a3b8}.day-nav-item.is-disabled .day-nav-direction,.day-nav-item.is-disabled .day-nav-title{color:#94a3b8}@media(max-width:700px){.day-navigation{grid-template-columns:1fr 1fr}.day-nav-current{grid-column:1/-1;grid-row:1}.day-nav-item{padding:9px 11px}.day-nav-title{font-size:12px}}</style>
+<style>
+@media(max-width:700px){
+  .map-panel{position:sticky;top:8px;z-index:20;align-self:start}
+  #map{height:32dvh;min-height:190px;max-height:280px}
+  .timeline-panel{height:auto;min-height:0;max-height:none;display:block;overflow:visible}
+  .timeline{flex:none;height:auto;max-height:none;min-height:0;overflow:visible;overscroll-behavior:auto;touch-action:auto;scrollbar-gutter:auto}
+}
+</style>
 </head>
 <body><script>try{if(localStorage.getItem("personal-portal-sidebar-hidden")==="true")document.body.classList.add("portal-sidebar-collapsed")}catch(e){}</script>
 <aside><div class="brand">Personal Portal</div><div class="nav-label">Portal</div><a class="nav-item" href="/">Portal Overview</a><div class="nav-label" style="margin-top:20px">Workflows</div><a class="nav-item" href="/01_E_Download">01_E_Download</a><a class="nav-item" href="/viewer">02_E_Viewer</a><a class="nav-item" href="/financial/config">03-1 Configuration</a><a class="nav-item" href="/financial/viewer">03-2 Viewer</a><a class="nav-item" href="/map">04 Map Explorer</a><a class="nav-item" href="/travel" aria-current="page">05_Travel Plans</a></aside>
