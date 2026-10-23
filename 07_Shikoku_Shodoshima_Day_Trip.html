@@ -68,7 +68,19 @@ body.page-locked>main{display:none}
 #accessError{color:#a7382c;font-size:12px;min-height:20px;margin:8px 0}
 #accessSubmit{background:#2459a6;border:0;border-radius:9px;color:white;font-weight:700;min-height:42px;width:100%;cursor:pointer}
 #accessSubmit:disabled{opacity:.65;cursor:wait}
-</style></head>
+</style><style>
+@media(max-width:700px){
+  .map-panel{position:sticky;top:8px;z-index:20;align-self:start}
+  #map{height:32dvh;min-height:190px;max-height:280px}
+}
+</style>
+<style>
+@media(max-width:700px){
+  .timeline-panel{height:auto;min-height:0;max-height:none;display:block;overflow:visible}
+  .timeline{flex:none;height:auto;max-height:none;min-height:0;overflow:visible;overscroll-behavior:auto;touch-action:auto;scrollbar-gutter:auto}
+}
+</style>
+</head>
 <body class="page-locked">
 
 <section id="accessGate" aria-labelledby="accessGateTitle">
